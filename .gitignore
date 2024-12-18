@@ -1,0 +1,7 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+transactions_data.csv
+train_fraud_labels.csv
+train_fraud_labels.json
