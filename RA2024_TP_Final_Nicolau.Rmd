@@ -313,6 +313,7 @@ print(str(merged_data, list.len = Inf))
 
 ```
 
+
 ```{r remove_redundant_columns, eval = FALSE}
 # Eliminar columnas redundantes
 merged_data <- merged_data %>%
@@ -413,9 +414,9 @@ Para realizar un análisis exploratorio de los datos, se cargan los datos comple
 
 library(ggplot2)
 library(dplyr)
-library(ggplot2)
 library(readr)
 library(skimr)
+library(knitr)
 
 # Leer los datos completos
 transactions_data <- read_csv("transactions_data_clean.csv")
@@ -423,7 +424,17 @@ transactions_data <- read_csv("transactions_data_clean.csv")
 # Resumen de los datos con skimr solo variables numéricas
 transactions_data_num <- transactions_data %>%
   select_if(is.numeric)
-skimr::skim(transactions_data_num)
+
+# Generar resumen con skimr 
+resumen <- skim(transactions_data_num) 
+
+# Filtrar columnas relevantes
+resumen <- resumen %>%
+  select(skim_variable, numeric.mean, numeric.sd, numeric.p0, numeric.p25, 
+         numeric.p50, numeric.p75, numeric.p100)
+
+# Mostrar tabla formateada
+kable(resumen, format = "markdown")
 
 ```
 
@@ -446,26 +457,36 @@ missing_values <- missing_values %>%
 
 # Crear un gráfico de barras con los valores faltantes que no sean cero
 ggplot(missing_values, aes(x = reorder(key, value), y = value)) +
-  geom_bar(stat = "identity", fill = "skyblue", color = "darkblue") +
+  geom_bar(stat = "identity", fill = "skyblue", color = "darkblue", width = 0.5) + # Reducir ancho de las barras
   coord_flip() +
   labs(title = "Valores Faltantes por Columna",
        x = "Columna",
-       y = "Cantidad de Valores Faltantes")+
-  theme_minimal()
+       y = "Cantidad de Valores Faltantes") +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 5),   # Ajustar tamaño de texto en eje Y
+    plot.title = element_text(hjust = 0.5)  # Centrar el título
+  )
+
+
 ```
 
 Se detectan valores faltantes en las columnas relacionadas con el estado y la ciudad del comercio. Estos valores faltantes podrían deberse a problemas en la geolocalización de las transacciones, la falta de información en los datos originales o que simplemente las transacciones no se hayan hecho dentro de los Estados Unidos.
 
 Se toma una muestra al azar de las transacciones con valores faltantes en la columna `merchant_state` para analizar si hay algún patrón o razón detrás de estos valores faltantes.
 
-```{r sample_missing_values}
+```{r sample_missing_values, echo=FALSE}
 
 # Seleccionar las transacciones con valores faltantes en merchant_state
 missing_state_data <- transactions_data %>%
   filter(is.na(merchant_state))
 
+# Seleccionar solo columnas id, date, amount, merchant_id, merchant_city
+missing_state_data <- missing_state_data %>%
+  select(id, date, amount, merchant_id, merchant_city)
+
 # Mostrar una muestra de las transacciones con valores faltantes en merchant_state
-print(head(missing_state_data))
+kable(head(missing_state_data))
 
 ```
 Tiene sentido la falta de información en las columnas de estado y ciudad porque se trata de transacciones ONLINE. Para verificar esta hipótesis se analiza la distribución de los valores de la columna `merchant_city` para las transacciones con valores faltantes en `merchant_state`.
@@ -477,7 +498,7 @@ unique_cities <- missing_state_data %>%
   select(merchant_city) %>%
   distinct()
 
-unique_cities
+kable(unique_cities)
 
 ```
 
@@ -489,8 +510,12 @@ Se realiza un análisis similar para los valores faltantes en la columna zip
 missing_zip_data <- transactions_data %>%
   filter(is.na(zip))
 
+# Seleccionar solo columnas id, date, amount, merchant_id, merchant_city, merchant_state y zip
+missing_zip_data <- missing_zip_data %>%
+  select(id, date, amount, merchant_id, merchant_city, merchant_state, zip)
+
 # Mostrar una muestra de las transacciones con valores faltantes en zip
-print(head(missing_zip_data))
+kable(head(missing_zip_data))
 
 ```
 En este caso el faltante de información en la columna `zip` muestra transacciones que no se realizaron en USA. En estos casos en la columna `merchant_state` está el nombre del país donde se realizó la transaccion. Se lista todos los países donde se realizaron transacciones.
@@ -502,7 +527,7 @@ unique_countries <- missing_zip_data %>%
   select(merchant_state) %>%
   distinct()
 
-paste("Paises encontrados: ",length(unique_countries$merchant_state))
+kable(paste("Paises encontrados: ",length(unique_countries$merchant_state)))
 
 ```
 
@@ -523,7 +548,7 @@ fraud_proportion <- transactions_data %>%
 # Agregar una columna con la proporción de transacciones fraudulentas con etiqueta
 fraud_proportion$proportion <- fraud_proportion$n / sum(fraud_proportion$n)
 
-fraud_proportion
+kable(fraud_proportion)
 
 ```
 
@@ -533,7 +558,7 @@ Existen muy pocas transacciones fraudulentas en el dataset, lo que puede dificul
 
 Se analiza la distribución de los montos de transacciones para identificar posibles patrones o anomalías.
 
-```{r plot_amount_distribution, echo=FALSE}
+```{r plot_amount_distribution, echo=FALSE, warning=FALSE}
 
 # Generar una columna de monto en logaritmo
 transactions_data$log_amount <- log(transactions_data$amount)
@@ -655,9 +680,11 @@ Por ser un dataset con muchas variables, se utiliza una matriz de correlación p
 
 ```{r plot_correlation_st}
 
-# Seleccionar las columnas numéricas de los datos de transacciones y los que 
-# comienzan con st_ además de las 7 primeras columnas del dataset 
-# sin prefijo (las de originales)
+library(corrplot)
+
+# Seleccionar las columnas numéricas de los datos de transacciones y la primera
+# mitad de los que comienzan con st_ además de las 7 primeras columnas 
+# del dataset sin prefijo (las de originales)
 
 demo_data_st <- transactions_data %>%
   select(1:7, starts_with("st_"))
@@ -674,17 +701,53 @@ demo_data_st <- demo_data_st %>%
 # Calcular la matriz de correlación
 correlation_matrix_st <- cor(demo_data_st, use = "pairwise.complete.obs")
 
-correlation_matrix_st
+# Número de variables
+n_vars <- ncol(correlation_matrix_st)
+half <- ceiling(n_vars / 2)
+
+# Parte 1: Primera mitad (diagonal superior)
+correlation_matrix_part1 <- correlation_matrix_st[1:half, 1:half]
+corrplot(
+  correlation_matrix_part1,
+  method = "color",
+  type = "upper",
+  addCoef.col = "black",
+  number.cex = 0.5,
+  tl.cex = 0.7,
+  tl.col = "black",
+  col = colorRampPalette(c("salmon", "white", "skyblue"))(10),
+  title = "Matriz de Correlación - Parte 1 (Cuadrante Superior)"
+)
+
+# Parte 3: Cruce entre la primera y segunda mitad
+correlation_matrix_cross <- correlation_matrix_st[1:half, (half + 1):n_vars]
+corrplot(
+  correlation_matrix_cross,
+  method = "color",
+  type = "full",  # Mostrar todas las correlaciones en esta sección
+  addCoef.col = "black",
+  number.cex = 0.5,
+  tl.cex = 0.7,
+  tl.col = "black",
+  col = colorRampPalette(c("salmon", "white", "skyblue"))(10),
+  title = "Matriz de Correlación - Parte 3 (Cruce)"
+)
+
+# Parte 2: Segunda mitad (diagonal superior)
+correlation_matrix_part2 <- correlation_matrix_st[(half + 1):n_vars, (half + 1):n_vars]
+corrplot(
+  correlation_matrix_part2,
+  method = "color",
+  type = "upper",
+  addCoef.col = "black",
+  number.cex = 0.5,
+  tl.cex = 0.7,
+  tl.col = "black",
+  col = colorRampPalette(c("salmon", "white", "skyblue"))(10),
+  title = "Matriz de Correlación - Parte 2 (Cuadrante inferior)"
+)
 
 ```
-
-
-```{r plot_correlation_matrix_st}
-# Generar un gráfico de la matriz de correlación
-corrplot::corrplot(correlation_matrix_st, method = "color", type = "upper", tl.cex = 0.7)
-
-```
-
 
 ```{r plot_correlation_st_age}
 
@@ -702,13 +765,17 @@ demo_data_st_age <- demo_data_st_age %>%
 # Calcular la matriz de correlación
 correlation_matrix_st_age <- cor(demo_data_st_age, use = "pairwise.complete.obs")
 
-correlation_matrix_st_age
-```
-
-
-```{r plot_correlation_matrix_st_age}
-# Generar un gráfico de la matriz de correlación
-corrplot::corrplot(correlation_matrix_st_age, method = "color", type = "upper", tl.cex = 0.7)
+corrplot(
+  correlation_matrix_st_age,
+  method = "color",
+  type = "upper",
+  addCoef.col = "black",
+  number.cex = 0.5,
+  tl.cex = 0.7,
+  tl.col = "black",
+  col = colorRampPalette(c("salmon", "white", "skyblue"))(10),
+  title = "Matriz de Correlación - Pirámide Demográfica"
+)
 
 ```
 
@@ -733,12 +800,17 @@ demo_data_ud <- demo_data_ud %>%
 # Calcular la matriz de correlación
 correlation_matrix_ud <- cor(demo_data_ud, use = "pairwise.complete.obs")
 
-correlation_matrix_ud
-```
-
-```{r plot_correlation_matrix_ud}  
-# Generar un gráfico de la matriz de correlación
-corrplot::corrplot(correlation_matrix_ud, method = "color", type = "upper", tl.cex = 0.7)
+corrplot(
+  correlation_matrix_ud,
+  method = "color",
+  type = "upper",
+  addCoef.col = "black",
+  number.cex = 0.5,
+  tl.cex = 0.7,
+  tl.col = "black",
+  col = colorRampPalette(c("salmon", "white", "skyblue"))(200),
+  title = "Matriz de Correlación - Parte 1 (Cuadrante Superior)"
+)
 ```
 
 Pueden observarse correlaciones entre las variables financieras de los usuarios, lo que podría indicar relaciones entre ellas. Por ejemplo, la deuda total y el ingreso per cápita podrían estar correlacionados, lo que podría indicar que los usuarios con mayores ingresos tienen una deuda total más alta. También se observa una correlación negativa entre la edad y el número de tarjetas, lo que podría indicar que los usuarios más jóvenes tienen más tarjetas.  
@@ -771,12 +843,26 @@ summary(model_income)
 # Diagrama de dispersión
 # con recta de regresión en color rojo
 ggplot(transactions_data, aes(x = ud_per_capita_income, y = amount)) +
-  geom_point(color = "darkgrey") +
-  geom_smooth(method = "lm", color = "red") +
-  labs(title = "Ingreso Per Cápita vs Monto de la Transacción",
-       x = "Ingreso Per Cápita",
-       y = "Monto de la Transacción") + 
-  theme_minimal()
+  geom_point(color = "darkgrey", alpha = 0.6, size = 2) +  # Puntos con transparencia y tamaño ajustado
+  geom_smooth(
+    method = "lm", 
+    color = "red", 
+    fill = "lightpink",    # Color de la banda del intervalo de confianza
+    alpha = 0.3,           # Transparencia de la banda
+    se = TRUE              # Mostrar intervalo de confianza
+  ) +
+  labs(
+    title = "Ingreso Per Cápita vs Monto de la Transacción",
+    x = "Ingreso Per Cápita",
+    y = "Monto de la Transacción"
+  ) +
+  theme_minimal(base_size = 14) +  # Tema minimalista con texto más legible
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),  # Título centrado y en negrita
+    axis.title = element_text(size = 14),                             # Tamaño de etiquetas de ejes
+    axis.text = element_text(size = 12)                              # Tamaño de texto en los ejes
+  )
+
 ```
 
 
@@ -794,10 +880,32 @@ summary(model_debt)
 # Diagrama de dispersión
 # con recta de regresión en color rojo
 ggplot(transactions_data, aes(x = ud_total_debt, y = amount)) +
-  geom_point(color = "darkgrey") +
-  geom_smooth(method = "lm", color = "red") +
-  labs(title = "Deuda Total vs Monto de la Transacción",
-       x = "Deuda Total",
-       y = "Monto de la Transacción") +
-  theme_minimal()
+  geom_point(
+    color = "darkgrey",       # Cambiar el color de los puntos para mayor contraste
+    alpha = 0.6,              # Añadir transparencia para evitar saturación visual
+    size = 3                  # Ajustar el tamaño de los puntos
+  ) +
+  geom_smooth(
+    method = "lm",
+    color = "red",            # Color de la recta de regresión
+    fill = "pink",            # Color de la banda del intervalo de confianza
+    alpha = 0.3,              # Transparencia de la banda
+    se = TRUE                 # Mostrar intervalo de confianza
+  ) +
+  labs(
+    title = "Deuda Total vs Monto de la Transacción",
+    x = "Deuda Total",
+    y = "Monto de la Transacción"
+  ) +
+  theme_minimal(base_size = 15) +  # Tamaño base más grande para mejor legibilidad
+  theme(
+    plot.title = element_text(
+      hjust = 0.5,            # Centrar el título
+      size = 18,              # Tamaño más grande para el título
+      face = "bold"           # Negrita en el título
+    ),
+    axis.title = element_text(size = 14),  # Tamaño de etiquetas de los ejes
+    axis.text = element_text(size = 12)    # Tamaño del texto de los ejes
+  )
+
 ```
