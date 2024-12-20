@@ -678,7 +678,7 @@ Se analiza la correlación entre las variables numéricas del dataset para ident
 
 Por ser un dataset con muchas variables, se utiliza una matriz de correlación para visualizar las relaciones entre las variables numéricas. En primer lugar sólo para las variables numéricas de datos de demograficos (transacciones y georreferencias) y luego para datos financieros de usuarios (transacciones y usuarios)
 
-```{r plot_correlation_st}
+```{r plot_correlation_st_upper_quadrant}
 
 library(corrplot)
 
@@ -719,6 +719,10 @@ corrplot(
   title = "Matriz de Correlación - Parte 1 (Cuadrante Superior)"
 )
 
+```
+
+```{r plot_correlation_st_cross}
+
 # Parte 3: Cruce entre la primera y segunda mitad
 correlation_matrix_cross <- correlation_matrix_st[1:half, (half + 1):n_vars]
 corrplot(
@@ -732,6 +736,11 @@ corrplot(
   col = colorRampPalette(c("salmon", "white", "skyblue"))(10),
   title = "Matriz de Correlación - Parte 3 (Cruce)"
 )
+
+```
+
+
+```{r plot_correlation_st_lower_quadrant}
 
 # Parte 2: Segunda mitad (diagonal superior)
 correlation_matrix_part2 <- correlation_matrix_st[(half + 1):n_vars, (half + 1):n_vars]
@@ -748,6 +757,7 @@ corrplot(
 )
 
 ```
+
 
 ```{r plot_correlation_st_age}
 
@@ -818,6 +828,8 @@ Pueden observarse correlaciones entre las variables financieras de los usuarios,
 # Analisis de Regresión
 
 Para analizar la relación entre las variables financieras de los usuarios y las transacciones, se realiza un análisis de regresión lineal. Se seleccionan las variables financieras de los usuarios como variables independientes.
+
+## Regresión Lineal Univariada
 
 Las variables financieras de los usuarios seleccionadas son:
 - `ud_per_capita_income`: Ingreso per cápita del usuario.
@@ -909,3 +921,84 @@ ggplot(transactions_data, aes(x = ud_total_debt, y = amount)) +
   )
 
 ```
+
+
+```{r linear_regression_univariate_credit_limit}
+
+# Modelo 3: Límite de crédito del usuario
+# vs Monto de la transacción
+model_credit_limit <- lm(amount ~ cd_credit_limit, data = transactions_data)
+
+summary(model_credit_limit)
+
+```
+
+```{r linear_regression_univariate_credit_limit_plot}
+
+# Diagrama de dispersión
+# con recta de regresión en color rojo
+ggplot(transactions_data, aes(x = cd_credit_limit, y = amount)) +
+  geom_point(
+    color = "darkgrey",       # Cambiar el color de los puntos para mayor contraste
+    alpha = 0.6,              # Añadir transparencia para evitar saturación visual
+    size = 3                  # Ajustar el tamaño de los puntos
+  ) +
+  geom_smooth(
+    method = "lm",
+    color = "red",            # Color de la recta de regresión
+    fill = "pink",            # Color de la banda del intervalo de confianza
+    alpha = 0.3,              # Transparencia de la banda
+    se = TRUE                 # Mostrar intervalo de confianza
+  ) +
+  labs(
+    title = "Límite de Crédito vs Monto de la Transacción",
+    x = "Límite de Crédito",
+    y = "Monto de la Transacción"
+  ) +
+  theme_minimal(base_size = 15) +  # Tamaño base más grande para mejor legibilidad
+  theme(
+    plot.title = element_text(
+      hjust = 0.5,            # Centrar el título
+      size = 18,              # Tamaño más grande para el título
+      face = "bold"           # Negrita en el título
+    ),
+    axis.title = element_text(size = 14),  # Tamaño de etiquetas de los ejes
+    axis.text = element_text(size = 12)    # Tamaño del texto de los ejes
+  )
+
+```
+
+## Regresión Lineal Multivariada
+
+Se realiza un análisis de regresión lineal multivariada para predecir el monto de la transacción a partir de variables financieras seleccionadas de los usuarios:
+
+- `ud_per_capita_income`: Ingreso per cápita del usuario.
+- `ud_total_debt`: Deuda total del usuario.
+- `cd_credit_limit`: Límite de crédito de la tarjeta del usuario.
+
+Se intenta provar si estas variables financieras conbinadas pueden predecir mejor el monto de la transacción que las variables financieras por separado.
+
+```{r linear_regression_multivariate}
+
+# Modelo multivariado
+model_multivariate <- lm(amount ~ ud_per_capita_income + ud_total_debt + cd_credit_limit, data = transactions_data)
+
+summary(model_multivariate)
+
+```
+Los valores residuales (errores entre los valores observados y los predichos) tienen un rango amplio (desde -569.05 hasta 2921.88) lo que sugiere cierta variabilidad no explicada por el modelo.
+
+Asimismo los coeficientes para los predictores muestran que:
+- `ud_per_capita_income` (0.0006720): Un aumento de 1 unidad en el ingreso per cápita se asocia con un aumento promedio de 0.000672 en amount, manteniendo constantes las otras variables. Es altamente significativo (p<0.001).
+- `ud_total_debt` (-0.000008233): Un aumento de 1 unidad en la deuda total se asocia con una disminución promedio de 0.000008233 en amount. Sin embargo, su significancia estadística es baja (p=0.081), por lo que su efecto puede no ser confiable.
+- `cd_credit_limit` (0.0000781): Un aumento de 1 unidad en el límite de crédito se asocia con un aumento promedio de 0.0000781 en amount. Este coeficiente es significativo (p=0.00072).
+
+Para validar el modelo de regresión lineal multivariada, se analiza la distribución de los residuos (errores entre los valores observados y los predichos) y se calcula el coeficiente de determinación (R²) para evaluar la bondad del ajuste del modelo.
+
+- R-cuadrado múltiple (0.01075): El modelo explica solo el 1.075% de la variabilidad total en amount, esto es el modelo tiene un ajuste muy bajo.
+- R-cuadrado ajustado (0.01073): Similar al R-cuadrado, pero ajustado por el número de predictores. Confirma un bajo poder explicativo.
+- F-statistic (481.8, p < 0.00000000000000022): Prueba global de si al menos uno de los predictores tiene un efecto significativo. Aunque el p-valor es extremadamente bajo, el impacto práctico de los predictores parece limitado debido al bajo R².
+
+El R-cuadrado mide qué proporción de la variabilidad total de la variable dependiente (en este caso, `amount`) es explicada por las variables independientes del modelo (`ud_per_capita_income`, `ud_total_debt`, `cd_credit_limit`).
+
+En este modelo, el R-cuadrado múltiple es de 0.01075, lo que significa que solo el 1.075% de la variabilidad en `amount` puede ser explicada por las variables financieras de los usuarios incluidas en el modelo. Por lo tanto, el 98.925% restante de la variabilidad en `amount` se debe a otros factores que no están incluidos en este modelo.
