@@ -33,384 +33,73 @@ options(scipen=999)
 
 # Preprocesamiento de Datos
 
-Dado que no todos los componentes del dataset están en formato tabular se requiere la conversión para poder combinar los datos de las diferentes partes. Antes proceder con la combinación se pasa de formato JSON a CSV los archivos `train_fraud_labels.json` y `mcc_codes.json`.
+El dataset de exoplanetas detectados por la misión Kepler contiene información sobre 28.217 exoplanetas (entre confirmados y propuetos) y sus características. El objetivo de este trabajo es preprocesar los datos para realizar un análisis exploratorio y utilizar regresión linea y logística para la extracción de paramétros faltantes de los exoplanetas y para predecir la habitabilidad de los mismos.
 
-El archivo resultante `train_fraud_labels.csv` servirá para la combinación de los datos de fraude con el dataset principal, mientras que `mcc_codes.csv` servirá para la conversión de los códigos de categoría de comercio a texto.
+Se cargarán los datos, se filtrarán las filas de los explonetas confirmados, las columnas relevantes, se eliminarán los valores faltantes y se realizará un análisis exploratorio de los datos.
 
-El código de conversión de JSON a CSV está escrito en Python porque maneja mejor la lectura de archivos grandes. Se sabe que el archivo JSON tienen una estructura simple con un solo nivel de anidamiento que dificulta la lectura con R por línea como se muesrta a continuación:
+## Carga de Datos
 
-``` json
-{"target": {"10649266": "No", "23410063": "No", "9316588": "No", "12478022": "No", "9558530": "No", "12532830": "No", "19526714": "No", "9906964": "No", "13224888": "No", "13749094": "No", "12303776": "No", "19480376": "No", "11716050": "No", "20025400": "No", "7661688": "No", "16662807": "No", "21419778": "No", "18011186": "No", "23289598": "No", "11644547": "No", "23235120": "No", "19748218": "No", "8720720": "No", "18335831": "No", "18936727": "No", "15223870": "No"}}
-```
+Se cargan los datos del dataset de exoplanetas de la misión Kepler del archivo `keplerexoplanets.csv`. El mismo se obtuvo de la página del IPAC del Caltech (https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS) y contiene información sobre los sistemas exoplanetaarios detectados por la misión Kepler (https://science.nasa.gov/mission/kepler/).
 
-La aproximación con lectura por bytes tampoco es eficiente, por lo que se decidió usar Python para la conversión del archivo `train_fraud_labels.json` de 151,7 MB de tamaño.
-
-### Conversión de `train_fraud_labels.json` a `train_fraud_labels.csv`
-
-```python
-
-# Dataset: Financial Transactions Dataset: Analytics
-# Archivo principal con informacion de 13.305.915 transacciones en 1.2 GB
-# Source: https://www.kaggle.com/datasets/computingvictor/transactions-fraud-datasets 
-
-import json
-import csv
-from tqdm import tqdm
-
-def json_to_csv(json_data, output_csv):
-    # Cargar los datos JSON
-    with open(json_data, 'r') as json_file:
-        data = json.load(json_file)
-
-    # Asegurarse de que la clave 'target' esté en los datos JSON
-    if 'target' not in data:
-        raise ValueError("El JSON no contiene la clave 'target'")
-
-    # Obtener los pares de ID y valor de 'target'
-    target_data = data['target']
-
-    # Escribir los datos en un archivo CSV
-    with open(output_csv, 'w', newline='') as csv_file:
-        writer = csv.writer(csv_file)
-        writer.writerow(['transaction_id', 'fraud'])  # Escribir los encabezados
-
-        for transaction_id, fraud in tqdm(target_data.items(), desc="Procesando registros", unit="registro"):
-            writer.writerow([transaction_id, fraud])
-
-# Ejemplo de uso
-json_to_csv('train_fraud_labels.json', 'train_fraud_labels.csv')
-
-```
-
-La cantidad de registros en el archivo `train_fraud_labels.json` es de 8.914.963, inferior al archivo principal de transacciones con 13.305.915 registros dado que son etiquetas sólo para el conjunto de entrenamiento.
-
-### Conversión de `mcc_codes.json` a `mcc_codes.csv`
-
-Para este archivo se puede usar R para la conversión ya que es un archivo pequeño y simple.
-
-```{r json_to_csv_fraud_labels, eval = FALSE}
-
-library(jsonlite)
-library(progress)
-library(data.table)
-
-# Función para convertir JSON a CSV usando data.table y mostrar progreso
-convert_json_file_to_csv_with_progress <- function(input_json_file, output_csv_file) {
-  # Leer el JSON desde el archivo
-  json_data <- fromJSON(input_json_file)
-  
-  # Crear un data.table vacío para almacenar los resultados
-  data <- data.table(Code = character(), Description = character())
-  
-  # Inicializar el progreso
-  pb <- progress_bar$new(
-    format = "  Procesando [:bar] :percent en :elapsed segundos",
-    total = length(json_data),
-    clear = FALSE,
-    width = 60
-  )
-  
-  # Iterar sobre los elementos del JSON
-  for (code in names(json_data)) {
-    pb$tick() # Actualizar el progreso
-    data <- rbind(data, data.table(Code = code, Description = json_data[[code]]))
-  }
-  
-  # Guardar el data.table como CSV
-  fwrite(data, file = output_csv_file, row.names = FALSE)
-  
-  message("El archivo CSV se ha guardado como: ", output_csv_file)
-}
-
-# Llamar a la función con nombres de archivo
-input_json_file <- "mcc_codes.json" # Cambia por el nombre de tu archivo JSON
-output_csv_file <- "mcc_codes.csv" # Cambia por el nombre deseado del archivo CSV
-convert_json_file_to_csv_with_progress(input_json_file, output_csv_file)
-
-```
-
-## Filtrar y Muestrear Datos de Transacciones
-
-Una vez que se han convertido los archivos JSON a CSV, se procede a filtrar y muestrear los datos de transacciones para obtener un subconjunto que contenga la misma proporcion de estados y transsacciones fraudulentas que el conjunto original.
-
-En primer lugar, se carga el dataset original y el de fraude, se unen por la columna correspondiente (el id de transacción).
-
-```{r tx_data_fraud_match, eval = FALSE}
-library(dplyr)
+```{r load_data}
 library(readr)
 
-# Leer los datos
-transactions_data <- read_csv("transactions_data.csv")
-train_fraud_labels <- read_csv("train_fraud_labels.csv")
+# Cargar los datos
+kepler_data <- read_csv("keplerexoplanets.csv")
 
-# Prefijo para las columnas del conjunto de fraude
-colnames(train_fraud_labels) <- paste0("fd_", colnames(train_fraud_labels))
-
-# Unir los datos por las columnas correspondientes
-merged_data <- left_join(transactions_data, train_fraud_labels, 
-                          by = c("id" = "fd_transaction_id"))
+# Mostrar la estructura de los datos sin truncar
+str(kepler_data, list.len = Inf)
 ```
 
-Luego, se calcula el tamaño de la muestra a obtener (1% del total) y se muestrea manteniendo las proporciones de estados y transacciones fraudulentas.
+Se filtra por la columan `soltype` para obtener solo los registros de exoplanetas confirmados, o valor "Published Confirmed", además se eliman las columnas con referencias a sitios web no relevantes para el análisis. También se eliminan los datos de referencia de los planetas, estrellas y sistemas no relevantes para el análisis.
 
-```{r sample_1pct_tx_data, eval = FALSE}
+```{r filter_data}
 
-# Calcular el 1% del total
-total_rows <- nrow(merged_data)
-sample_size <- floor(total_rows * 0.01)
-
-# Muestrear manteniendo proporciones
-set.seed(999901)
-sampled_data <- merged_data %>%
-  group_by(merchant_state, fd_fraud) %>%
-  sample_frac(min(sample_size / total_rows, 1))
-
-# Guardar los datos muestreados
-write_csv(sampled_data, "sampled_transactions.csv")
-
-# Mostrar los datos resultantes
-print(str(sampled_data))
-```
-
-## Construcción del Dataset Completo
-
-Con la muestra del 1% del dataset de transacciones con etiquetas de fraude, se procede a unir los datos de georreferencias, códigos postales, tarjetas, usuarios y códigos de categoría de comercio (MCC) para construir un dataset completo que contenga toda la información necesaria para el análisis.
-
-Primero se cargan los datos de georreferencias de estados de USA y se los une al dataset de transacciones por la abreviatura de estado (codigo de dos letras).
-
-```{r merge_georef_states_data, eval = FALSE}
 library(dplyr)
-library(readr)
+# Filtrar los datos por soltype = "Published Confirmed"
+kepler_data <- kepler_data %>%
+  filter(soltype == "Published Confirmed")
 
-# Leer los datos de transacciones
-transactions_data <- read_csv("sampled_transactions.csv")
-print(str(transactions_data))
+# Eliminar también soltype
+kepler_data <- kepler_data %>%
+  select(-soltype)
 
-# Dataset: USA States (Generalized)
-# Source https://public-data-hub-dhhs.hub.arcgis.com/datasets/usa-states-generalized/about
-# Leer los datos de georreferencias de estados de USA
-georef_data <- read_delim("usa_states_generalized.csv", delim = ",")
-# Agregar un prefijo a los nombres de columnas para identificar 
-# que son datos de georreferencias
-colnames(georef_data) <- paste0("st_", colnames(georef_data))
-# Pasar a minuscúlas todos los nombres de columnas
-colnames(georef_data) <- tolower(colnames(georef_data))
-# Convertir los espacios en nombres de columnas a guiones bajos 
-colnames(georef_data) <- gsub(" ", "_", colnames(georef_data))
-print(str(georef_data))
+# Eliminar columnas de referencias a sitios web
+kepler_data <- kepler_data %>%
+  select(-disc_refname, -pl_refname, -st_refname, -sy_refname)
 
-# Unir los datos por abreviatura de estado
-merged_data <- transactions_data %>%
-  left_join(georef_data, by = c("merchant_state" = "st_abbreviation"))
-# Revisar dataset resultante
-print(str(merged_data))
+# Eliminar columnas de id de estrellas y sistemas
+kepler_data <- kepler_data %>%
+  select(-tic_id, -gaia_id, hostname, hd_name, hip_name)
+
+# Eliminar información referente a la publicación del descubrimiento
+# así como la información del instrumento utilizado, para todos es Kepler
+kepler_data <- kepler_data %>%
+  select(-disc_year, -disc_pubdate, -disc_locale, -disc_facility, -disc_telescope, -disc_instrument, -rowupdate, -pl_pubdate, -releasedate)
+
+# Eliminar columnas con información referente a la detección
+kepler_data <- kepler_data %>%
+  select(-rv_flag, -pul_flag, -ptv_flag, -tran_flag, -ast_flag, -obm_flag, -micro_flag, -etv_flag, -ima_flag, dkin_flag)
+
+# Eliminar columnas con información de fotometria
+kepler_data <- kepler_data %>%
+  select(-sy_bmag, -sy_vmag, -sy_jmag, -sy_hmag, -sy_kmag, -sy_umag, -sy_gmag, -sy_rmag, -sy_imag, -sy_zmag, -sy_w1mag, -sy_w2mag, -sy_w3mag, -sy_w4mag, -sy_gaiamag, -sy_icmag, -sy_tmag, -sy_kepmag)
+
+# Mostrar la estructura de los datos filtrados sin truncar
+str(kepler_data, list.len = Inf)
 ```
+El dataset resultante se guarda en un archivo CSV llamado `keplerfiltered.csv`. El dataset resultante contiene 10.895 registros y 105 columnas.
 
-Luego, se unen los datos de códigos postales al dataset resultante.
-
-```{r merge_zip_data, eval = FALSE}
-
-# Dataset: US Zip Codes Points- United States of America
-# Source: https://data.opendatasoft.com/explore/dataset/georef-united-states-of-america-zc-point%40public
-# Leer los datos de códigos postales
-zip_data <- read_delim("georef_usa_zc_point.csv", delim = ";")
-# Agregar un prefijo a los nombres de columnas para identificar
-# que son datos de la tabla de códigos postales
-colnames(zip_data) <- paste0("zp_", colnames(zip_data))
-# Pasar a minuscúlas todos los nombres de columnas
-colnames(zip_data) <- tolower(colnames(zip_data))
-# Convertir los espacios en nombres de columnas a guiones bajos 
-colnames(zip_data) <- gsub(" ", "_", colnames(zip_data))
-print(str(zip_data))
-
-# Unir los datos por código postal
-merged_data <- merged_data %>%
-  left_join(zip_data, by = c("zip" = "zp_zip_code"))
-# Revisar dataset resultante
-print(str(merged_data))
-```
-
-A continuación, se unen los datos de tarjetas y usuarios al dataset resultante.
-
-```{r merge_cards_data, eval = FALSE}
-
-# Leer los datos de tarjetas
-cards_data <- read_csv("cards_data.csv")
-# Agregar un prefijo a los nombres de columnas para identificar
-# que son datos de la tabla de tarjetas
-colnames(cards_data) <- paste0("cd_", colnames(cards_data))
-print(str(cards_data))
-
-# Unir los datos por ID de tarjeta
-merged_data <- merged_data %>%
-  left_join(cards_data, by = c("card_id" = "cd_id"))
-# Revisar dataset resultante
-print(str(merged_data))
-```
-
-
-```{r merge_users_data, eval = FALSE}
-
-# Leer los datos de usuarios
-users_data <- read_csv("users_data.csv")
-# Agregar un prefijo a los nombres de columnas para identificar
-# que son datos de la tabla de usuarios
-colnames(users_data) <- paste0("ud_", colnames(users_data))
-print(str(users_data))
-
-# Unir los datos por ID de cliente
-merged_data <- merged_data %>%
-  left_join(users_data, by = c("client_id" = "ud_id"))
-# Revisar dataset resultante
-print(str(merged_data))
-```
-
-```{r merge_mcc_data, eval = FALSE}
-# Leer los datos de MCC
-mcc_data <- read_csv("mcc_codes.csv")
-# Agregar un prefijo a los nombres de columnas para identificar
-# que son datos de la tabla de códigos de categoría de comercio
-colnames(mcc_data) <- paste0("mcc_", colnames(mcc_data))
-# Pasar a minuscúlas todos los nombres de columnas
-colnames(mcc_data) <- tolower(colnames(mcc_data))
-print(str(mcc_data))
-
-# Unir los datos por MCC
-merged_data <- merged_data %>%
-  left_join(mcc_data, by = c("mcc" = "mcc_code"))
-# Revisar dataset resultante
-print(str(merged_data))
-
-# Guardar los datos completos
-write_csv(merged_data, "transactions_data_complete.csv")
-```
-
-El dataset completo resultante se guarda en un archivo CSV llamado `transactions_data_complete.csv` que contiene toda la información combinada de transacciones, georreferencias, códigos postales, tarjetas, usuarios y códigos de categoría de comercio resultan en 110 parámetros con esta estructura:
-
-```{r print_complete_data_structure, eval = FALSE}
-print(str(merged_data, list.len = Inf))
-```
-
-## Depuración de Columnas Redundantes
-
-Previsiblemente luego de comoponer el dataset de diferentes fuentes se generan campos claramente redundantes que duplican información o podrían estar correlacionados, por lo que en base al análisis de los datos se procede a eliminar las columnas redundantes.
-
--   `client_id` y `cd_client_id`: Ambos representan al cliente, pero están presentes en dos prefijos distintos (cd\_ y sin prefijo). Es suficiente con `client_id`
--   `card_id` y `cd_card_number`: Si `card_id` es un identificador único y `cd_card_number` representa el número completo de la tarjeta, podrían estar relacionados. Por razones de privacidad y redundancia, se va a mantener solo uno `card_id`, para evitar difundir números de tarjetas de crédito aun cuando no estén activas.
--   `merchant_city`, `zp_official_usps_city_name`, `zp_primary_official_county_name` y `zp_official_county_name` : Todos indican la ciudad; se va a mantener solo `merchant_city`.
--   `merchant_state` y `zp_official_usps_state_code`: Ambos indican el estado; se va a mantener `merchant_state`.
--   `zp_official_state_name` y `st_name`: Ambos representan el nombre del estado; se mantiene solo `st_name`.
--   `st_population\_(2017)`, `st_pop2010`, `st_pop.\_per_sq.\_mi.`, `st_pop10_sqmi`: Hay múltiples columnas relacionadas con población. Se mantendrá `st_population\_(2017)` por ser la más reciente y se la renombrará a `st_population`.
--   `st_med_age`, `st_med_age_m`, `st_med_age_f`: Si solo se necesita la mediana de edad general, las otras dos columnas (por género) pueden ser redundantes; sin embargo, para analizar por género hábitos de consumo, podrían ser útiles.
--   `merchant_id` y `mcc_description`: Si el identificador merchant_id está siempre asociado a una única descripción mcc_description, esta última podría inferirse y no ser necesaria. Pero se mantendrá para facilitar la interpretación.
--   `zp_population` y `st_population\_(2017)`: Ambos representan población, pero uno es a nivel de ZCTA (ZIP Code Tabulation Areas o sea la localidad) y el otro a nivel estatal. Aunque podría ser redundante dependiendo del nivel de análisis se mantendrán ambos para permitir análisis a diferentes niveles de granularidad.
-
-```{r remove_load_dataset, eval = FALSE}
-
-# Leer los datos completos de transacciones
-merged_data <- read_csv("transactions_data_complete.csv")
-print(str(merged_data, list.len = Inf))
-
-```
-
-
-```{r remove_redundant_columns, eval = FALSE}
-# Eliminar columnas redundantes
-merged_data <- merged_data %>%
-  select(-cd_client_id, -cd_card_number, -zp_official_usps_city_name, 
-         -zp_official_usps_state_code, -zp_primary_official_county_name, 
-         -zp_official_county_name, -st_name, -st_med_age_m, 
-         -st_med_age_f, -zp_official_state_name, -st_pop2010, 
-         -st_pop._per_sq._mi., -st_pop10_sqmi)
-
-# Renombrar columnas
-colnames(merged_data) <- gsub("st_population_\\(2017\\)", "st_population", colnames(merged_data))
-# Revisar dataset resultante
-print(str(merged_data, list.len = Inf))
-```
-
-## Depuración de campos parcialmente redundantes o derivados
-
-En estos casos los campos podrían estar ser derivados unos de otros, lo que podría implicar redundancia.
-
--   `st_males` y `st_females`: Si ya se tienen estas columnas el total de población (en el renombrado `st_population`) puede calcularse. Se mantendrán para análisis por género; `st_population` se mantendrá para facilitar el análisis general.
--   `st_white`, `st_black`, `st_ameri_es`, `st_asian`, `st_hawn_pi`, `st_hispanic`, `st_other`, `st_mult_race`: Dado que no se necesita analizar por grupo étnico se eliminan.
--   `zp_density` y `zp_population`: Si ya se tiene el área del ZCTA, la densidad puede calcularse: se eliminará `zp_density`.
--   `ud_birth_year` y `ud_current_age`: ud_birth_year y el año actual pueden calcular la edad, haciendo redundante `ud_current_age`.
--   `ud_latitude`,`ud_longitude`, `zp_timezone`, `zp_geo_point` y `ud_address`: Todas estas columnas son redundantes dado que refieren a geolizacion; sin embargo una es geolocalización de la localidad del comercio donde se realizó la transacción y la otra a la dirección del cliente. Se mantendrán algunas para análisis de ubicación pero se eliminará `ud_address` y `zp_timezone` dejando solamente las coordenadas geográfica; también se convertirá `ud_latitude`y `ud_longitude` en un punto geografico llamado `ud_geo_point`.
--   `st_sqmi`,`st_shape__length` y `st_shape__area`: parecen medir el tamaño del estado; mantener uno es suficiente. Se mantendrá `st_sqmi` por ser más claro y se convertirá a kilómetros cuadradados renombrándola a `st_sqkm`.
-
-```{r remove_partial_redundant_columns, eval = FALSE}
-
-# Eliminar columnas parcialmente redundantes
-merged_data <- merged_data %>%
-  select(-zp_density, -ud_current_age, -st_shape__area, -st_shape__length, -ud_address, -zp_timezone, 
-         -st_white, -st_black, -st_ameri_es, -st_asian, -st_hawn_pi, -st_hispanic, -st_other)
-
-# Convertir latitud y longitud a un punto geográfico
-merged_data$ud_geo_point <- paste(merged_data$ud_latitude, merged_data$ud_longitude, sep = ",")
-# Eliminar latitud y longitud
-merged_data <- merged_data %>%
-  select(-ud_latitude, -ud_longitude)
-
-# Convertir millas cuadradas a kilómetros cuadrados
-merged_data$st_sqkm <- merged_data$st_sqmi * 2.58999
-
-# Eliminar columnas de millas cuadradas
-merged_data <- merged_data %>%
-  select(-st_sqmi)
-# Revisar dataset resultante
-print(str(merged_data, list.len = Inf))
-```
-
-## Depuración de campos potencialmente no necesarios para el análisis
-
-Algunos campos parecen específicos y pueden no ser útiles en todos los análisis:
-
--   `st_fips` (Federal Information Processing Standard), `zp_official_county_code`, `zp_primary_official_county_code`, `st_globalid`, `zp_zcta`, `zp_zcta_parent`, `zp_imprecise`, `zp_military`: Estos son identificadores administrativos que podrían no ser útiles para el análisis demografico.
--   `zp_county_weights`: Si no se está trabajando con pesos específicos, podría omitirse.
--   `cd_cvv`: Este campo no suele ser útil en análisis y puede representar un riesgo de seguridad.
-
-```{r remove_unnecessary_columns, eval = FALSE}
-
-# Eliminar columnas potencialmente no necesarias
-merged_data <- merged_data %>%
-  select(-st_fips, -zp_official_county_code, -zp_primary_official_county_code, -zp_county_weights, -cd_cvv, -st_globalid, -zp_zcta, -zp_zcta_parent, -zp_imprecise, -zp_military)
-# Revisar dataset resultante
-print(str(merged_data, list.len = Inf))
-```
-
-El dataset depurado resultante a partir del cual se hace el analisis exploratorio de datos econtiene 73 columnas y 1% (133034) de las transacciones originales.
-
-## Corrección de Formato
-
-Para tener suficiente información sobre los datos, se procede a corregir el formato de las columnas que contienen información relevante para el análisis. - `amount`, `cd_credit_limit`, `ud_per_capita_income`, `ud_yearly_income` y `ud_total_debt` se elimina el símbolo \$ y se convierten a numérico.
-
-```{r format_columns, eval = FALSE}
-
-# Corregir el formato de las columnas
-merged_data$amount <- as.numeric(gsub("\\$", "", merged_data$amount))
-merged_data$cd_credit_limit <- as.numeric(gsub("\\$", "", merged_data$cd_credit_limit))
-merged_data$ud_per_capita_income <- as.numeric(gsub("\\$", "", merged_data$ud_per_capita_income))
-merged_data$ud_yearly_income <- as.numeric(gsub("\\$", "", merged_data$ud_yearly_income))
-merged_data$ud_total_debt <- as.numeric(gsub("\\$", "", merged_data$ud_total_debt))
-
-# Convertir las columnas a numérico
-merged_data <- merged_data %>%
-  mutate(across(c(amount, cd_credit_limit, ud_per_capita_income, ud_yearly_income, ud_total_debt), as.numeric))
-
-# Mostar la estructura del dataset limpio
-print(str(merged_data, list.len = Inf))
-
-# Guardar los datos limpios
-write_csv(merged_data, "transactions_data_clean.csv")
+```{r save_filtered_dataset, eval = FALSE}
+# Guardar los datos filtrados
+write_csv(kepler_data, "keplerfiltered.csv")
 ```
 
 # Análisis Exploratorio de Datos
 
-Para realizar un análisis exploratorio de los datos, se cargan los datos completos y se realizan algunas visualizaciones y cálculos descriptivos.
+Para realizar un análisis exploratorio de los datos, se cargan el nuevo dataset y se realizan algunas visualizaciones y cálculos descriptivos.
 
-```{r eda_transactions_data}
+```{r eda_filtered_data}
 
 library(ggplot2)
 library(dplyr)
@@ -419,14 +108,14 @@ library(skimr)
 library(knitr)
 
 # Leer los datos completos
-transactions_data <- read_csv("transactions_data_clean.csv")
+kepler_data <- read_csv("keplerfiltered.csv")
 
 # Resumen de los datos con skimr solo variables numéricas
-transactions_data_num <- transactions_data %>%
+kepler_data_num <- kepler_data %>%
   select_if(is.numeric)
 
 # Generar resumen con skimr 
-resumen <- skim(transactions_data_num) 
+resumen <- skim(kepler_data_num) 
 
 # Filtrar columnas relevantes
 resumen <- resumen %>%
@@ -442,11 +131,11 @@ kable(resumen, format = "markdown")
 
 Se analiza la cantidad de valores faltantes en el dataset para identificar posibles problemas de calidad de datos.
 
-```{r missing_values}
+```{r missing_values, warning=FALSE, message=FALSE}
 library(tidyr)
 
 # Calcular la cantidad de valores faltantes por columna
-missing_values <- transactions_data %>%
+missing_values <- kepler_data %>%
   summarise_all(~sum(is.na(.))) %>%
   gather() %>%
   arrange(desc(value))
@@ -468,209 +157,16 @@ ggplot(missing_values, aes(x = reorder(key, value), y = value)) +
     plot.title = element_text(hjust = 0.5)  # Centrar el título
   )
 
-
 ```
+Se detectan grandes cantidades valores faltantes en varias columnas del dataset, probablemente debido a la falta de estimaciones o mediciones para esos exoplanetas. Según los prefijos de columnas explicados en el detalle del dataset (https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html#planetparam), se pueden identificar las siguientes categorías de variables:
 
-Se detectan valores faltantes en las columnas relacionadas con el estado y la ciudad del comercio. Estos valores faltantes podrían deberse a problemas en la geolocalización de las transacciones, la falta de información en los datos originales o que simplemente las transacciones no se hayan hecho dentro de los Estados Unidos.
+- `pl_`: Parámetros del planeta.
+- `st_`: Parámetros de la estrella.
+- `sy_`: Parámetros del sistema.
 
-Se toma una muestra al azar de las transacciones con valores faltantes en la columna `merchant_state` para analizar si hay algún patrón o razón detrás de estos valores faltantes.
+Buena parte de las variables faltantes corresponden a parámetros de los exoplanetas y sistemas, lo que puede dificultar el análisis y la predicción de la habitabilidad de los exoplanetas.
 
-```{r sample_missing_values, echo=FALSE}
-
-# Seleccionar las transacciones con valores faltantes en merchant_state
-missing_state_data <- transactions_data %>%
-  filter(is.na(merchant_state))
-
-# Seleccionar solo columnas id, date, amount, merchant_id, merchant_city
-missing_state_data <- missing_state_data %>%
-  select(id, date, amount, merchant_id, merchant_city)
-
-# Mostrar una muestra de las transacciones con valores faltantes en merchant_state
-kable(head(missing_state_data))
-
-```
-Tiene sentido la falta de información en las columnas de estado y ciudad porque se trata de transacciones ONLINE. Para verificar esta hipótesis se analiza la distribución de los valores de la columna `merchant_city` para las transacciones con valores faltantes en `merchant_state`.
-
-```{r plot_missing_city_distribution}
-
-# Generar un listado de todos los valores únicos de merchant_city donde merchant_state es NA
-unique_cities <- missing_state_data %>%
-  select(merchant_city) %>%
-  distinct()
-
-kable(unique_cities)
-
-```
-
-Se realiza un análisis similar para los valores faltantes en la columna zip
-
-```{r sample_missing_zip_values}
-
-# Seleccionar las transacciones con valores faltantes en zip
-missing_zip_data <- transactions_data %>%
-  filter(is.na(zip))
-
-# Seleccionar solo columnas id, date, amount, merchant_id, merchant_city, merchant_state y zip
-missing_zip_data <- missing_zip_data %>%
-  select(id, date, amount, merchant_id, merchant_city, merchant_state, zip)
-
-# Mostrar una muestra de las transacciones con valores faltantes en zip
-kable(head(missing_zip_data))
-
-```
-En este caso el faltante de información en la columna `zip` muestra transacciones que no se realizaron en USA. En estos casos en la columna `merchant_state` está el nombre del país donde se realizó la transaccion. Se lista todos los países donde se realizaron transacciones.
-
-```{r unique_countries}
-
-# Generar un listado de todos los valores únicos de merchant_state donde zip es NA
-unique_countries <- missing_zip_data %>%
-  select(merchant_state) %>%
-  distinct()
-
-kable(paste("Paises encontrados: ",length(unique_countries$merchant_state)))
-
-```
-
-Hay transacciones en 63 países fuera de Estados Unidos. 
-
-## Proporción de Transacciones Fraudulentas
-
-Se analiza la proporción de transacciones fraudulentas en el dataset, tomando en cuenta las etiquetas de fraude proporcionadas y las que faltan: hay algunos registros sin etiqueta de fraude para validar el modelo de clasificación.
-
-```{r plot_fraud_proportion}
-
-# Contar los valores únicos de la columna fd_fraud sólo para
-# las transacciones con etiqueta de fraude
-fraud_proportion <- transactions_data %>%
-  filter(!is.na(fd_fraud)) %>%
-  count(fd_fraud)
-
-# Agregar una columna con la proporción de transacciones fraudulentas con etiqueta
-fraud_proportion$proportion <- fraud_proportion$n / sum(fraud_proportion$n)
-
-kable(fraud_proportion)
-
-```
-
-Existen muy pocas transacciones fraudulentas en el dataset, lo que puede dificultar la detección de patrones de fraude (menos del 0,15%). Para el esfuerzo de predicción de fraude, se debe tener en cuenta el desbalance de clases y aplicar técnicas de muestreo o ponderación para mejorar la precisión del modelo.
-
-## Distribución de Montos de Transacciones
-
-Se analiza la distribución de los montos de transacciones para identificar posibles patrones o anomalías.
-
-```{r plot_amount_distribution, echo=FALSE, warning=FALSE}
-
-# Generar una columna de monto en logaritmo
-transactions_data$log_amount <- log(transactions_data$amount)
-
-# Generar un histograma con escala logarítmica
-ggplot(transactions_data, aes(x = amount)) +
-  geom_histogram(fill = "skyblue", color = "darkblue", bins = 50) +
-  scale_x_log10() +
-  labs(title = "Distribución de Montos de Transacciones",
-       x = "Monto de Transacción",
-       y = "Frecuencia") +
-  theme_minimal()
-
-```
-
-## Distribución de Edades de Clientes
-
-Se analiza la distribución de las edades de los clientes para identificar posibles patrones o anomalías.
-
-```{r plot_age_distribution}
-
-# Generar un histograma de edades
-ggplot(transactions_data, aes(x = ud_birth_year)) +
-  geom_histogram(fill = "skyblue", color = "darkblue", bins = 50) +
-  labs(title = "Distribución de Edades de Clientes",
-       x = "Año de Nacimiento",
-       y = "Frecuencia") +
-  theme_minimal()
-
-```
-
-## Distribución de montos de transacciones por estado
-
-Se analiza la distribución de los montos de transacciones por estado para identificar posibles patrones o anomalías. Se filtra sólo las transacciones dentro de USA.
-
-
-```{r plot_amount_by_state}
-
-# Generar un gráfico de cajas de montos de transacciones por
-# estado con escala logarítmica solo para transacciones en USA
-
-transactions_data_usa <- transactions_data %>%
-  filter(merchant_state != "NA" & zip != "NA")
-
-# Filtrar y preparar datos
-transactions_clean <- transactions_data_usa %>%
-  filter(!is.na(amount) & amount > 0)
-
-# Gráfico con etiquetas alternadas
-ggplot(transactions_clean, aes(x = merchant_state, y = amount)) +
-  geom_boxplot(fill = "skyblue", color = "darkblue") +
-  scale_y_log10() +
-  labs(title = "Distribución de Montos de Transacciones por Estado",
-       x = "Estado",
-       y = "Monto de Transacción") +
-  scale_x_discrete(labels = function(x) {
-    ifelse(seq_along(x) %% 2 == 0, paste0("\n", x), x)
-  }) +
-  theme_minimal()
-
-```
-
-Como se puede observar, la distribución de montos de transacciones varía entre los diferentes estados, lo que podría indicar diferencias en los hábitos de consumo o en la actividad económica.
-
-## Distribución de cantidad y monto de transacciones por mes del año
-
-Se analiza la distribución de la cantidad de transacciones por mes del año para identificar patrones estacionales.
-
-```{r plot_amount_by_month}
-
-# Extraer el mes de la fecha de transacción
-transactions_data$month <- as.integer(format(as.Date(transactions_data$date, "%Y-%m-%d"), "%m"))
-
-# Generar un dataframe con la cantidad de transacciones por mes
-transactions_by_month <- transactions_data %>%
-  group_by(month) %>%
-  summarise(total_transactions = n())
-
-# Generar un gráfico de barras con la cantidad de transacciones
-# por mes del año
-ggplot(transactions_by_month, aes(x = factor(month), y = total_transactions)) +
-  geom_bar(stat = "identity", fill = "skyblue", color = "darkblue") +
-  labs(title = "Cantidad de Transacciones por Mes del Año",
-       x = "Mes",
-       y = "Cantidad de Transacciones") +
-  theme_minimal()
-
-```
-
-Se observa que la cantidad de transacciones varía a lo largo del año, con un pico en el mes 1 (enero) y un mínimo en el mes 2 (febrero). Esto podría deberse a factores estacionales como las festividades de fin de año y la temporada de vacaciones o por el hecho de que el mes 2 es más corto. También se oberva en los meses de verano del hemisferio norte (6, 7 y 8) un leve aumento en la cantidad de transacciones.
-
-Se analiza ahora la distribución del monto total de transacciones por mes del año para identificar patrones estacionales.
-
-```{r plot_total_amount_by_month}
-
-# Generar un dataframe con el monto total de transacciones por mes
-total_amount_by_month <- transactions_data %>%
-  group_by(month) %>%
-  summarise(total_amount = sum(amount))
-
-# Generar un gráfico de barras con el
-# monto total de transacciones por mes del año
-ggplot(total_amount_by_month, aes(x = factor(month), y = total_amount)) +
-  geom_bar(stat = "identity", fill = "skyblue", color = "darkblue") +
-  labs(title = "Monto Total de Transacciones por Mes del Año",
-       x = "Mes",
-       y = "Monto Total de Transacciones") +
-  theme_minimal()
-
-```
-
-El monto total de transacciones también varía a lo largo del año, con un pico en el mes 1 (enero) y un mínimo en el mes 2 (febrero) en forma similar a la cantidad de transacciones. Esto podría indicar que los patrones de gasto de los clientes siguen un ciclo estacional.
+El propósito de este trabajo es estimar los valores faltantes de los exoplanetas y predecir la habitabilidad de los mismos. Para ello, se utilizarán técnicas de regresión lineal y logística para estimar los valores faltantes y predecir la habitabilidad de los exoplanetas.
 
 ## Buscando Correlaciones
 
@@ -682,24 +178,8 @@ Por ser un dataset con muchas variables, se utiliza una matriz de correlación p
 
 library(corrplot)
 
-# Seleccionar las columnas numéricas de los datos de transacciones y la primera
-# mitad de los que comienzan con st_ además de las 7 primeras columnas 
-# del dataset sin prefijo (las de originales)
-
-demo_data_st <- transactions_data %>%
-  select(1:7, starts_with("st_"))
-
-# Eliminar las columnas de la pirámide demográfica
-# columnas que inicien con st_age_
-demo_data_st <- demo_data_st %>%
-  select(-starts_with("st_age_"))
-
-# filtrar solo las columnas numéricas
-demo_data_st <- demo_data_st %>%
-  select_if(is.numeric)
-
 # Calcular la matriz de correlación
-correlation_matrix_st <- cor(demo_data_st, use = "pairwise.complete.obs")
+correlation_matrix_st <- cor(kepler_data_num, use = "pairwise.complete.obs")
 
 # Número de variables
 n_vars <- ncol(correlation_matrix_st)
@@ -716,7 +196,7 @@ corrplot(
   tl.cex = 0.7,
   tl.col = "black",
   col = colorRampPalette(c("salmon", "white", "skyblue"))(10),
-  title = "Matriz de Correlación - Parte 1 (Cuadrante Superior)"
+  title = "Matriz de Correlación"
 )
 
 ```
@@ -758,36 +238,6 @@ corrplot(
 
 ```
 
-
-```{r plot_correlation_st_age}
-
-# Seleccionar las columnas numéricas de los datos de transacciones y los que 
-# comienzan con st_age además de las 7 primeras columnas del dataset 
-# sin prefijo (las de originales)
-
-demo_data_st_age <- transactions_data %>%
-  select(1:7, starts_with("st_age_"))
-
-# filtrar solo las columnas numéricas
-demo_data_st_age <- demo_data_st_age %>%
-  select_if(is.numeric)
-
-# Calcular la matriz de correlación
-correlation_matrix_st_age <- cor(demo_data_st_age, use = "pairwise.complete.obs")
-
-corrplot(
-  correlation_matrix_st_age,
-  method = "color",
-  type = "upper",
-  addCoef.col = "black",
-  number.cex = 0.5,
-  tl.cex = 0.7,
-  tl.col = "black",
-  col = colorRampPalette(c("salmon", "white", "skyblue"))(10),
-  title = "Matriz de Correlación - Pirámide Demográfica"
-)
-
-```
 
 Parece haber poca correlación entre las variables numéricas de los datos demograficos y los de las transacciones financieras. Esto puede indicar 
 - Efectivamente las variables demográficas y financieras son independientes entre sí.
