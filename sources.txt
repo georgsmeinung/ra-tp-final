@@ -1,0 +1,17 @@
+Citing the NASA Exoplanet Archive With Digital Object Identifiers (DOI)
+https://exoplanetarchive.ipac.caltech.edu/docs/doi.html
+
+Planetary Systems and Planetary Systems Composite Parameters Table Definitions
+https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html#planetparam
+
+NASA Exoplanet Archive
+https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS
+
+IPAC
+https://www.ipac.caltech.edu/
+
+Kepler / K2 - NASA Science
+https://science.nasa.gov/mission/kepler/
+
+Kepler space telescope
+https://www.wikiwand.com/en/articles/Kepler_space_telescope
