@@ -4,16 +4,21 @@ subtitle: "Trabajo Práctico Final"
 author: "Jorge Nicolau"
 output:
    html_document:
-     toc: yes
+     toc: true
      code_folding: show
-     toc_float: yes
+     toc_float: false
      df_print: paged
      theme: united
      code_download: true
+     toc_depth: 2
 editor_options: 
   markdown: 
     wrap: none
 ---
+
+<div style="text-align: center;">   
+  ![](logo-austral.png){width=150px}
+</div>
 
 ```{r setup, include=FALSE}
 # Limpieza del Workspace
@@ -39,19 +44,35 @@ Se cargarán los datos, se filtrarán las filas de los explonetas confirmados, l
 
 ## Carga de Datos
 
-Se cargan los datos del dataset de exoplanetas de la misión Kepler del archivo `keplerexoplanets.csv`. El mismo se obtuvo de la página del IPAC del Caltech (https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS) y contiene información sobre los sistemas exoplanetaarios detectados por la misión Kepler (https://science.nasa.gov/mission/kepler/).
+Se cargan los datos del dataset de exoplanetas de la misión Kepler del archivo `keplerexoplanets.csv`. El mismo se obtuvo de la página del IPAC del Caltech (<https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS>) y contiene información sobre los sistemas exoplanetaarios detectados por la misión Kepler (<https://science.nasa.gov/mission/kepler/>).
 
-```{r load_data}
+```{r load_data, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
 library(readr)
 
 # Cargar los datos
 kepler_data <- read_csv("keplerexoplanets.csv")
-
-# Mostrar la estructura de los datos sin truncar
-str(kepler_data, list.len = Inf)
 ```
 
-Se filtra por la columan `soltype` para obtener solo los registros de exoplanetas confirmados, o valor "Published Confirmed", además se eliman las columnas con referencias a sitios web no relevantes para el análisis. También se eliminan los datos de referencia de los planetas, estrellas y sistemas no relevantes para el análisis.
+**Estructura de los Datos**
+
+```{r show_data_str, echo=FALSE}
+
+library(knitr)
+
+# Capturar la salida de str() como texto
+str_output <- capture.output(str(kepler_data, list.len = Inf))
+
+# Convertir la salida en un data frame para formatearla como tabla
+str_df <- data.frame(
+  Details = str_output,
+  stringsAsFactors = FALSE
+)
+
+# Mostrar la salida en formato de tabla con kable
+kable(str_df, col.names = c("Tipo de datos y previsualización"), align = "l")
+```
+
+Se filtra por la columna `soltype` para obtener solo los registros de exoplanetas confirmados, o valor "Published Confirmed", además se eliman las columnas con referencias a sitios web no relevantes para el análisis. También se eliminan los datos de referencia de los planetas, estrellas y sistemas no relevantes para el análisis.
 
 ```{r filter_data}
 
@@ -85,13 +106,117 @@ kepler_data <- kepler_data %>%
 kepler_data <- kepler_data %>%
   select(-sy_bmag, -sy_vmag, -sy_jmag, -sy_hmag, -sy_kmag, -sy_umag, -sy_gmag, -sy_rmag, -sy_imag, -sy_zmag, -sy_w1mag, -sy_w2mag, -sy_w3mag, -sy_w4mag, -sy_gaiamag, -sy_icmag, -sy_tmag, -sy_kepmag)
 
-# Mostrar la estructura de los datos filtrados sin truncar
-str(kepler_data, list.len = Inf)
-```
-El dataset resultante se guarda en un archivo CSV llamado `keplerfiltered.csv`. El dataset resultante contiene 10.895 registros y 105 columnas.
+# Eliminar banderas de organización interna del dataset
+kepler_data <- kepler_data %>%
+  select(-pl_nnotes, -pl_controv_flag, -default_flag)
 
-```{r save_filtered_dataset, eval = FALSE}
-# Guardar los datos filtrados
+# Eliminar columnas con información del sistema planetario
+# y detalles técnicos de la detección
+kepler_data <- kepler_data %>%
+  select(-sy_mnum, -dkin_flag, -pl_ndispec)
+
+# Eliminar columnas con información adicional de fotometria
+kepler_data <- kepler_data %>%
+  select(-st_nphot, -st_nrvc, -st_nspec, -pl_nespec, -pl_ntranspec)
+```
+
+El dataset resultante se guarda en un archivo CSV llamado `keplerfiltered.csv`. El dataset resultante contiene 10.895 registros y 67 columnas.
+
+Las columnas en el dataset filtrado son las siguientes:
+
+```{r show_filtered_data_structure, echo=FALSE}
+library(dplyr)
+library(knitr)
+
+# Copiar el nombre de las columnas a un data frame
+column_names <- data.frame(
+  Column = names(kepler_data),
+  stringsAsFactors = FALSE
+)
+
+# Agregar una columna con la descripción de la variable
+column_names <- column_names %>%
+  mutate(Description = c(
+    "pl_name: Nombre del planeta",
+    "hostname: Nombre del sistema estelar utilizado en la literatura",
+    "pl_letter: Letra del planeta en el sistema (primer planeta es b)",
+    "hd_name: Nombre del sistema estelar en el catálogo Henry Draper",
+    "hip_name: Nombre del sistema estelar en el catálogo Hipparcos",
+    "sy_snum: Número de estrellas en el sistema",
+    "sy_pnum: Número de planetas en el sistema",
+    "cb_flag: Flag de circumbinario (el planeta orbita un sistema binario)",
+    "discoverymethod: Método de descubrimiento del planeta",
+    "pl_orbper: Periodo orbital del planeta (en días)",
+    "pl_orbsmax: Distancia orbital semieje mayor (en UA)",
+    "pl_rade: Radio del planeta (en radios terrestres)",
+    "pl_radj: Radio del planeta (en radios jovianos)",
+    "pl_masse: Masa del planeta (en masas terrestres)",
+    "pl_massj: Masa del planeta (en masas jovianas)",
+    "pl_msinie: Minimo de masa medida por el método de velocidad radial (en masas terrestres)",
+    "pl_msinij: Minimo de masa medida por el método de velocidad radial (en masas jovianas)",
+    "pl_cmasse: Masa mínima proyectada (en masas terrestres)",
+    "pl_cmassj: Masa mínima proyectada (en masas jovianas)",
+    "pl_bmasse: Mejor estimación de la masa del planeta (en masas terrestres)",
+    "pl_bmassj: Mejor estimación de la masa del planeta (en masas jovianas)",
+    "pl_bmassprov: Proveedor de la mejor estimación de la masa del planeta (mínima o proyectada)",
+    "pl_dens: Densidad del planeta (en g/cm³)",
+    "pl_orbeccen: Excentricidad orbital del planeta",
+    "pl_insol: Insolación del planeta en terminos la insolación de la tierra (en W/m²)",
+    "pl_eqt: Temperatura de equilibrio del planeta considero como un cuerpo oscur (en grados K)",
+    "pl_orbincl: Inclinación orbital del planeta respecto de la línea de visión desde la Tierra (en grados)",
+    "pl_tranmid: Tiempo de tránsito medio del planeta respecto de su estrella (en días)",
+    "pl_tsystemref: Sistema de Tiempo de Referencia del sistema planetario",
+    "ttv_flag: Flag de tránsito de tiempo variante",
+    "pl_imppar: Parámetro de impacto del planeta como distancia proyectada del centro del planeta al centro de la estrella (en radios estelares)",
+    "pl_trandep: Profundidad del tránsito del planeta en terminos de el flujo relativo decreciente frente a su estrella (en %)",
+    "pl_trandur: Duración del tránsito del planeta (en horas)",
+    "pl_ratdor: cociente del semieje orbital mayor sobre el radio estelar",
+    "pl_ratror: cociente del radio del planeta sobre el radio estelar",
+    "pl_occdep: Profundidad del eclipse del planeta en terminos de el flujo relativo decreciente frente a su estrella (en %)",
+    "pl_orbtper: El momento del paso del planeta por el periastro (en grados)",
+    "pl_orblper: El argumento del periastro del planeta (en grados)",
+    "pl_rvamp: Amplitud de la velocidad radial del planeta (en m/s)",
+    "pl_projobliq: Inclinación proyectada del planeta respecto de la línea de visión desde la Tierra (en grados)",
+    "pl_trueobliq: Inclinación verdadera del planeta respecto de la línea de visión desde la Tierra (en grados)",
+    "st_spectype: Tipo espectral de la estrella según el sistema Morgan-Keenan",
+    "st_teff: Temperatura efectiva de la estrella (en grados K)",
+    "st_rad: Radio de la estrella (en radios solares)",
+    "st_mass: Masa de la estrella (en masas solares)",
+    "st_met: Medición del contenido de metales en la fotosfera de la estrella en comparación con el contenido de hidrógeno",
+    "st_metratio: Relación de metalicidad de la estrella",
+    "st_lum: Luminosidad de la estrella (en logartima en base 10 de unidades solares)",
+    "st_logg: Gravedad superficial de la estrella (en logaritmo en base 10 de cm/s²)",
+    "st_age: Edad de la estrella (en Ga, gigaaños, o miles de millones de años)",
+    "st_dens: Densidad de la estrella (en g/cm³)",
+    "st_vsin: Velocidad de rotación de la estrella (en km/s)",
+    "st_rotp: Periodo de rotación de la estrella (en días)",
+    "st_radv: Velocidad radial de la estrella (en km/s)",
+    "rastr: Ascensión recta de la estrella (en grados sexagesimales)",
+    "ra: Ascensión recta de la estrella (en grados decimales)",
+    "decstr: Declinación de la estrella (en grados sexagesimales)",
+    "dec: Declinación de la estrella (en grados decimales)",
+    "glat: Latitud galáctica de la estrella (en grados decimales)",
+    "glon: Longitud galáctica de la estrella (en grados decimales)",
+    "elat: Latitud eclíptica de la estrella (en grados decimales)",
+    "elon: Longitud eclíptica de la estrella (en grados decimales)",
+    "sy_pm: Movimiento propio del sistema (en miliarcosegundos/año)",
+    "sy_pmra: Movimiento propio del sistema en ascensión recta (en miliarcosegundos/año)",
+    "sy_pmdec: Movimiento propio del sistema en declinación (en miliarcosegundos/año)",
+    "sy_dist: Distancia del sistema (en parsecs)",
+    "sy_plx: Paralaje del sistema (en miliarcosegundos)"))
+
+# Ordenar el data frame por la columna "Column"
+column_names <- column_names[order(column_names$Column), ]
+
+# Elimina la columna con el numero de fila
+rownames(column_names) <- NULL
+
+kable(column_names, col.names = c("Variable", "Descripción"), align = "l")
+
+```
+
+```{r save_filtered_dataset, include=FALSE}
+# Guardar los datos filtrados en un archivo CSV
 write_csv(kepler_data, "keplerfiltered.csv")
 ```
 
@@ -99,7 +224,7 @@ write_csv(kepler_data, "keplerfiltered.csv")
 
 Para realizar un análisis exploratorio de los datos, se cargan el nuevo dataset y se realizan algunas visualizaciones y cálculos descriptivos.
 
-```{r eda_filtered_data}
+```{r eda_filtered_data, echo=FALSE, message=FALSE, warning=FALSE}
 
 library(ggplot2)
 library(dplyr)
@@ -117,13 +242,18 @@ kepler_data_num <- kepler_data %>%
 # Generar resumen con skimr 
 resumen <- skim(kepler_data_num) 
 
+# Ordenar por nombre de variable
+resumen <- resumen[order(resumen$skim_variable), ]
+
 # Filtrar columnas relevantes
 resumen <- resumen %>%
   select(skim_variable, numeric.mean, numeric.sd, numeric.p0, numeric.p25, 
          numeric.p50, numeric.p75, numeric.p100)
 
 # Mostrar tabla formateada
-kable(resumen, format = "markdown")
+kable(resumen, format = "markdown", digits = 4,
+      col.names = c("Variable", "Media", "Des.Est.", "Mín.", "P25", "Mediana", "P75", "Máx.")
+      )
 
 ```
 
@@ -131,7 +261,8 @@ kable(resumen, format = "markdown")
 
 Se analiza la cantidad de valores faltantes en el dataset para identificar posibles problemas de calidad de datos.
 
-```{r missing_values, warning=FALSE, message=FALSE}
+```{r missing_values_calc}
+
 library(tidyr)
 
 # Calcular la cantidad de valores faltantes por columna
@@ -145,310 +276,353 @@ missing_values <- missing_values %>%
   filter(value > 0)
 
 # Crear un gráfico de barras con los valores faltantes que no sean cero
-ggplot(missing_values, aes(x = reorder(key, value), y = value)) +
+# con la primera mitad de las filas
+
+# Total de columnas
+total_rows <- nrow(missing_values)
+
+# Calcular el punto medio
+midpoint <- ceiling(total_rows / 2)
+
+```
+
+**Valores Faltantes por Columna**
+
+```{r missing_values_graph1, echo=FALSE, message=FALSE, warning=FALSE}
+
+ggplot(missing_values[1:midpoint,], aes(x = reorder(key, value), y = value)) +
   geom_bar(stat = "identity", fill = "skyblue", color = "darkblue", width = 0.5) + # Reducir ancho de las barras
+  geom_text(aes(label = value), hjust = -0.2, size = 3) + # Añadir valores al final de las barras
   coord_flip() +
-  labs(title = "Valores Faltantes por Columna",
+  scale_y_continuous(expand = expansion(mult = c(0.01, 0.1))) + # Añadir margen extra en el eje y
+  labs(title = "",
        x = "Columna",
-       y = "Cantidad de Valores Faltantes") +
+       y = "") +
   theme_minimal() +
   theme(
-    axis.text.y = element_text(size = 5),   # Ajustar tamaño de texto en eje Y
+    axis.text.y = element_text(size = 10),   # Ajustar tamaño de texto en eje Y
     plot.title = element_text(hjust = 0.5)  # Centrar el título
   )
 
 ```
-Se detectan grandes cantidades valores faltantes en varias columnas del dataset, probablemente debido a la falta de estimaciones o mediciones para esos exoplanetas. Según los prefijos de columnas explicados en el detalle del dataset (https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html#planetparam), se pueden identificar las siguientes categorías de variables:
 
-- `pl_`: Parámetros del planeta.
-- `st_`: Parámetros de la estrella.
-- `sy_`: Parámetros del sistema.
+```{r missing_values_graph2, echo=FALSE, message=FALSE, warning=FALSE}
 
-Buena parte de las variables faltantes corresponden a parámetros de los exoplanetas y sistemas, lo que puede dificultar el análisis y la predicción de la habitabilidad de los exoplanetas.
+# Crear un gráfico de barras con los valores faltantes que no sean cero
+# con la segunda mitad de las filas
+ggplot(missing_values[(midpoint+1):total_rows,], aes(x = reorder(key, value), y = value)) +
+  geom_bar(stat = "identity", fill = "skyblue", color = "darkblue", width = 0.5) + # Reducir ancho de las barras
+  geom_text(aes(label = value), hjust = -0.2, size = 3) + # Añadir valores al final de las barras
+  coord_flip() +
+  scale_y_continuous(expand = expansion(mult = c(0.01, 0.1))) + # Añadir margen extra en el eje y
+  labs(title = "",
+       x = "",
+       y = "Cantidad de Valores Faltantes") +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 10),   # Ajustar tamaño de texto en eje Y
+    plot.title = element_text(hjust = 0.5)  # Centrar el título
+  )
+
+```
+
+Se detectan grandes cantidades valores faltantes en varias columnas del dataset, probablemente debido a la falta de estimaciones o mediciones para esos exoplanetas. Según los prefijos de columnas explicados en el detalle del dataset (<https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html#planetparam>), se pueden identificar las siguientes categorías de variables:
+
+-   `pl_`: Parámetros del planeta.
+-   `st_`: Parámetros de la estrella.
+-   `sy_`: Parámetros del sistema.
+
+Buena parte de las variables faltantes corresponden a parámetros de los exoplanetas y sistemas, lo que puede dificultar el análisis y la predicción de la habitabilidad de los exoplanetas. Por lo tanto, se procederá a estimar los valores faltantes de aquellos parámetros en los que haya una cantidad suficiente de datos para realizar una estimación precisa. 
 
 El propósito de este trabajo es estimar los valores faltantes de los exoplanetas y predecir la habitabilidad de los mismos. Para ello, se utilizarán técnicas de regresión lineal y logística para estimar los valores faltantes y predecir la habitabilidad de los exoplanetas.
 
+Tomando las variables conocida de los exoplanetas (parámetros con prefijo `pl_`), busca aquellas posibles predictoras de las variables faltantes. Por ejemplo para el caso del radio del exoplaneta (`pl_radj` en términos de radios jovianos y `pl_rade` en términos terrestres) con 4014 faltantes, hay suficiente información para estimar el radio del exoplaneta a partir de otras variables conocidas como el periodo orbital en días (`pl_orbper` con 2210 faltantes), el tiempo de conjunción (`pl_tranmid` con 3399 faltantes) o el logaritmo en base 10 de gravedad superficial de la estrella en el centro del sistema planteario (`st_logg` con 3187 faltantes).
+
+Para saber cuál de estas variables es la mejor predictoras de la variable faltante, se utilizará la matriz de correlación para identificar las relaciones entre las variables numéricas del dataset con mayor correlación positiva o negativa con la variable faltante.
+
 ## Buscando Correlaciones
 
-Se analiza la correlación entre las variables numéricas del dataset para identificar posibles relaciones entre ellas.
+Se analiza la correlación entre las variables numéricas del dataset para identificar posibles relaciones entre ellas utilizando los métodos de Pearson (detección de correlaciones lineales) y Spearman (detección de correlaciones no lineales).
 
-Por ser un dataset con muchas variables, se utiliza una matriz de correlación para visualizar las relaciones entre las variables numéricas. En primer lugar sólo para las variables numéricas de datos de demograficos (transacciones y georreferencias) y luego para datos financieros de usuarios (transacciones y usuarios)
-
-```{r plot_correlation_st_upper_quadrant}
+```{r correlation_matrix_pearson, include=FALSE}
 
 library(corrplot)
 
 # Calcular la matriz de correlación
-correlation_matrix_st <- cor(kepler_data_num, use = "pairwise.complete.obs")
+correlation_matrix_pearson <- cor(kepler_data_num, use="pairwise.complete.obs" , method = "pearson")
+
+# Ordenar la matriz por nombre de columnas
+correlation_matrix_pearson <- correlation_matrix_pearson[order(rownames(correlation_matrix_pearson)), order(colnames(correlation_matrix_pearson))]
 
 # Número de variables
-n_vars <- ncol(correlation_matrix_st)
+n_vars <- ncol(correlation_matrix_pearson)
 half <- ceiling(n_vars / 2)
 
+```
+
+**Matriz de Correlación 1/3 (Pearson Cuadrante Superior)**
+```{r plot_correlation_pearson_upper_quadrant, echo=FALSE}
+
 # Parte 1: Primera mitad (diagonal superior)
-correlation_matrix_part1 <- correlation_matrix_st[1:half, 1:half]
+correlation_matrix_pearson_sup <- correlation_matrix_pearson[1:half, 1:half]
 corrplot(
-  correlation_matrix_part1,
+  correlation_matrix_pearson_sup,
   method = "color",
   type = "upper",
   addCoef.col = "black",
-  number.cex = 0.5,
-  tl.cex = 0.7,
+  number.cex = 0.3,
+  tl.cex = 0.5,
   tl.col = "black",
-  col = colorRampPalette(c("salmon", "white", "skyblue"))(10),
-  title = "Matriz de Correlación"
+  col = colorRampPalette(c("indianred", "white", "steelblue"))(20),
+  title = ""
 )
 
 ```
 
-```{r plot_correlation_st_cross}
+**Matriz de Correlación 2/3 (Pearson Cruce)**
+```{r plot_correlation_pearson_cross, echo=FALSE}
 
-# Parte 3: Cruce entre la primera y segunda mitad
-correlation_matrix_cross <- correlation_matrix_st[1:half, (half + 1):n_vars]
+# Parte 2: Cruce entre la primera y segunda mitad
+correlation_matrix_pearson_cross <- correlation_matrix_pearson[1:half, (half + 1):n_vars]
 corrplot(
-  correlation_matrix_cross,
+  correlation_matrix_pearson_cross,
   method = "color",
   type = "full",  # Mostrar todas las correlaciones en esta sección
   addCoef.col = "black",
-  number.cex = 0.5,
-  tl.cex = 0.7,
+  number.cex = 0.3,
+  tl.cex = 0.5,
   tl.col = "black",
-  col = colorRampPalette(c("salmon", "white", "skyblue"))(10),
-  title = "Matriz de Correlación - Parte 3 (Cruce)"
+  col = colorRampPalette(c("indianred", "white", "steelblue"))(20),
+  title = ""
 )
 
 ```
 
+**Matriz de Correlación 3/3 (Pearson Cuadrante Inferior)**
+```{r plot_correlation_pearson_lower_quadrant, echo=FALSE}
 
-```{r plot_correlation_st_lower_quadrant}
-
-# Parte 2: Segunda mitad (diagonal superior)
-correlation_matrix_part2 <- correlation_matrix_st[(half + 1):n_vars, (half + 1):n_vars]
+# Parte 3: Segunda mitad (diagonal inferior)
+correlation_matrix_pearson_inf <- correlation_matrix_pearson[(half + 1):n_vars, (half + 1):n_vars]
 corrplot(
-  correlation_matrix_part2,
+  correlation_matrix_pearson_inf,
   method = "color",
   type = "upper",
   addCoef.col = "black",
-  number.cex = 0.5,
-  tl.cex = 0.7,
+  number.cex = 0.3,
+  tl.cex = 0.5,
   tl.col = "black",
-  col = colorRampPalette(c("salmon", "white", "skyblue"))(10),
-  title = "Matriz de Correlación - Parte 2 (Cuadrante inferior)"
+  col = colorRampPalette(c("indianred", "white", "steelblue"))(20),
+  title = ""
 )
 
 ```
 
+La matriz de correlación muestra las relaciones lineales entre las variables numéricas del dataset. Se observan algunas correlaciones positivas y negativas entre las variables, lo que indica posibles relaciones entre ellas. Por ejemplo el cociente entre el semieje orbital mayor y el periodo orbital (`pl_ratdor`) tiene una correlación positiva con el periodo orbital (`pl_orbper`) y una correlación negativa con la temperatura de equilibrio(`pl_eqt`). Respecto de la variable que se seleccionó como clase en el apartado anterior, el radio del exoplaneta (`pl_radj`) tiene una correlación positiva con la profundidad del tránsito (`pl_trandep`) y una correlación negativa con la gravedad superficial de la estrella (`st_logg`).
 
-Parece haber poca correlación entre las variables numéricas de los datos demograficos y los de las transacciones financieras. Esto puede indicar 
-- Efectivamente las variables demográficas y financieras son independientes entre sí.
-- La falta de correlación puede deberse a la falta de información verdadera: se sabe que los datos de las transacciones son sintéticos y no se puede no reflejar hábitos que si se podrían deducir a partir de las variables demográficas. Esto es, los datos demográficos son reales y no se pueden correlacionar con datos ficticios.
-
-```{r plot_correlation_ud}  
-library(dplyr)
-
-# Seleccionar las columnas numéricas de los datos de transacciones y los que 
-# comienzan con ud_ además de las 7 primeras columnas del dataset 
-# sin prefijo (las de originales)
-
-demo_data_ud <- transactions_data %>%
-  select(1:7, starts_with("ud_"))
-
-# filtrar solo las columnas numéricas
-demo_data_ud <- demo_data_ud %>%
-  select_if(is.numeric)
+```{r correlation_matrix_spearman, include=FALSE}
 
 # Calcular la matriz de correlación
-correlation_matrix_ud <- cor(demo_data_ud, use = "pairwise.complete.obs")
+correlation_matrix_spearman <- cor(kepler_data_num, use="pairwise.complete.obs" , method = "spearman")
 
+# Ordenar la matriz por nombre de columnas
+correlation_matrix_spearman <- correlation_matrix_spearman[order(rownames(correlation_matrix_spearman)), order(colnames(correlation_matrix_spearman))]
+
+# Número de variables
+n_vars <- ncol(correlation_matrix_spearman)
+half <- ceiling(n_vars / 2)
+
+```
+
+**Matriz de Correlación 1/3 (Spearman Cuadrante Superior)**
+```{r plot_correlation_spearman_upper_quadrant, echo=FALSE}
+
+# Parte 1: Primera mitad (diagonal superior)
+correlation_matrix_spearman_sup <- correlation_matrix_spearman[1:half, 1:half]
 corrplot(
-  correlation_matrix_ud,
+  correlation_matrix_spearman_sup,
   method = "color",
   type = "upper",
   addCoef.col = "black",
-  number.cex = 0.5,
-  tl.cex = 0.7,
+  number.cex = 0.3,
+  tl.cex = 0.5,
   tl.col = "black",
-  col = colorRampPalette(c("salmon", "white", "skyblue"))(200),
-  title = "Matriz de Correlación - Parte 1 (Cuadrante Superior)"
+  col = colorRampPalette(c("indianred", "white", "steelblue"))(20),
+  title = ""
 )
+
 ```
 
-Pueden observarse correlaciones entre las variables financieras de los usuarios, lo que podría indicar relaciones entre ellas. Por ejemplo, la deuda total y el ingreso per cápita podrían estar correlacionados, lo que podría indicar que los usuarios con mayores ingresos tienen una deuda total más alta. También se observa una correlación negativa entre la edad y el número de tarjetas, lo que podría indicar que los usuarios más jóvenes tienen más tarjetas.  
+**Matriz de Correlación 2/3 (Spearman Cruce)**
+```{r plot_correlation_spearman_cross, echo=FALSE}
+
+# Parte 2: Cruce entre la primera y segunda mitad
+correlation_matrix_spearman_cross <- correlation_matrix_spearman[1:half, (half + 1):n_vars]
+corrplot(
+  correlation_matrix_spearman_cross,
+  method = "color",
+  type = "full",  # Mostrar todas las correlaciones en esta sección
+  addCoef.col = "black",
+  number.cex = 0.3,
+  tl.cex = 0.5,
+  tl.col = "black",
+  col = colorRampPalette(c("indianred", "white", "steelblue"))(20),
+  title = ""
+)
+
+```
+
+**Matriz de Correlación 3/3 (Spearman Cuadrante Inferior)**
+```{r plot_correlation_spearman_lower_quadrant, echo=FALSE}
+
+# Parte 3: Segunda mitad (diagonal inferior)
+correlation_matrix_spearman_inf <- correlation_matrix_spearman[(half + 1):n_vars, (half + 1):n_vars]
+corrplot(
+  correlation_matrix_spearman_inf,
+  method = "color",
+  type = "upper",
+  addCoef.col = "black",
+  number.cex = 0.3,
+  tl.cex = 0.5,
+  tl.col = "black",
+  col = colorRampPalette(c("indianred", "white", "steelblue"))(20),
+  title = ""
+)
+
+```
+
+La matriz de correlaciones de Spearman muestra las relaciones no lineales entre las variables numéricas del dataset. Se observan algunas correlaciones positivas y negativas entre las variables, lo que indica posibles relaciones no lineales entre ellas. Por ejemplo la temperatura de equilibrio (`pl_eqt`) tiene una correlación positiva con la insolación (`pl_insol`) y una correlación negativa con la distancia orbital semieje mayor (`pl_orbsmax`). Respecto de la variable que se seleccionó como clase en el apartado anterior, el radio del exoplaneta (`pl_radj`) tiene una correlación positiva con la profundidad del tránsito (`pl_trandep`) y una correlación negativa con el período rotacional estelar (`st_rotp`).
 
 # Analisis de Regresión
 
-Para analizar la relación entre las variables financieras de los usuarios y las transacciones, se realiza un análisis de regresión lineal. Se seleccionan las variables financieras de los usuarios como variables independientes.
+Para analizar la relación entre las variables conocidas de la estrella del sistema y las caracteristicas de los exoplanetas, se realiza un análisis de regresión lineal. Se seleccionan las caracteristicas conocidas del sistema planetarios como variables independientes.
 
 ## Regresión Lineal Univariada
 
-Las variables financieras de los usuarios seleccionadas son:
-- `ud_per_capita_income`: Ingreso per cápita del usuario.
-- `ud_total_debt`: Deuda total del usuario.
-- `cd_credit_limit`: Límite de crédito de la tarjeta del usuario.
+Las variablies de características de los sistemas exoplanetarios tales como periodo orbital, radio planetario, temperatura de la estrella central del sistema y masa del planeta pueden inferirse indirectamente a partir de otras variables como excentricidad orbital, distancia a la estrella, caracteristicas de la estrella y otras. Se explorar un análisis de regresión lineal univariada con varias variables independientes evaluando la capacidad de predicción de cada modelo planteado. 
 
-Con estas variables se intenta predecir el monto de la transacción (`amount`). Primeramente se intenta predecir el monto de la transacción a partir cada una de las variables financieras de los usuarios (modelos univariados) y luego se intenta predecir el monto de la transacción a partir de la commbinación de todas las variables financieras de los usuarios (modelo multivariado).
+Se realiza un análisis de regresión lineal univariada para predecir el radio del exoplaneta (`pl_radj`) a partir de la masa del exoplaneta (`pl_bmassj`), la temperatura efectiva de la estrella (`st_teff`), la masa de la estrella (`st_mass`) y la distancia del exoplaneta a la estrella (`pl_orbsmax`).
 
-```{r linear_regression_univariate_income}
+Para cada variable independiente, se ajusta un modelo de regresión lineal con la variable dependiente (`pl_radj`) y se evalúa la capacidad predictiva de cada modelo.
 
-# Seleccionar las variables financieras de los usuarios y
-# el monto de la transacción
-# Modelo 1: Ingreso per cápita del usuario vs Monto de la transacción
+```{r univariate_regression_analysis_pl_radj}
 
-model_income <- lm(amount ~ ud_per_capita_income, data = transactions_data)
+# Regresion de pl_radj con pl_bmassj
+model_pl_bmassj <- lm(pl_radj ~ pl_bmassj, data = kepler_data_num)
 
-summary(model_income)
+model_pl_bmassj_summary <- summary(model_pl_bmassj)
 
+model_pl_bmassj_summary
 ```
 
+```{r univariate_regression_analysis_pl_radj_plot, warning=FALSE}
 
-```{r linear_regression_univariate_income_plot}  
-# Diagrama de dispersión
-# con recta de regresión en color rojo
-ggplot(transactions_data, aes(x = ud_per_capita_income, y = amount)) +
-  geom_point(color = "darkgrey", alpha = 0.6, size = 2) +  # Puntos con transparencia y tamaño ajustado
-  geom_smooth(
-    method = "lm", 
-    color = "red", 
-    fill = "lightpink",    # Color de la banda del intervalo de confianza
-    alpha = 0.3,           # Transparencia de la banda
-    se = TRUE              # Mostrar intervalo de confianza
-  ) +
-  labs(
-    title = "Ingreso Per Cápita vs Monto de la Transacción",
-    x = "Ingreso Per Cápita",
-    y = "Monto de la Transacción"
-  ) +
-  theme_minimal(base_size = 14) +  # Tema minimalista con texto más legible
-  theme(
-    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),  # Título centrado y en negrita
-    axis.title = element_text(size = 14),                             # Tamaño de etiquetas de ejes
-    axis.text = element_text(size = 12)                              # Tamaño de texto en los ejes
-  )
+# Scatter plot de pl_radj vs pl_bmassj con la recta de regresión en rojo
+# y los margenes de confianza en gris
+ggplot(kepler_data_num, aes(x = pl_bmassj, y = pl_radj)) +
+  geom_point(color = "steelblue") +
+  geom_smooth(method = "lm", color = "red", fill = "grey", alpha = 0.2) +
+  labs(title = "Regresión Lineal: Radio del Exoplaneta vs Masa del Exoplaneta",
+       x = "Masa del Exoplaneta (Júpiter)",
+       y = "Radio del Exoplaneta (Júpiter)") +
+  theme_minimal()
 
 ```
+La masa del exoplaneta (`pl_bmassj`) tiene un coeficiente de regresión de 0.0278 lo que indica que un aumento de 1 unidad en la masa del exoplaneta se asocia con un aumento promedio de 0.0278 en el radio del exoplaneta. El coeficiente es significativo (p \< 0.001) lo que sugiere que la masa del exoplaneta puede ser un predictor significativo del radio del exoplaneta.
 
+Sin embargo, el coeficiente de determinación (R²) es de 0.06517 por lo que el modelo explica solo el 6.517% de la variabilidad en el radio del exoplaneta. Esto sugiere que aunque la masa del exoplaneta puede ser un predictor significativo del radio del exoplaneta no explica la mayoría de la variabilidad en el radio del exoplaneta. Esta situación puede deberse a la presencia de otros factores no incluidos en el modelo que influyen en el radio del exoplaneta como por ejemplo densidad del exoplaneta. Esta falta de explicabilidad puede verser en el grafico de dispersión.
 
-```{r linear_regression_univariate_debt}
+```{r univariate_regression_analysis_st_teff}
 
-# Modelo 2: Deuda total del usuario vs Monto de la transacción
-model_debt <- lm(amount ~ ud_total_debt, data = transactions_data)
+# Regresion de pl_radj con st_teff
+model_st_teff <- lm(pl_radj ~ st_teff, data = kepler_data_num)
 
-summary(model_debt)
+model_st_teff_summary <- summary(model_st_teff)
 
+model_st_teff_summary
 ```
 
+```{r univariate_regression_analysis_st_teff_plot, warning=FALSE}
 
-```{r linear_regression_univariate_debt_plot}
-# Diagrama de dispersión
-# con recta de regresión en color rojo
-ggplot(transactions_data, aes(x = ud_total_debt, y = amount)) +
-  geom_point(
-    color = "darkgrey",       # Cambiar el color de los puntos para mayor contraste
-    alpha = 0.6,              # Añadir transparencia para evitar saturación visual
-    size = 3                  # Ajustar el tamaño de los puntos
-  ) +
-  geom_smooth(
-    method = "lm",
-    color = "red",            # Color de la recta de regresión
-    fill = "pink",            # Color de la banda del intervalo de confianza
-    alpha = 0.3,              # Transparencia de la banda
-    se = TRUE                 # Mostrar intervalo de confianza
-  ) +
-  labs(
-    title = "Deuda Total vs Monto de la Transacción",
-    x = "Deuda Total",
-    y = "Monto de la Transacción"
-  ) +
-  theme_minimal(base_size = 15) +  # Tamaño base más grande para mejor legibilidad
-  theme(
-    plot.title = element_text(
-      hjust = 0.5,            # Centrar el título
-      size = 18,              # Tamaño más grande para el título
-      face = "bold"           # Negrita en el título
-    ),
-    axis.title = element_text(size = 14),  # Tamaño de etiquetas de los ejes
-    axis.text = element_text(size = 12)    # Tamaño del texto de los ejes
-  )
+# Scatter plot de pl_radj vs st_teff con la recta de regresión en rojo
+# y los margenes de confianza en gris
+ggplot(kepler_data_num, aes(x = st_teff, y = pl_radj)) +
+  geom_point(color = "steelblue") +
+  geom_smooth(method = "lm", color = "indianred", fill = "grey", alpha = 0.2) +
+  labs(title = "Regresión Lineal: Radio del Exoplaneta vs Temperatura Efectiva de la Estrella",
+       x = "Temperatura Efectiva de la Estrella (K)",
+       y = "Radio del Exoplaneta (Júpiter)") +
+  theme_minimal()
 
 ```
+La temperatura efectiva de la estrella (`st_teff`) tiene un coeficiente de regresión de 0.00004 lo que indica que un aumento de 1 unidad en la temperatura efectiva de la estrella se asocia con un aumento promedio de 0.00004 en el radio del exoplaneta. El coeficiente es significativo (p \< 0.001) lo que sugiere que la temperatura efectiva de la estrella puede ser un predictor significativo del radio del exoplaneta.
 
+Sin embargo, el coeficiente de determinación (R²) es de 0.0146 por lo que el modelo explica solo el 1.46% de la variabilidad en el radio del exoplaneta. Esto sugiere que aunque la temperatura efectiva de la estrella puede ser un predictor significativo del radio del exoplaneta no explica la mayoría de la variabilidad en el radio del exoplaneta. 
 
-```{r linear_regression_univariate_credit_limit}
+```{r univariate_regression_analysis_st_mass}
 
-# Modelo 3: Límite de crédito del usuario
-# vs Monto de la transacción
-model_credit_limit <- lm(amount ~ cd_credit_limit, data = transactions_data)
+# Regresion de pl_radj con st_mass
+model_st_mass <- lm(pl_radj ~ st_mass, data = kepler_data_num)
 
-summary(model_credit_limit)
+model_st_mass_summary <- summary(model_st_mass)
 
+model_st_mass_summary
 ```
 
-```{r linear_regression_univariate_credit_limit_plot}
+```{r univariate_regression_analysis_st_mass_plot, warning=FALSE}
 
-# Diagrama de dispersión
-# con recta de regresión en color rojo
-ggplot(transactions_data, aes(x = cd_credit_limit, y = amount)) +
-  geom_point(
-    color = "darkgrey",       # Cambiar el color de los puntos para mayor contraste
-    alpha = 0.6,              # Añadir transparencia para evitar saturación visual
-    size = 3                  # Ajustar el tamaño de los puntos
-  ) +
-  geom_smooth(
-    method = "lm",
-    color = "red",            # Color de la recta de regresión
-    fill = "pink",            # Color de la banda del intervalo de confianza
-    alpha = 0.3,              # Transparencia de la banda
-    se = TRUE                 # Mostrar intervalo de confianza
-  ) +
-  labs(
-    title = "Límite de Crédito vs Monto de la Transacción",
-    x = "Límite de Crédito",
-    y = "Monto de la Transacción"
-  ) +
-  theme_minimal(base_size = 15) +  # Tamaño base más grande para mejor legibilidad
-  theme(
-    plot.title = element_text(
-      hjust = 0.5,            # Centrar el título
-      size = 18,              # Tamaño más grande para el título
-      face = "bold"           # Negrita en el título
-    ),
-    axis.title = element_text(size = 14),  # Tamaño de etiquetas de los ejes
-    axis.text = element_text(size = 12)    # Tamaño del texto de los ejes
-  )
+# Scatter plot de pl_radj vs st_mass con la recta de regresión en rojo
+# y los margenes de confianza en gris
+ggplot(kepler_data_num, aes(x = st_mass, y = pl_radj)) +
+  geom_point(color = "steelblue") +
+  geom_smooth(method = "lm", color = "indianred", fill = "grey", alpha = 0.2) +
+  labs(title = "Regresión Lineal: Radio del Exoplaneta vs Masa de la Estrella",
+       x = "Masa de la Estrella (Masa Solar)",
+       y = "Radio del Exoplaneta (Júpiter)") +
+  theme_minimal()
+
+```
+La masa de la estrella (`st_mass`) tiene un coeficiente de regresión de 0.337 lo que indica que un aumento de 1 unidad en la masa de la estrella se asocia con un aumento promedio de 0.337 en el radio del exoplaneta. El coeficiente es significativo (p \< 0.001) lo que sugiere que la masa de la estrella puede ser un predictor significativo del radio del exoplaneta.
+
+El coeficiente de determinación (R²) es de 0.0476 por lo que el modelo explica solo el 4.76% de la variabilidad en el radio del exoplaneta. Esto sugiere que aunque la masa de la estrella puede ser un predictor significativo del radio del exoplaneta no explica la mayoría de la variabilidad en el radio del exoplaneta. 
+
+```{r univariate_regression_analysis_pl_orbsmax}
+
+# Regresion de pl_radj con pl_orbsmax
+
+model_pl_orbsmax <- lm(pl_radj ~ pl_orbsmax, data = kepler_data_num)
+
+model_pl_orbsmax_summary <- summary(model_pl_orbsmax)
+
+model_pl_orbsmax_summary
+```
+
+```{r univariate_regression_analysis_pl_orbsmax_plot, warning=FALSE}
+
+# Scatter plot de pl_radj vs pl_orbsmax con la recta de regresión en rojo
+# y los margenes de confianza en gris
+ggplot(kepler_data_num, aes(x = pl_orbsmax, y = pl_radj)) +
+  geom_point(color = "steelblue") +
+  geom_smooth(method = "lm", color = "indianred", fill = "grey", alpha = 0.2) +
+  labs(title = "Regresión Lineal: Radio del Exoplaneta vs Distancia del Exoplaneta a la Estrella",
+       x = "Distancia del Exoplaneta a la Estrella (UA)",
+       y = "Radio del Exoplaneta (Júpiter)") +
+  theme_minimal()
 
 ```
 
 ## Regresión Lineal Multivariada
 
-Se realiza un análisis de regresión lineal multivariada para predecir el monto de la transacción a partir de variables financieras seleccionadas de los usuarios:
+Se realiza un análisis de regresión lineal multivariada para predecir el radio del exoplaneta (`pl_radj`) a partir de la masa del exoplaneta (`pl_bmassj`), la temperatura efectiva de la estrella (`st_teff`), la masa de la estrella (`st_mass`) y la distancia del exoplaneta a la estrella (`pl_orbsmax`).
 
-- `ud_per_capita_income`: Ingreso per cápita del usuario.
-- `ud_total_debt`: Deuda total del usuario.
-- `cd_credit_limit`: Límite de crédito de la tarjeta del usuario.
+```{r multivariate_regression_analysis}
 
-Se intenta provar si estas variables financieras conbinadas pueden predecir mejor el monto de la transacción que las variables financieras por separado.
+# Regresion de pl_radj con pl_bmassj, st_teff, st_mass y pl_orbsmax
+model_multivariate <- lm(pl_radj ~ pl_bmassj + st_teff + st_mass + pl_orbsmax, data = kepler_data_num)
 
-```{r linear_regression_multivariate}
+model_multivariate_summary <- summary(model_multivariate)
 
-# Modelo multivariado
-model_multivariate <- lm(amount ~ ud_per_capita_income + ud_total_debt + cd_credit_limit, data = transactions_data)
-
-summary(model_multivariate)
+model_multivariate_summary
 
 ```
-Los valores residuales (errores entre los valores observados y los predichos) tienen un rango amplio (desde -569.05 hasta 2921.88) lo que sugiere cierta variabilidad no explicada por el modelo.
 
-Asimismo los coeficientes para los predictores muestran que:
-- `ud_per_capita_income` (0.0006720): Un aumento de 1 unidad en el ingreso per cápita se asocia con un aumento promedio de 0.000672 en amount, manteniendo constantes las otras variables. Es altamente significativo (p<0.001).
-- `ud_total_debt` (-0.000008233): Un aumento de 1 unidad en la deuda total se asocia con una disminución promedio de 0.000008233 en amount. Sin embargo, su significancia estadística es baja (p=0.081), por lo que su efecto puede no ser confiable.
-- `cd_credit_limit` (0.0000781): Un aumento de 1 unidad en el límite de crédito se asocia con un aumento promedio de 0.0000781 en amount. Este coeficiente es significativo (p=0.00072).
-
-Para validar el modelo de regresión lineal multivariada, se analiza la distribución de los residuos (errores entre los valores observados y los predichos) y se calcula el coeficiente de determinación (R²) para evaluar la bondad del ajuste del modelo.
-
-- R-cuadrado múltiple (0.01075): El modelo explica solo el 1.075% de la variabilidad total en amount, esto es el modelo tiene un ajuste muy bajo.
-- R-cuadrado ajustado (0.01073): Similar al R-cuadrado, pero ajustado por el número de predictores. Confirma un bajo poder explicativo.
-- F-statistic (481.8, p < 0.00000000000000022): Prueba global de si al menos uno de los predictores tiene un efecto significativo. Aunque el p-valor es extremadamente bajo, el impacto práctico de los predictores parece limitado debido al bajo R².
-
-El R-cuadrado mide qué proporción de la variabilidad total de la variable dependiente (en este caso, `amount`) es explicada por las variables independientes del modelo (`ud_per_capita_income`, `ud_total_debt`, `cd_credit_limit`).
-
-En este modelo, el R-cuadrado múltiple es de 0.01075, lo que significa que solo el 1.075% de la variabilidad en `amount` puede ser explicada por las variables financieras de los usuarios incluidas en el modelo. Por lo tanto, el 98.925% restante de la variabilidad en `amount` se debe a otros factores que no están incluidos en este modelo.
+El modelo de regresión lineal multivariada tiene un coeficiente de determinación (R²) de 0.284 por lo que el modelo explica el 28.4% de la variabilidad en el radio del exoplaneta. Esta predicción es mejor que los modelos univariados anteriores, lo que sugiere que la combinación de las variables independientes (`pl_bmassj`, `st_teff`, `st_mass` y `pl_orbsmax`) puede ser un predictor significativo del radio del exoplaneta.
