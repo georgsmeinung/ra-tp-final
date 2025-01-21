@@ -500,124 +500,311 @@ Para analizar la relación entre las variables conocidas de la estrella del sist
 
 Las variablies de características de los sistemas exoplanetarios tales como periodo orbital, radio planetario, temperatura de la estrella central del sistema y masa del planeta pueden inferirse indirectamente a partir de otras variables como excentricidad orbital, distancia a la estrella, caracteristicas de la estrella y otras. Se explorar un análisis de regresión lineal univariada con varias variables independientes evaluando la capacidad de predicción de cada modelo planteado. 
 
-Se realiza un análisis de regresión lineal univariada para predecir el radio del exoplaneta (`pl_radj`) a partir de la masa del exoplaneta (`pl_bmassj`), la temperatura efectiva de la estrella (`st_teff`), la masa de la estrella (`st_mass`) y la distancia del exoplaneta a la estrella (`pl_orbsmax`).
+Se realiza un análisis de regresión lineal univariada para predecir el radio del exoplaneta (`pl_radj`) consecutivamente a partir de la profundidad del tránsito (`pl_trandep`), el cociente del semieje orbital mayor sobre el radio estelar (`pl_ratdor`), la amplitud de la velocidad radial (`pl_rvamp`) y el radio de la estrella(`st_rad`). Para cada variable independiente, se ajusta un modelo de regresión lineal con la variable dependiente (`pl_radj`) y se evalúa la capacidad predictiva de cada modelo.
 
-Para cada variable independiente, se ajusta un modelo de regresión lineal con la variable dependiente (`pl_radj`) y se evalúa la capacidad predictiva de cada modelo.
+```{r univariate_regression_analysis_pl_radj_pl_trandep}
 
-```{r univariate_regression_analysis_pl_radj}
+# Regresion de pl_radj con pl_trandep
+model_pl_radj_pl_trandep <- lm(pl_radj ~ pl_trandep, data = kepler_data_num)
 
-# Regresion de pl_radj con pl_bmassj
-model_pl_bmassj <- lm(pl_radj ~ pl_bmassj, data = kepler_data_num)
+model_pl_radj_pl_trandep_summary <- summary(model_pl_radj_pl_trandep)
 
-model_pl_bmassj_summary <- summary(model_pl_bmassj)
-
-model_pl_bmassj_summary
+model_pl_radj_pl_trandep_summary
 ```
 
-```{r univariate_regression_analysis_pl_radj_plot, warning=FALSE}
+```{r univariate_regression_analysis_pl_radj_pl_trandep_plot, warning=FALSE}
 
-# Scatter plot de pl_radj vs pl_bmassj con la recta de regresión en rojo
+# Scatter plot de pl_radj vs pl_trandep con la recta de regresión en rojo
 # y los margenes de confianza en gris
-ggplot(kepler_data_num, aes(x = pl_bmassj, y = pl_radj)) +
+ggplot(kepler_data_num, aes(x = pl_trandep, y = pl_radj)) +
   geom_point(color = "steelblue") +
   geom_smooth(method = "lm", color = "red", fill = "grey", alpha = 0.2) +
-  labs(title = "Regresión Lineal: Radio del Exoplaneta vs Masa del Exoplaneta",
-       x = "Masa del Exoplaneta (Júpiter)",
+  labs(title = "Regresión Lineal: Radio del Exoplaneta vs Profundidad del Tránsito",
+       x = "Profundidad del Tránsito (%)",
        y = "Radio del Exoplaneta (Júpiter)") +
   theme_minimal()
 
 ```
-La masa del exoplaneta (`pl_bmassj`) tiene un coeficiente de regresión de 0.0278 lo que indica que un aumento de 1 unidad en la masa del exoplaneta se asocia con un aumento promedio de 0.0278 en el radio del exoplaneta. El coeficiente es significativo (p \< 0.001) lo que sugiere que la masa del exoplaneta puede ser un predictor significativo del radio del exoplaneta.
 
-Sin embargo, el coeficiente de determinación (R²) es de 0.06517 por lo que el modelo explica solo el 6.517% de la variabilidad en el radio del exoplaneta. Esto sugiere que aunque la masa del exoplaneta puede ser un predictor significativo del radio del exoplaneta no explica la mayoría de la variabilidad en el radio del exoplaneta. Esta situación puede deberse a la presencia de otros factores no incluidos en el modelo que influyen en el radio del exoplaneta como por ejemplo densidad del exoplaneta. Esta falta de explicabilidad puede verser en el grafico de dispersión.
+```{r univariate_regression_analysis_pl_radj_pl_trandep_residuals_plot, warning=FALSE}
 
-```{r univariate_regression_analysis_st_teff}
+# Obtener los residuos y valores ajustados
+residuals <- residuals(model_pl_radj_pl_trandep)
+
+fitted_values <- fitted(model_pl_radj_pl_trandep)
+
+# Crear un data frame con los residuos y valores ajustados
+residuals_df <- data.frame(
+  Residuals = residuals,
+  Fitted_Values = fitted_values
+)
+
+# Scatter plot de residuos vs valores ajustados
+ggplot(residuals_df, aes(x = Fitted_Values, y = Residuals)) +
+  geom_point(color = "steelblue") +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  labs(title = "Residuos vs Valores Ajustados",
+       x = "Valores Ajustados",
+       y = "Residuos") +
+  theme_minimal()
+
+```
+``` {r univariate_regression_analysis_pl_radj_pl_trandep_qq_plot, warning=FALSE}
+
+# Crear un gráfico Q-Q de los residuos
+qqnorm(residuals, main = "Gráfico Q-Q de los Residuos")
+
+```
+
+```{r univariate_regression_analysis_pl_radj_pl_trandep_shapiro_test}
+
+# Prueba de normalidad de Shapiro-Wilk
+shapiro_test <- shapiro.test(residuals)
+
+shapiro_test
+
+```
+```{r univariate_regression_analysis_pl_radj_pl_trandep_bp_test}    
+
+# Prueba de homocedasticidad de Breusch-Pagan
+library(lmtest)
+
+# Prueba de Breusch-Pagan
+bp_test <- bptest(model_pl_radj_pl_trandep)
+
+bp_test
+
+```
+
+```{r univariate_regression_analysis_pl_radj_pl_ratdor}
 
 # Regresion de pl_radj con st_teff
-model_st_teff <- lm(pl_radj ~ st_teff, data = kepler_data_num)
+model_pl_radj_pl_ratdor <- lm(pl_radj ~ pl_ratdor, data = kepler_data_num)
 
-model_st_teff_summary <- summary(model_st_teff)
+model_pl_radj_pl_ratdor_summary <- summary(model_pl_radj_pl_ratdor)
 
-model_st_teff_summary
+model_pl_radj_pl_ratdor_summary
 ```
 
-```{r univariate_regression_analysis_st_teff_plot, warning=FALSE}
+```{r univariate_regression_analysis_pl_radj_pl_ratdor_plot, warning=FALSE}
 
-# Scatter plot de pl_radj vs st_teff con la recta de regresión en rojo
+# Scatter plot de pl_radj vs pl_ratdor con la recta de regresión en rojo
 # y los margenes de confianza en gris
-ggplot(kepler_data_num, aes(x = st_teff, y = pl_radj)) +
+ggplot(kepler_data_num, aes(x = pl_ratdor, y = pl_radj)) +
   geom_point(color = "steelblue") +
   geom_smooth(method = "lm", color = "indianred", fill = "grey", alpha = 0.2) +
-  labs(title = "Regresión Lineal: Radio del Exoplaneta vs Temperatura Efectiva de la Estrella",
-       x = "Temperatura Efectiva de la Estrella (K)",
+  labs(title = "Regresión Lineal: Radio del Exoplaneta vs Cociente Semieje Orbital Mayor sobre Radio Estelar",
+       x = "Cociente Semieje Orbital Mayor sobre Radio Estelar",
        y = "Radio del Exoplaneta (Júpiter)") +
   theme_minimal()
 
 ```
-La temperatura efectiva de la estrella (`st_teff`) tiene un coeficiente de regresión de 0.00004 lo que indica que un aumento de 1 unidad en la temperatura efectiva de la estrella se asocia con un aumento promedio de 0.00004 en el radio del exoplaneta. El coeficiente es significativo (p \< 0.001) lo que sugiere que la temperatura efectiva de la estrella puede ser un predictor significativo del radio del exoplaneta.
+``` {r univariate_regression_analysis_pl_radj_pl_ratdor_residuals_plot, warning=FALSE}
 
-Sin embargo, el coeficiente de determinación (R²) es de 0.0146 por lo que el modelo explica solo el 1.46% de la variabilidad en el radio del exoplaneta. Esto sugiere que aunque la temperatura efectiva de la estrella puede ser un predictor significativo del radio del exoplaneta no explica la mayoría de la variabilidad en el radio del exoplaneta. 
+# Obtener los residuos y valores ajustados
+residuals_ratdor <- residuals(model_pl_radj_pl_ratdor)
 
-```{r univariate_regression_analysis_st_mass}
+fitted_values_ratdor <- fitted(model_pl_radj_pl_ratdor)
 
-# Regresion de pl_radj con st_mass
-model_st_mass <- lm(pl_radj ~ st_mass, data = kepler_data_num)
+# Crear un data frame con los residuos y valores ajustados
+residuals_ratdor_df <- data.frame(
+  Residuals = residuals_ratdor,
+  Fitted_Values = fitted_values_ratdor
+)
 
-model_st_mass_summary <- summary(model_st_mass)
+# Scatter plot de residuos vs valores ajustados
+ggplot(residuals_ratdor_df, aes(x = Fitted_Values, y = Residuals)) +
+  geom_point(color = "steelblue") +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  labs(title = "Residuos vs Valores Ajustados",
+       x = "Valores Ajustados",
+       y = "Residuos") +
+  theme_minimal()
 
-model_st_mass_summary
+```
+``` {r univariate_regression_analysis_pl_radj_pl_ratdor_qq_plot, warning=FALSE}
+
+# Crear un gráfico Q-Q de los residuos
+qqnorm(residuals_ratdor, main = "Gráfico Q-Q de los Residuos")
+
+```
+``` {r univariate_regression_analysis_pl_radj_pl_ratdor_shapiro_test}
+
+# Prueba de normalidad de Shapiro-Wilk
+shapiro_test_ratdor <- shapiro.test(residuals_ratdor)
+
+shapiro_test_ratdor
+
+```
+``` {r univariate_regression_analysis_pl_radj_pl_ratdor_bp_test}
+
+# Prueba de homocedasticidad de Breusch-Pagan
+library(lmtest)
+
+# Prueba de Breusch-Pagan
+bp_test_ratdor <- bptest(model_pl_radj_pl_ratdor)
+
+bp_test_ratdor
+
 ```
 
-```{r univariate_regression_analysis_st_mass_plot, warning=FALSE}
+```{r univariate_regression_analysis_pl_radj_pl_rvamp}
 
-# Scatter plot de pl_radj vs st_mass con la recta de regresión en rojo
+# Regresion de pl_radj con pl_rvamp
+model_pl_radj_pl_rvamp <- lm(pl_radj ~ pl_rvamp, data = kepler_data_num)
+
+model_pl_radj_pl_rvamp_summary <- summary(model_pl_radj_pl_rvamp)
+
+model_pl_radj_pl_rvamp_summary
+```
+
+```{r univariate_regression_analysis_pl_radj_pl_rvamp_plot, warning=FALSE}
+
+# Scatter plot de pl_radj vs pl_rvamp con la recta de regresión en rojo
 # y los margenes de confianza en gris
-ggplot(kepler_data_num, aes(x = st_mass, y = pl_radj)) +
+ggplot(kepler_data_num, aes(x = pl_rvamp, y = pl_radj)) +
   geom_point(color = "steelblue") +
   geom_smooth(method = "lm", color = "indianred", fill = "grey", alpha = 0.2) +
-  labs(title = "Regresión Lineal: Radio del Exoplaneta vs Masa de la Estrella",
-       x = "Masa de la Estrella (Masa Solar)",
+  labs(title = "Regresión Lineal: Radio del Exoplaneta vs Ampitud de Velocidad Radial",
+       x = "Ampitud de Velocidad Radial",
        y = "Radio del Exoplaneta (Júpiter)") +
   theme_minimal()
 
 ```
-La masa de la estrella (`st_mass`) tiene un coeficiente de regresión de 0.337 lo que indica que un aumento de 1 unidad en la masa de la estrella se asocia con un aumento promedio de 0.337 en el radio del exoplaneta. El coeficiente es significativo (p \< 0.001) lo que sugiere que la masa de la estrella puede ser un predictor significativo del radio del exoplaneta.
 
-El coeficiente de determinación (R²) es de 0.0476 por lo que el modelo explica solo el 4.76% de la variabilidad en el radio del exoplaneta. Esto sugiere que aunque la masa de la estrella puede ser un predictor significativo del radio del exoplaneta no explica la mayoría de la variabilidad en el radio del exoplaneta. 
+``` {r univariate_regression_analysis_pl_radj_pl_rvamp_residuals_plot, warning=FALSE}
 
-```{r univariate_regression_analysis_pl_orbsmax}
+# Obtener los residuos y valores ajustados
+residuals_rvamp <- residuals(model_pl_radj_pl_rvamp)
 
-# Regresion de pl_radj con pl_orbsmax
+fitted_values_rvamp <- fitted(model_pl_radj_pl_rvamp)
 
-model_pl_orbsmax <- lm(pl_radj ~ pl_orbsmax, data = kepler_data_num)
+# Crear un data frame con los residuos y valores ajustados
+residuals_rvamp_df <- data.frame(
+  Residuals = residuals_rvamp,
+  Fitted_Values = fitted_values_rvamp
+)
 
-model_pl_orbsmax_summary <- summary(model_pl_orbsmax)
+# Scatter plot de residuos vs valores ajustados
+ggplot(residuals_rvamp_df, aes(x = Fitted_Values, y = Residuals)) +
+  geom_point(color = "steelblue") +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  labs(title = "Residuos vs Valores Ajustados",
+       x = "Valores Ajustados",
+       y = "Residuos") +
+  theme_minimal()
 
-model_pl_orbsmax_summary
+```
+``` {r univariate_regression_analysis_pl_radj_pl_rvamp_qq_plot, warning=FALSE}
+
+# Crear un gráfico Q-Q de los residuos
+qqnorm(residuals_rvamp, main = "Gráfico Q-Q de los Residuos")
+
+```
+``` {r univariate_regression_analysis_pl_radj_pl_rvamp_shapiro_test}
+
+# Prueba de normalidad de Shapiro-Wilk
+shapiro_test_rvamp <- shapiro.test(residuals_rvamp)
+
+shapiro_test_rvamp
+
+```
+``` {r univariate_regression_analysis_pl_radj_pl_rvamp_bp_test}
+
+# Prueba de homocedasticidad de Breusch-Pagan
+library(lmtest)
+
+# Prueba de Breusch-Pagan
+bp_test_rvamp <- bptest(model_pl_radj_pl_rvamp)
+
+bp_test_rvamp
+
 ```
 
-```{r univariate_regression_analysis_pl_orbsmax_plot, warning=FALSE}
+```{r univariate_regression_analysis_pl_radj_st_rad}
 
-# Scatter plot de pl_radj vs pl_orbsmax con la recta de regresión en rojo
+# Regresion de pl_radj con st_rad
+
+model_pl_radj_st_rad <- lm(pl_radj ~ st_rad, data = kepler_data_num)
+
+model_pl_radj_st_rad_summary <- summary(model_pl_radj_st_rad)
+
+model_pl_radj_st_rad_summary
+```
+
+```{r univariate_regression_analysis_pl_radj_st_rad_plot, warning=FALSE}
+
+# Scatter plot de pl_radj vs st_rad con la recta de regresión en rojo
 # y los margenes de confianza en gris
-ggplot(kepler_data_num, aes(x = pl_orbsmax, y = pl_radj)) +
+ggplot(kepler_data_num, aes(x = st_rad, y = pl_radj)) +
   geom_point(color = "steelblue") +
   geom_smooth(method = "lm", color = "indianred", fill = "grey", alpha = 0.2) +
-  labs(title = "Regresión Lineal: Radio del Exoplaneta vs Distancia del Exoplaneta a la Estrella",
-       x = "Distancia del Exoplaneta a la Estrella (UA)",
+  labs(title = "Regresión Lineal: Radio del Exoplaneta vs Radio de la Estrella",
+       x = "Radio de la Estrella (Radios Solares)",
        y = "Radio del Exoplaneta (Júpiter)") +
   theme_minimal()
+
+```
+``` {r univariate_regression_analysis_pl_radj_st_rad_residuals_plot, warning=FALSE}
+
+# Obtener los residuos y valores ajustados
+
+residuals_st_rad <- residuals(model_pl_radj_st_rad)
+
+fitted_values_st_rad <- fitted(model_pl_radj_st_rad)
+
+# Crear un data frame con los residuos y valores ajustados
+
+residuals_st_rad_df <- data.frame(
+  Residuals = residuals_st_rad,
+  Fitted_Values = fitted_values_st_rad
+)
+
+# Scatter plot de residuos vs valores ajustados
+ggplot(residuals_st_rad_df, aes(x = Fitted_Values, y = Residuals)) +
+  geom_point(color = "steelblue") +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  labs(title = "Residuos vs Valores Ajustados",
+       x = "Valores Ajustados",
+       y = "Residuos") +
+  theme_minimal()
+
+```
+``` {r univariate_regression_analysis_pl_radj_st_rad_qq_plot, warning=FALSE}
+
+# Crear un gráfico Q-Q de los residuos
+
+qqnorm(residuals_st_rad, main = "Gráfico Q-Q de los Residuos")
+
+```                             
+``` {r univariate_regression_analysis_pl_radj_st_rad_shapiro_test}
+
+# Prueba de normalidad de Shapiro-Wilk
+#shapiro_test_st_rad <- shapiro.test(residuals_st_rad)
+
+#shapiro_test_st_rad
+
+```
+``` {r univariate_regression_analysis_pl_radj_st_rad_bp_test}
+
+# Prueba de homocedasticidad de Breusch-Pagan
+library(lmtest)
+
+# Prueba de Breusch-Pagan
+bp_test_st_rad <- bptest(model_pl_radj_st_rad)
+
+bp_test_st_rad
 
 ```
 
 ## Regresión Lineal Multivariada
 
-Se realiza un análisis de regresión lineal multivariada para predecir el radio del exoplaneta (`pl_radj`) a partir de la masa del exoplaneta (`pl_bmassj`), la temperatura efectiva de la estrella (`st_teff`), la masa de la estrella (`st_mass`) y la distancia del exoplaneta a la estrella (`pl_orbsmax`).
+Se realiza un análisis de regresión lineal multivariada para predecir el radio del exoplaneta (`pl_radj`) simultaneamente a partir de la profundidad del tránsito (`pl_trandep`), el cociente del semieje orbital mayor sobre el radio estelar (`pl_ratdor`), la amplitud de la velocidad radial (`pl_rvamp`) y el radio de la estrella(`st_rad`).
 
 ```{r multivariate_regression_analysis}
 
-# Regresion de pl_radj con pl_bmassj, st_teff, st_mass y pl_orbsmax
-model_multivariate <- lm(pl_radj ~ pl_bmassj + st_teff + st_mass + pl_orbsmax, data = kepler_data_num)
+# Regresion de pl_radj con pl_trandep, pl_ratdor, pl_rvamp y st_rad
+model_multivariate <- lm(pl_radj ~ pl_trandep + pl_ratdor + pl_rvamp + st_rad, data = kepler_data_num)
 
 model_multivariate_summary <- summary(model_multivariate)
 
@@ -625,4 +812,52 @@ model_multivariate_summary
 
 ```
 
-El modelo de regresión lineal multivariada tiene un coeficiente de determinación (R²) de 0.284 por lo que el modelo explica el 28.4% de la variabilidad en el radio del exoplaneta. Esta predicción es mejor que los modelos univariados anteriores, lo que sugiere que la combinación de las variables independientes (`pl_bmassj`, `st_teff`, `st_mass` y `pl_orbsmax`) puede ser un predictor significativo del radio del exoplaneta.
+```{r multivariate_regression_analysis_residuals_plot, warning=FALSE}
+
+# Obtener los residuos y valores ajustados
+residuals_multivariate <- residuals(model_multivariate)
+
+fitted_values_multivariate <- fitted(model_multivariate)
+
+# Crear un data frame con los residuos y valores ajustados
+residuals_multivariate_df <- data.frame(
+  Residuals = residuals_multivariate,
+  Fitted_Values = fitted_values_multivariate
+)
+
+# Scatter plot de residuos vs valores ajustados
+ggplot(residuals_multivariate_df, aes(x = Fitted_Values, y = Residuals)) +
+  geom_point(color = "steelblue") +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  labs(title = "Residuos vs Valores Ajustados",
+       x = "Valores Ajustados",
+       y = "Residuos") +
+  theme_minimal()
+
+```
+
+``` {r multivariate_regression_analysis_qq_plot, warning=FALSE}
+
+# Crear un gráfico Q-Q de los residuos
+qqnorm(residuals_multivariate, main = "Gráfico Q-Q de los Residuos")
+
+```
+``` {r multivariate_regression_analysis_shapiro_test}
+
+# Prueba de normalidad de Shapiro-Wilk
+shapiro_test_multivariate <- shapiro.test(residuals_multivariate)
+
+shapiro_test_multivariate
+
+```
+``` {r multivariate_regression_analysis_bp_test}
+
+# Prueba de homocedasticidad de Breusch-Pagan
+library(lmtest)
+
+# Prueba de Breusch-Pagan
+bp_test_multivariate <- bptest(model_multivariate)
+
+bp_test_multivariate
+
+```
