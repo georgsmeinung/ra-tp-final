@@ -16,9 +16,9 @@ editor_options:
     wrap: none
 ---
 
-<div style="text-align: center;">   
-  ![](logo-austral.png){width=150px}
-</div>
+::: {style="text-align: center;"}
+![](logo-austral.png){width="150px"}
+:::
 
 ```{r setup, include=FALSE}
 # Limpieza del Workspace
@@ -332,7 +332,7 @@ Se detectan grandes cantidades valores faltantes en varias columnas del dataset,
 -   `st_`: Parámetros de la estrella.
 -   `sy_`: Parámetros del sistema.
 
-Buena parte de las variables faltantes corresponden a parámetros de los exoplanetas y sistemas, lo que puede dificultar el análisis y la predicción de la habitabilidad de los exoplanetas. Por lo tanto, se procederá a estimar los valores faltantes de aquellos parámetros en los que haya una cantidad suficiente de datos para realizar una estimación precisa. 
+Buena parte de las variables faltantes corresponden a parámetros de los exoplanetas y sistemas, lo que puede dificultar el análisis y la predicción de la habitabilidad de los exoplanetas. Por lo tanto, se procederá a estimar los valores faltantes de aquellos parámetros en los que haya una cantidad suficiente de datos para realizar una estimación precisa.
 
 El propósito de este trabajo es estimar los valores faltantes de los exoplanetas y predecir la habitabilidad de los mismos. Para ello, se utilizarán técnicas de regresión lineal y logística para estimar los valores faltantes y predecir la habitabilidad de los exoplanetas.
 
@@ -361,6 +361,7 @@ half <- ceiling(n_vars / 2)
 ```
 
 **Matriz de Correlación 1/3 (Pearson Cuadrante Superior)**
+
 ```{r plot_correlation_pearson_upper_quadrant, echo=FALSE}
 
 # Parte 1: Primera mitad (diagonal superior)
@@ -380,6 +381,7 @@ corrplot(
 ```
 
 **Matriz de Correlación 2/3 (Pearson Cruce)**
+
 ```{r plot_correlation_pearson_cross, echo=FALSE}
 
 # Parte 2: Cruce entre la primera y segunda mitad
@@ -399,6 +401,7 @@ corrplot(
 ```
 
 **Matriz de Correlación 3/3 (Pearson Cuadrante Inferior)**
+
 ```{r plot_correlation_pearson_lower_quadrant, echo=FALSE}
 
 # Parte 3: Segunda mitad (diagonal inferior)
@@ -434,6 +437,7 @@ half <- ceiling(n_vars / 2)
 ```
 
 **Matriz de Correlación 1/3 (Spearman Cuadrante Superior)**
+
 ```{r plot_correlation_spearman_upper_quadrant, echo=FALSE}
 
 # Parte 1: Primera mitad (diagonal superior)
@@ -453,6 +457,7 @@ corrplot(
 ```
 
 **Matriz de Correlación 2/3 (Spearman Cruce)**
+
 ```{r plot_correlation_spearman_cross, echo=FALSE}
 
 # Parte 2: Cruce entre la primera y segunda mitad
@@ -472,6 +477,7 @@ corrplot(
 ```
 
 **Matriz de Correlación 3/3 (Spearman Cuadrante Inferior)**
+
 ```{r plot_correlation_spearman_lower_quadrant, echo=FALSE}
 
 # Parte 3: Segunda mitad (diagonal inferior)
@@ -498,7 +504,7 @@ Para analizar la relación entre las variables conocidas de la estrella del sist
 
 ## Regresión Lineal Univariada
 
-Las variablies de características de los sistemas exoplanetarios tales como periodo orbital, radio planetario, temperatura de la estrella central del sistema y masa del planeta pueden inferirse indirectamente a partir de otras variables como excentricidad orbital, distancia a la estrella, caracteristicas de la estrella y otras. Se explorar un análisis de regresión lineal univariada con varias variables independientes evaluando la capacidad de predicción de cada modelo planteado. 
+Las variablies de características de los sistemas exoplanetarios tales como periodo orbital, radio planetario, temperatura de la estrella central del sistema y masa del planeta pueden inferirse indirectamente a partir de otras variables como excentricidad orbital, distancia a la estrella, caracteristicas de la estrella y otras. Se explorar un análisis de regresión lineal univariada con varias variables independientes evaluando la capacidad de predicción de cada modelo planteado.
 
 Se realiza un análisis de regresión lineal univariada para predecir el radio del exoplaneta (`pl_radj`) consecutivamente a partir de la profundidad del tránsito (`pl_trandep`), el cociente del semieje orbital mayor sobre el radio estelar (`pl_ratdor`), la amplitud de la velocidad radial (`pl_rvamp`) y el radio de la estrella(`st_rad`). Para cada variable independiente, se ajusta un modelo de regresión lineal con la variable dependiente (`pl_radj`) y se evalúa la capacidad predictiva de cada modelo.
 
@@ -549,7 +555,8 @@ ggplot(residuals_df, aes(x = Fitted_Values, y = Residuals)) +
   theme_minimal()
 
 ```
-``` {r univariate_regression_analysis_pl_radj_pl_trandep_qq_plot, warning=FALSE}
+
+```{r univariate_regression_analysis_pl_radj_pl_trandep_qq_plot, warning=FALSE}
 
 # Crear un gráfico Q-Q de los residuos
 qqnorm(residuals, main = "Gráfico Q-Q de los Residuos")
@@ -564,7 +571,8 @@ shapiro_test <- shapiro.test(residuals)
 shapiro_test
 
 ```
-```{r univariate_regression_analysis_pl_radj_pl_trandep_bp_test}    
+
+```{r univariate_regression_analysis_pl_radj_pl_trandep_bp_test}
 
 # Prueba de homocedasticidad de Breusch-Pagan
 library(lmtest)
@@ -599,7 +607,8 @@ ggplot(kepler_data_num, aes(x = pl_ratdor, y = pl_radj)) +
   theme_minimal()
 
 ```
-``` {r univariate_regression_analysis_pl_radj_pl_ratdor_residuals_plot, warning=FALSE}
+
+```{r univariate_regression_analysis_pl_radj_pl_ratdor_residuals_plot, warning=FALSE}
 
 # Obtener los residuos y valores ajustados
 residuals_ratdor <- residuals(model_pl_radj_pl_ratdor)
@@ -622,13 +631,15 @@ ggplot(residuals_ratdor_df, aes(x = Fitted_Values, y = Residuals)) +
   theme_minimal()
 
 ```
-``` {r univariate_regression_analysis_pl_radj_pl_ratdor_qq_plot, warning=FALSE}
+
+```{r univariate_regression_analysis_pl_radj_pl_ratdor_qq_plot, warning=FALSE}
 
 # Crear un gráfico Q-Q de los residuos
 qqnorm(residuals_ratdor, main = "Gráfico Q-Q de los Residuos")
 
 ```
-``` {r univariate_regression_analysis_pl_radj_pl_ratdor_shapiro_test}
+
+```{r univariate_regression_analysis_pl_radj_pl_ratdor_shapiro_test}
 
 # Prueba de normalidad de Shapiro-Wilk
 shapiro_test_ratdor <- shapiro.test(residuals_ratdor)
@@ -636,7 +647,8 @@ shapiro_test_ratdor <- shapiro.test(residuals_ratdor)
 shapiro_test_ratdor
 
 ```
-``` {r univariate_regression_analysis_pl_radj_pl_ratdor_bp_test}
+
+```{r univariate_regression_analysis_pl_radj_pl_ratdor_bp_test}
 
 # Prueba de homocedasticidad de Breusch-Pagan
 library(lmtest)
@@ -672,7 +684,7 @@ ggplot(kepler_data_num, aes(x = pl_rvamp, y = pl_radj)) +
 
 ```
 
-``` {r univariate_regression_analysis_pl_radj_pl_rvamp_residuals_plot, warning=FALSE}
+```{r univariate_regression_analysis_pl_radj_pl_rvamp_residuals_plot, warning=FALSE}
 
 # Obtener los residuos y valores ajustados
 residuals_rvamp <- residuals(model_pl_radj_pl_rvamp)
@@ -695,13 +707,15 @@ ggplot(residuals_rvamp_df, aes(x = Fitted_Values, y = Residuals)) +
   theme_minimal()
 
 ```
-``` {r univariate_regression_analysis_pl_radj_pl_rvamp_qq_plot, warning=FALSE}
+
+```{r univariate_regression_analysis_pl_radj_pl_rvamp_qq_plot, warning=FALSE}
 
 # Crear un gráfico Q-Q de los residuos
 qqnorm(residuals_rvamp, main = "Gráfico Q-Q de los Residuos")
 
 ```
-``` {r univariate_regression_analysis_pl_radj_pl_rvamp_shapiro_test}
+
+```{r univariate_regression_analysis_pl_radj_pl_rvamp_shapiro_test}
 
 # Prueba de normalidad de Shapiro-Wilk
 shapiro_test_rvamp <- shapiro.test(residuals_rvamp)
@@ -709,7 +723,8 @@ shapiro_test_rvamp <- shapiro.test(residuals_rvamp)
 shapiro_test_rvamp
 
 ```
-``` {r univariate_regression_analysis_pl_radj_pl_rvamp_bp_test}
+
+```{r univariate_regression_analysis_pl_radj_pl_rvamp_bp_test}
 
 # Prueba de homocedasticidad de Breusch-Pagan
 library(lmtest)
@@ -745,7 +760,8 @@ ggplot(kepler_data_num, aes(x = st_rad, y = pl_radj)) +
   theme_minimal()
 
 ```
-``` {r univariate_regression_analysis_pl_radj_st_rad_residuals_plot, warning=FALSE}
+
+```{r univariate_regression_analysis_pl_radj_st_rad_residuals_plot, warning=FALSE}
 
 # Obtener los residuos y valores ajustados
 
@@ -770,14 +786,16 @@ ggplot(residuals_st_rad_df, aes(x = Fitted_Values, y = Residuals)) +
   theme_minimal()
 
 ```
-``` {r univariate_regression_analysis_pl_radj_st_rad_qq_plot, warning=FALSE}
+
+```{r univariate_regression_analysis_pl_radj_st_rad_qq_plot, warning=FALSE}
 
 # Crear un gráfico Q-Q de los residuos
 
 qqnorm(residuals_st_rad, main = "Gráfico Q-Q de los Residuos")
 
-```                             
-``` {r univariate_regression_analysis_pl_radj_st_rad_shapiro_test}
+```
+
+```{r univariate_regression_analysis_pl_radj_st_rad_shapiro_test}
 
 # Prueba de normalidad de Shapiro-Wilk
 #shapiro_test_st_rad <- shapiro.test(residuals_st_rad)
@@ -785,7 +803,8 @@ qqnorm(residuals_st_rad, main = "Gráfico Q-Q de los Residuos")
 #shapiro_test_st_rad
 
 ```
-``` {r univariate_regression_analysis_pl_radj_st_rad_bp_test}
+
+```{r univariate_regression_analysis_pl_radj_st_rad_bp_test}
 
 # Prueba de homocedasticidad de Breusch-Pagan
 library(lmtest)
@@ -836,13 +855,14 @@ ggplot(residuals_multivariate_df, aes(x = Fitted_Values, y = Residuals)) +
 
 ```
 
-``` {r multivariate_regression_analysis_qq_plot, warning=FALSE}
+```{r multivariate_regression_analysis_qq_plot, warning=FALSE}
 
 # Crear un gráfico Q-Q de los residuos
 qqnorm(residuals_multivariate, main = "Gráfico Q-Q de los Residuos")
 
 ```
-``` {r multivariate_regression_analysis_shapiro_test}
+
+```{r multivariate_regression_analysis_shapiro_test}
 
 # Prueba de normalidad de Shapiro-Wilk
 shapiro_test_multivariate <- shapiro.test(residuals_multivariate)
@@ -850,7 +870,8 @@ shapiro_test_multivariate <- shapiro.test(residuals_multivariate)
 shapiro_test_multivariate
 
 ```
-``` {r multivariate_regression_analysis_bp_test}
+
+```{r multivariate_regression_analysis_bp_test}
 
 # Prueba de homocedasticidad de Breusch-Pagan
 library(lmtest)
@@ -861,3 +882,149 @@ bp_test_multivariate <- bptest(model_multivariate)
 bp_test_multivariate
 
 ```
+
+## Regresión Logística
+
+Para predecir la habitabilidad de los exoplanetas, se realiza un análisis de regresión logística utilizando las variables conocidas de los exoplanetas y las estrellas del sistema. Se seleccionan las variables conocidas de los exoplanetas y las estrellas como variables independientes y la habitabilidad como variable dependiente.
+
+Existen varios indicadores de habitabilidad de los exoplanetas, como la temperatura de equilibrio (`pl_eqt`), la insolación (`pl_insol`), la distancia orbital semieje mayor (`pl_orbsmax`), la temperatura efectiva de la estrella (`st_teff`), la masa de la estrella (`st_mass`), la luminosidad de la estrella (`st_lum`), la gravedad superficial de la estrella (`st_logg`) y la edad de la estrella (`st_age`). Se seleccionan estas variables como posibles predictores de la habitabilidad de los exoplanetas.
+
+La determinación de la habitabilidad de un exoplaneta es un tema complejo y multifactorial que depende de varios indicadores físicos y químicos. Si bien no existe una fórmula única universalmente aceptada para calcular la "habitabilidad", se pueden combinar los indicadores antes mencionados para aproximar el potencial de habitabilidad de un exoplaneta. Una de las aproximaciones más comunes es usar una combinación ponderada de las condiciones adecuadas para la presencia de agua líquida, ya que esta es fundamental para la vida tal como la conocemos.
+
+Así con los indicadores seleccionados definimos un Índice de Habitabilidad Planetaria (PHI - Planetary Habitability Index) como una función normalizada que combine los indicadores clave:
+
+$$
+\text{PHI} = w_1 \cdot f_1(\text{pl_eqt}) + w_2 \cdot f_2(\text{pl_insol}) + w_3 \cdot f_3(\text{pl_orbsmax}) + w_4 \cdot f_{\text{estelar}} 
+$$
+Donde:
+
+- $w_i$ son los pesos normalizados asociados a cada indicador sumando 1.
+- $f_i(x)$ son funciones de transformación o normalización que convierten las medidas en valores entre 0 y 1, según el rango de habitabilidad conocido.
+- $f_{\text{estelar}}$ es una función que combina las propiedades estelares de la estrella anfitriona y a su vez es la ponderación de los siguientes parámetros estelares:
+$$
+f_{\text{estelar}} = w_5 \cdot f_5(\text{st_teff}) + w_6 \cdot f_6(\text{st_mass}) + w_7 \cdot f_7(\text{st_lum}) + w_8 \cdot f_8(\text{st_logg}) + w_9 \cdot f_9(\text{st_age})
+$$
+
+Estas variables se consideran como posibles predictores de la habitabilidad de los exoplanetas cuando están en determinados rangos.
+
+**Temperatura de equilibrio** (`pl_eqt`): Idealmente, debe estar en un rango compatible con agua líquida, aproximadamente entre 0°C y 100°C. Así la normalización resultan en:
+
+$$
+f_i(\text{pl_eqt}) = \max\left(0, \min\left(1, \frac{\text{pl_eqt} - T_{\text{min}}}{T_{\text{max}} - T_{\text{min}}}\right)\right)
+$$
+Donde $T_{\text{min}}$ y $T_{\text{max}}$ son los límites inferiores y superiores. El agua líquida, esencial para la vida, puede existir en un rango de temperaturas superficiales de aproximadamente 273K (0 °C) a 373K (100 °C). Sin embargo, debido a factores atmosféricos y de presión, este rango puede extenderse ligeramente: $T_{\text{min}}=200K$ puede ser el umbral inferior, considerando atmósferas densas como la de Marte y $T_{\text{max}}=400K$ puede considerarse el umbral superior, considerando atmósferas con alta presión como la de Venus.
+
+Según la literatura especializada el peso de la temperatura de equilibrio en el índice de habitabilidad es de $w_1=0.45$ cuando se considera la temperatura de equilibrio como un indicador preponderante de habitabilidad y no se tienen muchos más datos del planeta.
+
+**Insolación** (`pl_insol`): La insolación es la cantidad de energía recibida por el planeta y es un indicador importante de la habitabilidad. La insolación se mide en unidades de flujo de energía recibida por unidad de área y se puede normalizar en un rango de 0 a 1. La insolación ideal para la vida es aquella que permite la presencia de agua líquida en la superficie del planeta (generalmente valores cercanos a la Tierra son ideales). La insolación se puede normalizar considerando que La Tierra tiene una insolación de 1S (donde $S$ es la insolación solar a la distancia de la Tierra) y se puede considerar que la vida puede existir en un rango de insolación de $I_{min}=0.3S$ (aproximadamente el límite interior de la zona habitable para una estrella como el Sol, más allá de este valor el agua podría congelarse) a $I_{max}=1,7S$ (aproximadamente el límite exterior de la zona habitable, más allá de este valor el agua podría evaporarse). Así la normalización resulta en:
+
+$$
+f_2(\text{pl_insol}) = \max\left(0, \min\left(1, \frac{\text{pl_insol} - I_{\text{min}}}{I_{\text{max}} - I_{\text{min}}}\right)\right)
+$$
+
+La insolación es un factor crítico para mantener agua líquida en la superficie del planeta, pero su impacto depende de otros factores como la atmósfera y el albedo, según la literatura especializada el peso de la insolación en el índice de habitabilidad es de $w_2=0.30$. 
+Es importante destacar que El rango de $I_{min}$ e $I_{max}$ puede variar según la luminosidad de la estrella, ya que la zona habitable cambia en función del tipo estelar por lo que esta estimación sirve para estrellas similares al Sol.
+
+**Distancia orbital semieje mayor** (`pl_orbsmax`): La distancia orbital semieje mayor es un indicador de la zona habitable de un sistema planetario. La distancia orbital semieje mayor se mide en unidades astronómicas (UA) y se puede normalizar en un rango de 0 a 1. La distancia orbital semieje mayor ideal para la vida es aquella que permite la presencia de agua líquida en la superficie del planeta. La distancia orbital semieje mayor se puede normalizar considerando que La Tierra tiene una distancia orbital semieje mayor de 1 UA y se puede considerar que la vida puede existir en un rango de distancias de $D_{\text{min}}=1,05$ UA (aproximadamente el límite interior de la zona habitable para una estrella como el Sol, más allá de este valor el agua podría congelarse) a $D_{\text{max}}=2$ UA (aproximadamente el límite exterior de la zona habitable, más allá de este valor el agua podría evaporarse). Así la normalización resulta en:
+
+$$
+f_3(\text{pl_orbsmax}) = \max\left(0, \min\left(1, \frac{\text{pl_orbsmax} - D_{\text{min}}}{D_{\text{max}} - D_{\text{min}}}\right)\right)
+$$
+En la mayoría de los modelos, el peso para el valor normalizado de `pl_orbsmax` oscila entre 15% y 25%. Esto se debe a que `pl_orbsmax` complementa indicadores más directos como 
+`pl_eqt` (temperatura de equilibrio) y `pl_insol` (insolación). Se tomará un peso de $w_3=0.20$.
+
+**Propiedades estelares** (`st_teff`, `st_mass`, `st_lum`, `st_logg`, `st_age`): Las propiedades estelares son cruciales para determinar la habitabilidad de un exoplaneta. La estabilidad y tipo de estrella son cruciales puesto que estrellas demasiado masivas tienen vidas cortas y no permiten la evolución de la vida compleja mientras que estrellas con alta actividad estelar pueden emitir radiación peligrosa. La normalización de las propiedades estelares se realiza de manera similar a los indicadores planetarios, considerando los rangos de habitabilidad conocidos para estrellas similares al Sol. La normalización de las propiedades estelares (`st_teff`, `st_mass`, `st_lum`, `st_logg`, `st_age`) es crucial para combinarlas en un único valor que refleje su influencia en la habitabilidad. Cada propiedad se normaliza al rango [0, 1], con valores cercanos a 1 representando condiciones ideales para la habitabilidad.
+
+$$
+f_{\text{estelar}} = w_5 \cdot f_5(\text{st_teff}) + w_6 \cdot f_6(\text{st_mass}) + w_7 \cdot f_7(\text{st_lum}) + w_8 \cdot f_8(\text{st_logg}) + w_9 \cdot f_9(\text{st_age})
+$$
+
+Donde:
+- f5(x) es la normalización de la temperatura efectiva de la estrella (`st_teff`) con la normalización de la temperatura efectiva de la estrella ideal para la habitabilidad en el rango de 4000K a 6000K.
+- f6(x) es la normalización de la masa de la estrella (`st_mass`) con la normalización de la masa de la estrella ideal para la habitabilidad en el rango de 0.8 a 1.2 masas solares.
+- f7(x) es la normalización de la luminosidad de la estrella (`st_lum`) con la normalización de la luminosidad de la estrella ideal para la habitabilidad en el rango de -0.5 (estrella demasiado débil) a 0.5 (estrella con radiación excesiva) veces la luminosidad solar.
+- f8(x) es la normalización de la gravedad superficial de la estrella (`st_logg`) con la normalización de la gravedad superficial de la estrella ideal para la habitabilidad en el rango de 4.0 (estrella en evolución fuera de la secuencia principal) a 4.5 (condiciones poco comunes para estrellas típicas).
+- f9(x) es la normalización de la edad de la estrella (`st_age`) con la normalización de la edad de la estrella ideal para la habitabilidad en el rango de 1 a 10 gigaaños.
+
+En la literatura especializada se considera que el peso de las propiedades estelares en el índice de habitabilidad es de $w_4=0.1$.
+
+```{r logistic_regression_analysis}
+
+# Crear un data frame con las variables seleccionadas
+kepler_data_logistic <- kepler_data_num %>%
+  select(pl_eqt, pl_insol, pl_orbsmax, st_teff, st_mass, st_lum, st_logg, st_age)
+
+# Normalizar las variables
+kepler_data_logistic_normalized <- kepler_data_logistic %>%
+  mutate(
+    pl_eqt_normalized = pmin(1, pmax(0, (pl_eqt - 200) / (400 - 200))),
+    pl_insol_normalized = pmin(1, pmax(0, (pl_insol - 0.3) / (1.7 - 0.3))),
+    pl_orbsmax_normalized = pmin(1, pmax(0, (pl_orbsmax - 1.05) / (2 - 1.05))),
+    st_teff_normalized = pmin(1, pmax(0, (st_teff - 4000) / (6000 - 4000))),
+    st_mass_normalized = pmin(1, pmax(0, (st_mass - 0.8) / (1.2 - 0.8))),
+    st_lum_normalized = pmin(1, pmax(0, (st_lum + 0.5) / 1)),
+    st_logg_normalized = pmin(1, pmax(0, (st_logg - 4) / (4.5 - 4))),
+    st_age_normalized = pmin(1, pmax(0, (st_age - 1) / (10 - 1)))
+  )
+
+# Calcular el índice de habitabilidad planetaria (PHI)
+kepler_data_logistic_normalized <- kepler_data_logistic_normalized %>%
+  mutate(
+    phi = 0.45 * pl_eqt_normalized + 0.30 * pl_insol_normalized + 0.20 * pl_orbsmax_normalized +
+      0.1 * (0.45 * st_teff_normalized + 0.30 * st_mass_normalized + 0.20 * st_lum_normalized + 0.15 * st_logg_normalized + 0.10 * st_age_normalized)
+  )
+
+# Crear un data frame con las variables normalizadas y el índice de habitabilidad
+kepler_data_logistic_normalized <- kepler_data_logistic_normalized %>%
+  select(pl_eqt_normalized, pl_insol_normalized, pl_orbsmax_normalized, st_teff_normalized, st_mass_normalized, st_lum_normalized, st_logg_normalized, st_age_normalized, phi)
+
+# Crear un modelo de regresión logística
+model_logistic <- glm(phi ~ ., data = kepler_data_logistic_normalized, family = binomial)
+
+model_logistic_summary <- summary(model_logistic)
+
+model_logistic_summary
+
+```
+
+```{r logistic_regression_analysis_confusion_matrix}
+
+# Dividir los datos en conjunto de entrenamiento y prueba
+train_indices <- sample(1:nrow(kepler_data_logistic_normalized), size = 0.8 * nrow(kepler_data_logistic_normalized))
+train_data <- kepler_data_logistic_normalized[train_indices, ]
+test_data <- kepler_data_logistic_normalized[-train_indices, ]
+
+# Ajustar el modelo nuevamente usando los datos de entrenamiento
+model <- glm(phi ~ ., family = binomial, data = train_data)
+
+# Predicciones en el conjunto de prueba
+predicted_probabilities <- predict(model, newdata = test_data, type = "response")
+predicted_classes <- ifelse(predicted_probabilities > 0.5, 1, 0)
+
+#  Matriz de confusión
+actual_classes <- test_data$phi
+confusion_matrix <- table(Predicted = predicted_classes, Actual = actual_classes)
+print("Matriz de confusión:")
+print(confusion_matrix)
+
+# Calcular métricas de evaluación
+accuracy <- sum(diag(confusion_matrix)) / sum(confusion_matrix)
+precision <- confusion_matrix[2, 2] / sum(confusion_matrix[2, ])
+recall <- confusion_matrix[2, 2] / sum(confusion_matrix[, 2])
+f1_score <- 2 * (precision * recall) / (precision + recall)
+
+cat("Precisión (Accuracy):", accuracy, "\n")
+cat("Precisión (Precision):", precision, "\n")
+cat("Sensibilidad (Recall):", recall, "\n")
+cat("F1 Score:", f1_score, "\n")
+
+# Curva ROC y AUC
+library(pROC)
+roc_curve <- roc(actual_classes, predicted_probabilities)
+auc_value <- auc(roc_curve)
+plot(roc_curve, col = "blue", main = "Curva ROC")
+cat("Área bajo la curva (AUC):", auc_value, "\n")
+
+```
+
+
