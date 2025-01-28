@@ -1,3 +1,7 @@
+::: {style="text-align: center;"}
+![](logo-austral.png){width="200px"}
+:::
+
 ---
 title: "Regresión Avanzada 2024"
 subtitle: "Trabajo Práctico Final"
@@ -15,10 +19,6 @@ editor_options:
   markdown: 
     wrap: none
 ---
-
-::: {style="text-align: center;"}
-![](logo-austral.png){width="150px"}
-:::
 
 ```{r setup, include=FALSE}
 # Limpieza del Workspace
@@ -152,8 +152,8 @@ column_names <- column_names %>%
     "pl_radj: Radio del planeta (en radios jovianos)",
     "pl_masse: Masa del planeta (en masas terrestres)",
     "pl_massj: Masa del planeta (en masas jovianas)",
-    "pl_msinie: Minimo de masa medida por el método de velocidad radial (en masas terrestres)",
-    "pl_msinij: Minimo de masa medida por el método de velocidad radial (en masas jovianas)",
+    "pl_msinie: Mínimo de masa medida por el método de velocidad radial (en masas terrestres)",
+    "pl_msinij: Mínimo de masa medida por el método de velocidad radial (en masas jovianas)",
     "pl_cmasse: Masa mínima proyectada (en masas terrestres)",
     "pl_cmassj: Masa mínima proyectada (en masas jovianas)",
     "pl_bmasse: Mejor estimación de la masa del planeta (en masas terrestres)",
@@ -208,6 +208,9 @@ column_names <- column_names %>%
 # Ordenar el data frame por la columna "Column"
 column_names <- column_names[order(column_names$Column), ]
 
+# Eliminar de la columan Description el prefijo de la variable
+column_names$Description <- gsub("^.*: ", "", column_names$Description)
+
 # Elimina la columna con el numero de fila
 rownames(column_names) <- NULL
 
@@ -218,6 +221,9 @@ kable(column_names, col.names = c("Variable", "Descripción"), align = "l")
 ```{r save_filtered_dataset, include=FALSE}
 # Guardar los datos filtrados en un archivo CSV
 write_csv(kepler_data, "keplerfiltered.csv")
+
+# Guardar la estructura de las columnas en un archivo CSV
+write_csv(column_names, "keplerdatadictionary.csv")
 ```
 
 # Análisis Exploratorio de Datos
@@ -342,7 +348,7 @@ Para saber cuál de estas variables es la mejor predictoras de la variable falta
 
 ## Buscando Correlaciones
 
-Se analiza la correlación entre las variables numéricas del dataset para identificar posibles relaciones entre ellas utilizando los métodos de Pearson (detección de correlaciones lineales) y Spearman (detección de correlaciones no lineales).
+Se analiza la correlación entre las variables numéricas del dataset para identificar posibles relaciones entre ellas utilizando los métodos de Pearson (detección de correlaciones lineales).
 
 ```{r correlation_matrix_pearson, include=FALSE}
 
@@ -422,82 +428,6 @@ corrplot(
 
 La matriz de correlación muestra las relaciones lineales entre las variables numéricas del dataset. Se observan algunas correlaciones positivas y negativas entre las variables, lo que indica posibles relaciones entre ellas. Por ejemplo el cociente entre el semieje orbital mayor y el periodo orbital (`pl_ratdor`) tiene una correlación positiva con el periodo orbital (`pl_orbper`) y una correlación negativa con la temperatura de equilibrio(`pl_eqt`). Respecto de la variable que se seleccionó como clase en el apartado anterior, el radio del exoplaneta (`pl_radj`) tiene una correlación positiva con la profundidad del tránsito (`pl_trandep`) y una correlación negativa con la gravedad superficial de la estrella (`st_logg`).
 
-```{r correlation_matrix_spearman, include=FALSE}
-
-# Calcular la matriz de correlación
-correlation_matrix_spearman <- cor(kepler_data_num, use="pairwise.complete.obs" , method = "spearman")
-
-# Ordenar la matriz por nombre de columnas
-correlation_matrix_spearman <- correlation_matrix_spearman[order(rownames(correlation_matrix_spearman)), order(colnames(correlation_matrix_spearman))]
-
-# Número de variables
-n_vars <- ncol(correlation_matrix_spearman)
-half <- ceiling(n_vars / 2)
-
-```
-
-**Matriz de Correlación 1/3 (Spearman Cuadrante Superior)**
-
-```{r plot_correlation_spearman_upper_quadrant, echo=FALSE}
-
-# Parte 1: Primera mitad (diagonal superior)
-correlation_matrix_spearman_sup <- correlation_matrix_spearman[1:half, 1:half]
-corrplot(
-  correlation_matrix_spearman_sup,
-  method = "color",
-  type = "upper",
-  addCoef.col = "black",
-  number.cex = 0.3,
-  tl.cex = 0.5,
-  tl.col = "black",
-  col = colorRampPalette(c("indianred", "white", "steelblue"))(20),
-  title = ""
-)
-
-```
-
-**Matriz de Correlación 2/3 (Spearman Cruce)**
-
-```{r plot_correlation_spearman_cross, echo=FALSE}
-
-# Parte 2: Cruce entre la primera y segunda mitad
-correlation_matrix_spearman_cross <- correlation_matrix_spearman[1:half, (half + 1):n_vars]
-corrplot(
-  correlation_matrix_spearman_cross,
-  method = "color",
-  type = "full",  # Mostrar todas las correlaciones en esta sección
-  addCoef.col = "black",
-  number.cex = 0.3,
-  tl.cex = 0.5,
-  tl.col = "black",
-  col = colorRampPalette(c("indianred", "white", "steelblue"))(20),
-  title = ""
-)
-
-```
-
-**Matriz de Correlación 3/3 (Spearman Cuadrante Inferior)**
-
-```{r plot_correlation_spearman_lower_quadrant, echo=FALSE}
-
-# Parte 3: Segunda mitad (diagonal inferior)
-correlation_matrix_spearman_inf <- correlation_matrix_spearman[(half + 1):n_vars, (half + 1):n_vars]
-corrplot(
-  correlation_matrix_spearman_inf,
-  method = "color",
-  type = "upper",
-  addCoef.col = "black",
-  number.cex = 0.3,
-  tl.cex = 0.5,
-  tl.col = "black",
-  col = colorRampPalette(c("indianred", "white", "steelblue"))(20),
-  title = ""
-)
-
-```
-
-La matriz de correlaciones de Spearman muestra las relaciones no lineales entre las variables numéricas del dataset. Se observan algunas correlaciones positivas y negativas entre las variables, lo que indica posibles relaciones no lineales entre ellas. Por ejemplo la temperatura de equilibrio (`pl_eqt`) tiene una correlación positiva con la insolación (`pl_insol`) y una correlación negativa con la distancia orbital semieje mayor (`pl_orbsmax`). Respecto de la variable que se seleccionó como clase en el apartado anterior, el radio del exoplaneta (`pl_radj`) tiene una correlación positiva con la profundidad del tránsito (`pl_trandep`) y una correlación negativa con el período rotacional estelar (`st_rotp`).
-
 # Analisis de Regresión
 
 Para analizar la relación entre las variables conocidas de la estrella del sistema y las caracteristicas de los exoplanetas, se realiza un análisis de regresión lineal. Se seleccionan las caracteristicas conocidas del sistema planetarios como variables independientes.
@@ -508,17 +438,17 @@ Las variablies de características de los sistemas exoplanetarios tales como per
 
 Se realiza un análisis de regresión lineal univariada para predecir el radio del exoplaneta (`pl_radj`) consecutivamente a partir de la profundidad del tránsito (`pl_trandep`), el cociente del semieje orbital mayor sobre el radio estelar (`pl_ratdor`), la amplitud de la velocidad radial (`pl_rvamp`) y el radio de la estrella(`st_rad`). Para cada variable independiente, se ajusta un modelo de regresión lineal con la variable dependiente (`pl_radj`) y se evalúa la capacidad predictiva de cada modelo.
 
-```{r univariate_regression_analysis_pl_radj_pl_trandep}
+```{r univar_reg_pl_trandep}
 
 # Regresion de pl_radj con pl_trandep
-model_pl_radj_pl_trandep <- lm(pl_radj ~ pl_trandep, data = kepler_data_num)
+model_pl_trandep <- lm(pl_radj ~ pl_trandep, data = kepler_data_num)
 
-model_pl_radj_pl_trandep_summary <- summary(model_pl_radj_pl_trandep)
+model_pl_trandep_summary <- summary(model_pl_trandep)
 
-model_pl_radj_pl_trandep_summary
+model_pl_trandep_summary
 ```
 
-```{r univariate_regression_analysis_pl_radj_pl_trandep_plot, warning=FALSE}
+```{r univar_reg_pl_trandep_plot, warning=FALSE}
 
 # Scatter plot de pl_radj vs pl_trandep con la recta de regresión en rojo
 # y los margenes de confianza en gris
@@ -532,21 +462,22 @@ ggplot(kepler_data_num, aes(x = pl_trandep, y = pl_radj)) +
 
 ```
 
-```{r univariate_regression_analysis_pl_radj_pl_trandep_residuals_plot, warning=FALSE}
+```{r univar_reg_pl_trandep_res_plot, warning=FALSE}
 
 # Obtener los residuos y valores ajustados
-residuals <- residuals(model_pl_radj_pl_trandep)
+res_pl_trandep <- residuals(model_pl_trandep)
 
-fitted_values <- fitted(model_pl_radj_pl_trandep)
+# Estimar los valores ajustados
+fit_val_pl_trandep <- fitted(model_pl_trandep)
 
 # Crear un data frame con los residuos y valores ajustados
-residuals_df <- data.frame(
-  Residuals = residuals,
-  Fitted_Values = fitted_values
+res_pl_trandep_df <- data.frame(
+  Residuals = res_pl_trandep,
+  Fitted_Values = fit_val_pl_trandep
 )
 
 # Scatter plot de residuos vs valores ajustados
-ggplot(residuals_df, aes(x = Fitted_Values, y = Residuals)) +
+ggplot(res_pl_trandep_df, aes(x = Fitted_Values, y = Residuals)) +
   geom_point(color = "steelblue") +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   labs(title = "Residuos vs Valores Ajustados",
@@ -556,45 +487,49 @@ ggplot(residuals_df, aes(x = Fitted_Values, y = Residuals)) +
 
 ```
 
-```{r univariate_regression_analysis_pl_radj_pl_trandep_qq_plot, warning=FALSE}
+```{r univar_reg_pl_trandep_qq_plot, warning=FALSE}
 
 # Crear un gráfico Q-Q de los residuos
-qqnorm(residuals, main = "Gráfico Q-Q de los Residuos")
+qqnorm(res_pl_trandep, main = "Gráfico Q-Q de los Residuos")
 
 ```
 
-```{r univariate_regression_analysis_pl_radj_pl_trandep_shapiro_test}
+```{r univar_reg_pl_trandep_shapiro_test}
 
 # Prueba de normalidad de Shapiro-Wilk
-shapiro_test <- shapiro.test(residuals)
+shapiro_test_pl_trandep <- shapiro.test(res_pl_trandep)
 
-shapiro_test
+shapiro_test_pl_trandep
 
 ```
 
-```{r univariate_regression_analysis_pl_radj_pl_trandep_bp_test}
+```{r univar_reg_pl_trandep_bp_test}
 
 # Prueba de homocedasticidad de Breusch-Pagan
 library(lmtest)
 
 # Prueba de Breusch-Pagan
-bp_test <- bptest(model_pl_radj_pl_trandep)
+bp_test_pl_trandep <- bptest(model_pl_trandep)
 
-bp_test
+bp_test_pl_trandep
 
 ```
 
-```{r univariate_regression_analysis_pl_radj_pl_ratdor}
+[Analisis sobre los resultados obtenidos]
 
-# Regresion de pl_radj con st_teff
-model_pl_radj_pl_ratdor <- lm(pl_radj ~ pl_ratdor, data = kepler_data_num)
+```{r univar_reg_pl_ratdor}
 
-model_pl_radj_pl_ratdor_summary <- summary(model_pl_radj_pl_ratdor)
+# Regresion del radio del exploplaneta (pl_radj) 
+# usando el cociente del semieje orbital mayor sobre 
+# el radio estelar (pl_ratdor) como predictor
+model_pl_ratdor <- lm(pl_radj ~ pl_ratdor, data = kepler_data_num)
 
-model_pl_radj_pl_ratdor_summary
+model_pl_ratdor_summary <- summary(model_pl_ratdor)
+
+model_pl_ratdor_summary
 ```
 
-```{r univariate_regression_analysis_pl_radj_pl_ratdor_plot, warning=FALSE}
+```{r univar_reg_pl_ratdor_plot, warning=FALSE}
 
 # Scatter plot de pl_radj vs pl_ratdor con la recta de regresión en rojo
 # y los margenes de confianza en gris
@@ -608,21 +543,22 @@ ggplot(kepler_data_num, aes(x = pl_ratdor, y = pl_radj)) +
 
 ```
 
-```{r univariate_regression_analysis_pl_radj_pl_ratdor_residuals_plot, warning=FALSE}
+```{r univar_reg_pl_ratdor_res_plot, warning=FALSE}
 
 # Obtener los residuos y valores ajustados
-residuals_ratdor <- residuals(model_pl_radj_pl_ratdor)
+res_pl_ratdor <- residuals(model_pl_ratdor)
 
-fitted_values_ratdor <- fitted(model_pl_radj_pl_ratdor)
+# Calcular los valores ajustados
+fit_val_pl_ratdor <- fitted(model_pl_ratdor)
 
 # Crear un data frame con los residuos y valores ajustados
-residuals_ratdor_df <- data.frame(
-  Residuals = residuals_ratdor,
-  Fitted_Values = fitted_values_ratdor
+res_pl_ratdor_df <- data.frame(
+  Residuals = res_pl_ratdor,
+  Fitted_Values = fit_val_pl_ratdor
 )
 
 # Scatter plot de residuos vs valores ajustados
-ggplot(residuals_ratdor_df, aes(x = Fitted_Values, y = Residuals)) +
+ggplot(res_pl_ratdor_df, aes(x = Fitted_Values, y = Residuals)) +
   geom_point(color = "steelblue") +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   labs(title = "Residuos vs Valores Ajustados",
@@ -632,45 +568,49 @@ ggplot(residuals_ratdor_df, aes(x = Fitted_Values, y = Residuals)) +
 
 ```
 
-```{r univariate_regression_analysis_pl_radj_pl_ratdor_qq_plot, warning=FALSE}
+```{r univar_reg_pl_ratdor_qq_plot, warning=FALSE}
 
 # Crear un gráfico Q-Q de los residuos
-qqnorm(residuals_ratdor, main = "Gráfico Q-Q de los Residuos")
+qqnorm(res_pl_ratdor, main = "Gráfico Q-Q de los Residuos")
 
 ```
 
-```{r univariate_regression_analysis_pl_radj_pl_ratdor_shapiro_test}
+```{r univar_reg_pl_ratdor_shapiro_test}
 
 # Prueba de normalidad de Shapiro-Wilk
-shapiro_test_ratdor <- shapiro.test(residuals_ratdor)
+shapiro_test_ratdor <- shapiro.test(res_pl_ratdor)
 
 shapiro_test_ratdor
 
 ```
 
-```{r univariate_regression_analysis_pl_radj_pl_ratdor_bp_test}
+```{r univar_reg_pl_ratdor_bp_test}
 
 # Prueba de homocedasticidad de Breusch-Pagan
 library(lmtest)
 
 # Prueba de Breusch-Pagan
-bp_test_ratdor <- bptest(model_pl_radj_pl_ratdor)
+bp_test_ratdor <- bptest(model_pl_ratdor)
 
 bp_test_ratdor
 
 ```
 
-```{r univariate_regression_analysis_pl_radj_pl_rvamp}
+[Analisis sobre los resultados obtenidos]
 
-# Regresion de pl_radj con pl_rvamp
-model_pl_radj_pl_rvamp <- lm(pl_radj ~ pl_rvamp, data = kepler_data_num)
+```{r univar_reg_pl_rvamp}
 
-model_pl_radj_pl_rvamp_summary <- summary(model_pl_radj_pl_rvamp)
+# Regresion del radio del exoplaneta (pl_radj) 
+# utilizando la amplitud de la velocidad radial del planeta (pl_rvamp)
+# como predictor
+model_pl_rvamp <- lm(pl_radj ~ pl_rvamp, data = kepler_data_num)
 
-model_pl_radj_pl_rvamp_summary
+model_pl_rvamp_summary <- summary(model_pl_rvamp)
+
+model_pl_rvamp_summary
 ```
 
-```{r univariate_regression_analysis_pl_radj_pl_rvamp_plot, warning=FALSE}
+```{r univar_reg_pl_rvamp_plot, warning=FALSE}
 
 # Scatter plot de pl_radj vs pl_rvamp con la recta de regresión en rojo
 # y los margenes de confianza en gris
@@ -684,21 +624,22 @@ ggplot(kepler_data_num, aes(x = pl_rvamp, y = pl_radj)) +
 
 ```
 
-```{r univariate_regression_analysis_pl_radj_pl_rvamp_residuals_plot, warning=FALSE}
+```{r univar_reg_pl_rvamp_res_plot, warning=FALSE}
 
 # Obtener los residuos y valores ajustados
-residuals_rvamp <- residuals(model_pl_radj_pl_rvamp)
+res_pl_rvamp <- residuals(model_pl_rvamp)
 
-fitted_values_rvamp <- fitted(model_pl_radj_pl_rvamp)
+# Calcular los valores ajustados
+fit_val_pl_rvamp <- fitted(model_pl_rvamp)
 
 # Crear un data frame con los residuos y valores ajustados
-residuals_rvamp_df <- data.frame(
-  Residuals = residuals_rvamp,
-  Fitted_Values = fitted_values_rvamp
+res_pl_rvamp_df <- data.frame(
+  Residuals = res_pl_rvamp,
+  Fitted_Values = fit_val_pl_rvamp
 )
 
 # Scatter plot de residuos vs valores ajustados
-ggplot(residuals_rvamp_df, aes(x = Fitted_Values, y = Residuals)) +
+ggplot(res_pl_rvamp_df, aes(x = Fitted_Values, y = Residuals)) +
   geom_point(color = "steelblue") +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   labs(title = "Residuos vs Valores Ajustados",
@@ -708,46 +649,50 @@ ggplot(residuals_rvamp_df, aes(x = Fitted_Values, y = Residuals)) +
 
 ```
 
-```{r univariate_regression_analysis_pl_radj_pl_rvamp_qq_plot, warning=FALSE}
+```{r univar_reg_pl_rvamp_qq_plot, warning=FALSE}
 
 # Crear un gráfico Q-Q de los residuos
-qqnorm(residuals_rvamp, main = "Gráfico Q-Q de los Residuos")
+qqnorm(res_pl_rvamp, main = "Gráfico Q-Q de los Residuos")
 
 ```
 
-```{r univariate_regression_analysis_pl_radj_pl_rvamp_shapiro_test}
+```{r univar_reg_pl_rvamp_shapiro_test}
 
 # Prueba de normalidad de Shapiro-Wilk
-shapiro_test_rvamp <- shapiro.test(residuals_rvamp)
+shapiro_test_pl_rvamp <- shapiro.test(res_pl_rvamp)
 
-shapiro_test_rvamp
+shapiro_test_pl_rvamp
 
 ```
 
-```{r univariate_regression_analysis_pl_radj_pl_rvamp_bp_test}
+```{r univar_reg_pl_rvamp_rvamp_bp_test}
 
 # Prueba de homocedasticidad de Breusch-Pagan
 library(lmtest)
 
 # Prueba de Breusch-Pagan
-bp_test_rvamp <- bptest(model_pl_radj_pl_rvamp)
+bp_test_pl_rvamp <- bptest(model_pl_rvamp)
 
-bp_test_rvamp
+bp_test_pl_rvamp
 
 ```
 
-```{r univariate_regression_analysis_pl_radj_st_rad}
+[Analisis sobre los resultados obtenidos]
 
-# Regresion de pl_radj con st_rad
+```{r univar_reg_st_rad}
 
-model_pl_radj_st_rad <- lm(pl_radj ~ st_rad, data = kepler_data_num)
+# Regresion del radio del exoplaneta (pl_radj) 
+# utilizando el radio estelar (st_rad)
+# como predictor
 
-model_pl_radj_st_rad_summary <- summary(model_pl_radj_st_rad)
+model_st_rad <- lm(pl_radj ~ st_rad, data = kepler_data_num)
 
-model_pl_radj_st_rad_summary
+model_st_rad_summary <- summary(model_st_rad)
+
+model_st_rad_summary
 ```
 
-```{r univariate_regression_analysis_pl_radj_st_rad_plot, warning=FALSE}
+```{r univar_reg_st_rad_plot, warning=FALSE}
 
 # Scatter plot de pl_radj vs st_rad con la recta de regresión en rojo
 # y los margenes de confianza en gris
@@ -761,23 +706,22 @@ ggplot(kepler_data_num, aes(x = st_rad, y = pl_radj)) +
 
 ```
 
-```{r univariate_regression_analysis_pl_radj_st_rad_residuals_plot, warning=FALSE}
+```{r univar_reg_st_rad_res_plot, warning=FALSE}
 
 # Obtener los residuos y valores ajustados
+res_st_rad <- residuals(model_st_rad)
 
-residuals_st_rad <- residuals(model_pl_radj_st_rad)
-
-fitted_values_st_rad <- fitted(model_pl_radj_st_rad)
+# Calcular los valores ajustados
+fit_val_st_rad <- fitted(model_st_rad)
 
 # Crear un data frame con los residuos y valores ajustados
-
-residuals_st_rad_df <- data.frame(
-  Residuals = residuals_st_rad,
-  Fitted_Values = fitted_values_st_rad
+res_st_rad_df <- data.frame(
+  Residuals = res_st_rad,
+  Fitted_Values = fit_val_st_rad
 )
 
 # Scatter plot de residuos vs valores ajustados
-ggplot(residuals_st_rad_df, aes(x = Fitted_Values, y = Residuals)) +
+ggplot(res_st_rad_df, aes(x = Fitted_Values, y = Residuals)) +
   geom_point(color = "steelblue") +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   labs(title = "Residuos vs Valores Ajustados",
@@ -787,30 +731,37 @@ ggplot(residuals_st_rad_df, aes(x = Fitted_Values, y = Residuals)) +
 
 ```
 
-```{r univariate_regression_analysis_pl_radj_st_rad_qq_plot, warning=FALSE}
+```{r univar_reg_st_rad_qq_plot, warning=FALSE}
 
 # Crear un gráfico Q-Q de los residuos
 
-qqnorm(residuals_st_rad, main = "Gráfico Q-Q de los Residuos")
+qqnorm(res_st_rad, main = "Gráfico Q-Q de los Residuos")
 
 ```
 
-```{r univariate_regression_analysis_pl_radj_st_rad_shapiro_test}
+```{r univar_reg_st_rad_shapiro_test}
+
+length(res_st_rad)
+
+# Dado que el test de Shapiro-Wilk funciona con 
+# entre 3 y 5000 valores se toman 5000 valores 
+# al azar de res_st_rad
+res_st_rad <- sample(res_st_rad, 5000)
 
 # Prueba de normalidad de Shapiro-Wilk
-#shapiro_test_st_rad <- shapiro.test(residuals_st_rad)
+shapiro_test_st_rad <- shapiro.test(res_st_rad)
 
-#shapiro_test_st_rad
+shapiro_test_st_rad
 
 ```
 
-```{r univariate_regression_analysis_pl_radj_st_rad_bp_test}
+```{r univar_reg_st_rad_bp_test}
 
 # Prueba de homocedasticidad de Breusch-Pagan
 library(lmtest)
 
 # Prueba de Breusch-Pagan
-bp_test_st_rad <- bptest(model_pl_radj_st_rad)
+bp_test_st_rad <- bptest(model_st_rad)
 
 bp_test_st_rad
 
@@ -820,32 +771,33 @@ bp_test_st_rad
 
 Se realiza un análisis de regresión lineal multivariada para predecir el radio del exoplaneta (`pl_radj`) simultaneamente a partir de la profundidad del tránsito (`pl_trandep`), el cociente del semieje orbital mayor sobre el radio estelar (`pl_ratdor`), la amplitud de la velocidad radial (`pl_rvamp`) y el radio de la estrella(`st_rad`).
 
-```{r multivariate_regression_analysis}
+```{r multivar_reg}
 
 # Regresion de pl_radj con pl_trandep, pl_ratdor, pl_rvamp y st_rad
-model_multivariate <- lm(pl_radj ~ pl_trandep + pl_ratdor + pl_rvamp + st_rad, data = kepler_data_num)
+model_multivar <- lm(pl_radj ~ pl_trandep + pl_ratdor + pl_rvamp + st_rad, data = kepler_data_num)
 
-model_multivariate_summary <- summary(model_multivariate)
+model_multivar_summary <- summary(model_multivar)
 
-model_multivariate_summary
+model_multivar_summary
 
 ```
 
-```{r multivariate_regression_analysis_residuals_plot, warning=FALSE}
+```{r multivar_reg_res_plot, warning=FALSE}
 
 # Obtener los residuos y valores ajustados
-residuals_multivariate <- residuals(model_multivariate)
+res_multivar <- residuals(model_multivar)
 
-fitted_values_multivariate <- fitted(model_multivariate)
+# Calcular los valores ajustados
+fit_val_multivar <- fitted(model_multivar)
 
 # Crear un data frame con los residuos y valores ajustados
-residuals_multivariate_df <- data.frame(
-  Residuals = residuals_multivariate,
-  Fitted_Values = fitted_values_multivariate
+res_multivar_df <- data.frame(
+  Residuals = res_multivar,
+  Fitted_Values = fit_val_multivar
 )
 
 # Scatter plot de residuos vs valores ajustados
-ggplot(residuals_multivariate_df, aes(x = Fitted_Values, y = Residuals)) +
+ggplot(res_multivar_df, aes(x = Fitted_Values, y = Residuals)) +
   geom_point(color = "steelblue") +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   labs(title = "Residuos vs Valores Ajustados",
@@ -855,31 +807,31 @@ ggplot(residuals_multivariate_df, aes(x = Fitted_Values, y = Residuals)) +
 
 ```
 
-```{r multivariate_regression_analysis_qq_plot, warning=FALSE}
+```{r multivar_reg_qq_plot, warning=FALSE}
 
 # Crear un gráfico Q-Q de los residuos
-qqnorm(residuals_multivariate, main = "Gráfico Q-Q de los Residuos")
+qqnorm(res_multivar, main = "Gráfico Q-Q de los Residuos")
 
 ```
 
-```{r multivariate_regression_analysis_shapiro_test}
+```{r multivar_reg_shapiro_test}
 
 # Prueba de normalidad de Shapiro-Wilk
-shapiro_test_multivariate <- shapiro.test(residuals_multivariate)
+shapiro_test_multivar <- shapiro.test(res_multivar)
 
-shapiro_test_multivariate
+shapiro_test_multivar
 
 ```
 
-```{r multivariate_regression_analysis_bp_test}
+```{r multivar_reg_bp_test}
 
 # Prueba de homocedasticidad de Breusch-Pagan
 library(lmtest)
 
 # Prueba de Breusch-Pagan
-bp_test_multivariate <- bptest(model_multivariate)
+bp_test_multivar <- bptest(model_multivar)
 
-bp_test_multivariate
+bp_test_multivar
 
 ```
 
@@ -895,15 +847,15 @@ Así con los indicadores seleccionados definimos un Índice de Habitabilidad Pla
 
 $$
 \text{PHI} = w_1 \cdot f_1(\text{pl_eqt}) + w_2 \cdot f_2(\text{pl_insol}) + w_3 \cdot f_3(\text{pl_orbsmax}) + w_4 \cdot f_{\text{estelar}} 
-$$
-Donde:
+$$ Donde:
 
-- $w_i$ son los pesos normalizados asociados a cada indicador sumando 1.
-- $f_i(x)$ son funciones de transformación o normalización que convierten las medidas en valores entre 0 y 1, según el rango de habitabilidad conocido.
-- $f_{\text{estelar}}$ es una función que combina las propiedades estelares de la estrella anfitriona y a su vez es la ponderación de los siguientes parámetros estelares:
+-   $w_i$ son los pesos normalizados asociados a cada indicador sumando 1.
+-   $f_i(x)$ son funciones de transformación o normalización que convierten las medidas en valores entre 0 y 1, según el rango de habitabilidad conocido.
+-   $f_{\text{estelar}}$ es una función que combina las propiedades estelares de la estrella anfitriona y a su vez es la ponderación de los siguientes parámetros estelares:
+
 $$
-f_{\text{estelar}} = w_5 \cdot f_5(\text{st_teff}) + w_6 \cdot f_6(\text{st_mass}) + w_7 \cdot f_7(\text{st_lum}) + w_8 \cdot f_8(\text{st_logg}) + w_9 \cdot f_9(\text{st_age})
-$$
+    f_{\text{estelar}} = w_5 \cdot f_5(\text{st_teff}) + w_6 \cdot f_6(\text{st_mass}) + w_7 \cdot f_7(\text{st_lum}) + w_8 \cdot f_8(\text{st_logg}) + w_9 \cdot f_9(\text{st_age})
+    $$
 
 Estas variables se consideran como posibles predictores de la habitabilidad de los exoplanetas cuando están en determinados rangos.
 
@@ -911,8 +863,7 @@ Estas variables se consideran como posibles predictores de la habitabilidad de l
 
 $$
 f_i(\text{pl_eqt}) = \max\left(0, \min\left(1, \frac{\text{pl_eqt} - T_{\text{min}}}{T_{\text{max}} - T_{\text{min}}}\right)\right)
-$$
-Donde $T_{\text{min}}$ y $T_{\text{max}}$ son los límites inferiores y superiores. El agua líquida, esencial para la vida, puede existir en un rango de temperaturas superficiales de aproximadamente 273K (0 °C) a 373K (100 °C). Sin embargo, debido a factores atmosféricos y de presión, este rango puede extenderse ligeramente: $T_{\text{min}}=200K$ puede ser el umbral inferior, considerando atmósferas densas como la de Marte y $T_{\text{max}}=400K$ puede considerarse el umbral superior, considerando atmósferas con alta presión como la de Venus.
+$$ Donde $T_{\text{min}}$ y $T_{\text{max}}$ son los límites inferiores y superiores. El agua líquida, esencial para la vida, puede existir en un rango de temperaturas superficiales de aproximadamente 273K (0 °C) a 373K (100 °C). Sin embargo, debido a factores atmosféricos y de presión, este rango puede extenderse ligeramente: $T_{\text{min}}=200K$ puede ser el umbral inferior, considerando atmósferas densas como la de Marte y $T_{\text{max}}=400K$ puede considerarse el umbral superior, considerando atmósferas con alta presión como la de Venus.
 
 Según la literatura especializada el peso de la temperatura de equilibrio en el índice de habitabilidad es de $w_1=0.45$ cuando se considera la temperatura de equilibrio como un indicador preponderante de habitabilidad y no se tienen muchos más datos del planeta.
 
@@ -922,16 +873,13 @@ $$
 f_2(\text{pl_insol}) = \max\left(0, \min\left(1, \frac{\text{pl_insol} - I_{\text{min}}}{I_{\text{max}} - I_{\text{min}}}\right)\right)
 $$
 
-La insolación es un factor crítico para mantener agua líquida en la superficie del planeta, pero su impacto depende de otros factores como la atmósfera y el albedo, según la literatura especializada el peso de la insolación en el índice de habitabilidad es de $w_2=0.30$. 
-Es importante destacar que El rango de $I_{min}$ e $I_{max}$ puede variar según la luminosidad de la estrella, ya que la zona habitable cambia en función del tipo estelar por lo que esta estimación sirve para estrellas similares al Sol.
+La insolación es un factor crítico para mantener agua líquida en la superficie del planeta, pero su impacto depende de otros factores como la atmósfera y el albedo, según la literatura especializada el peso de la insolación en el índice de habitabilidad es de $w_2=0.30$. Es importante destacar que El rango de $I_{min}$ e $I_{max}$ puede variar según la luminosidad de la estrella, ya que la zona habitable cambia en función del tipo estelar por lo que esta estimación sirve para estrellas similares al Sol.
 
 **Distancia orbital semieje mayor** (`pl_orbsmax`): La distancia orbital semieje mayor es un indicador de la zona habitable de un sistema planetario. La distancia orbital semieje mayor se mide en unidades astronómicas (UA) y se puede normalizar en un rango de 0 a 1. La distancia orbital semieje mayor ideal para la vida es aquella que permite la presencia de agua líquida en la superficie del planeta. La distancia orbital semieje mayor se puede normalizar considerando que La Tierra tiene una distancia orbital semieje mayor de 1 UA y se puede considerar que la vida puede existir en un rango de distancias de $D_{\text{min}}=1,05$ UA (aproximadamente el límite interior de la zona habitable para una estrella como el Sol, más allá de este valor el agua podría congelarse) a $D_{\text{max}}=2$ UA (aproximadamente el límite exterior de la zona habitable, más allá de este valor el agua podría evaporarse). Así la normalización resulta en:
 
 $$
 f_3(\text{pl_orbsmax}) = \max\left(0, \min\left(1, \frac{\text{pl_orbsmax} - D_{\text{min}}}{D_{\text{max}} - D_{\text{min}}}\right)\right)
-$$
-En la mayoría de los modelos, el peso para el valor normalizado de `pl_orbsmax` oscila entre 15% y 25%. Esto se debe a que `pl_orbsmax` complementa indicadores más directos como 
-`pl_eqt` (temperatura de equilibrio) y `pl_insol` (insolación). Se tomará un peso de $w_3=0.20$.
+$$ En la mayoría de los modelos, el peso para el valor normalizado de `pl_orbsmax` oscila entre 15% y 25%. Esto se debe a que `pl_orbsmax` complementa indicadores más directos como `pl_eqt` (temperatura de equilibrio) y `pl_insol` (insolación). Se tomará un peso de $w_3=0.20$.
 
 **Propiedades estelares** (`st_teff`, `st_mass`, `st_lum`, `st_logg`, `st_age`): Las propiedades estelares son cruciales para determinar la habitabilidad de un exoplaneta. La estabilidad y tipo de estrella son cruciales puesto que estrellas demasiado masivas tienen vidas cortas y no permiten la evolución de la vida compleja mientras que estrellas con alta actividad estelar pueden emitir radiación peligrosa. La normalización de las propiedades estelares se realiza de manera similar a los indicadores planetarios, considerando los rangos de habitabilidad conocidos para estrellas similares al Sol. La normalización de las propiedades estelares (`st_teff`, `st_mass`, `st_lum`, `st_logg`, `st_age`) es crucial para combinarlas en un único valor que refleje su influencia en la habitabilidad. Cada propiedad se normaliza al rango [0, 1], con valores cercanos a 1 representando condiciones ideales para la habitabilidad.
 
@@ -939,16 +887,11 @@ $$
 f_{\text{estelar}} = w_5 \cdot f_5(\text{st_teff}) + w_6 \cdot f_6(\text{st_mass}) + w_7 \cdot f_7(\text{st_lum}) + w_8 \cdot f_8(\text{st_logg}) + w_9 \cdot f_9(\text{st_age})
 $$
 
-Donde:
-- f5(x) es la normalización de la temperatura efectiva de la estrella (`st_teff`) con la normalización de la temperatura efectiva de la estrella ideal para la habitabilidad en el rango de 4000K a 6000K.
-- f6(x) es la normalización de la masa de la estrella (`st_mass`) con la normalización de la masa de la estrella ideal para la habitabilidad en el rango de 0.8 a 1.2 masas solares.
-- f7(x) es la normalización de la luminosidad de la estrella (`st_lum`) con la normalización de la luminosidad de la estrella ideal para la habitabilidad en el rango de -0.5 (estrella demasiado débil) a 0.5 (estrella con radiación excesiva) veces la luminosidad solar.
-- f8(x) es la normalización de la gravedad superficial de la estrella (`st_logg`) con la normalización de la gravedad superficial de la estrella ideal para la habitabilidad en el rango de 4.0 (estrella en evolución fuera de la secuencia principal) a 4.5 (condiciones poco comunes para estrellas típicas).
-- f9(x) es la normalización de la edad de la estrella (`st_age`) con la normalización de la edad de la estrella ideal para la habitabilidad en el rango de 1 a 10 gigaaños.
+Donde: - f5(x) es la normalización de la temperatura efectiva de la estrella (`st_teff`) con la normalización de la temperatura efectiva de la estrella ideal para la habitabilidad en el rango de 4000K a 6000K. - f6(x) es la normalización de la masa de la estrella (`st_mass`) con la normalización de la masa de la estrella ideal para la habitabilidad en el rango de 0.8 a 1.2 masas solares. - f7(x) es la normalización de la luminosidad de la estrella (`st_lum`) con la normalización de la luminosidad de la estrella ideal para la habitabilidad en el rango de -0.5 (estrella demasiado débil) a 0.5 (estrella con radiación excesiva) veces la luminosidad solar. - f8(x) es la normalización de la gravedad superficial de la estrella (`st_logg`) con la normalización de la gravedad superficial de la estrella ideal para la habitabilidad en el rango de 4.0 (estrella en evolución fuera de la secuencia principal) a 4.5 (condiciones poco comunes para estrellas típicas). - f9(x) es la normalización de la edad de la estrella (`st_age`) con la normalización de la edad de la estrella ideal para la habitabilidad en el rango de 1 a 10 gigaaños.
 
 En la literatura especializada se considera que el peso de las propiedades estelares en el índice de habitabilidad es de $w_4=0.1$.
 
-```{r logistic_regression_analysis}
+```{r log_reg}
 
 # Crear un data frame con las variables seleccionadas
 kepler_data_logistic <- kepler_data_num %>%
@@ -975,8 +918,9 @@ kepler_data_logistic_normalized <- kepler_data_logistic_normalized %>%
   )
 
 # Crear un data frame con las variables normalizadas y el índice de habitabilidad
-kepler_data_logistic_normalized <- kepler_data_logistic_normalized %>%
-  select(pl_eqt_normalized, pl_insol_normalized, pl_orbsmax_normalized, st_teff_normalized, st_mass_normalized, st_lum_normalized, st_logg_normalized, st_age_normalized, phi)
+#kepler_data_logistic_normalized <- kepler_data_logistic_normalized %>%
+#  select(pl_eqt_normalized, pl_insol_normalized, pl_orbsmax_normalized, st_teff_normalized, st_mass_normalized, st_lum_normalized, st_logg_normalized, st_age_normalized, phi)
+
 
 # Crear un modelo de regresión logística
 model_logistic <- glm(phi ~ ., data = kepler_data_logistic_normalized, family = binomial)
@@ -986,45 +930,3 @@ model_logistic_summary <- summary(model_logistic)
 model_logistic_summary
 
 ```
-
-```{r logistic_regression_analysis_confusion_matrix}
-
-# Dividir los datos en conjunto de entrenamiento y prueba
-train_indices <- sample(1:nrow(kepler_data_logistic_normalized), size = 0.8 * nrow(kepler_data_logistic_normalized))
-train_data <- kepler_data_logistic_normalized[train_indices, ]
-test_data <- kepler_data_logistic_normalized[-train_indices, ]
-
-# Ajustar el modelo nuevamente usando los datos de entrenamiento
-model <- glm(phi ~ ., family = binomial, data = train_data)
-
-# Predicciones en el conjunto de prueba
-predicted_probabilities <- predict(model, newdata = test_data, type = "response")
-predicted_classes <- ifelse(predicted_probabilities > 0.5, 1, 0)
-
-#  Matriz de confusión
-actual_classes <- test_data$phi
-confusion_matrix <- table(Predicted = predicted_classes, Actual = actual_classes)
-print("Matriz de confusión:")
-print(confusion_matrix)
-
-# Calcular métricas de evaluación
-accuracy <- sum(diag(confusion_matrix)) / sum(confusion_matrix)
-precision <- confusion_matrix[2, 2] / sum(confusion_matrix[2, ])
-recall <- confusion_matrix[2, 2] / sum(confusion_matrix[, 2])
-f1_score <- 2 * (precision * recall) / (precision + recall)
-
-cat("Precisión (Accuracy):", accuracy, "\n")
-cat("Precisión (Precision):", precision, "\n")
-cat("Sensibilidad (Recall):", recall, "\n")
-cat("F1 Score:", f1_score, "\n")
-
-# Curva ROC y AUC
-library(pROC)
-roc_curve <- roc(actual_classes, predicted_probabilities)
-auc_value <- auc(roc_curve)
-plot(roc_curve, col = "blue", main = "Curva ROC")
-cat("Área bajo la curva (AUC):", auc_value, "\n")
-
-```
-
-
