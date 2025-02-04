@@ -60,7 +60,7 @@ kepler_data <- read_csv("keplerexoplanets.csv")
 library(knitr)
 
 # Capturar la salida de str() como texto
-str_output <- capture.output(str(kepler_data, list.len = Inf))
+str_output <- capture.output(str(kepler_data, list.len = Inf, give.attr=FALSE))
 
 # Convertir la salida en un data frame para formatearla como tabla
 str_df <- data.frame(
@@ -70,26 +70,26 @@ str_df <- data.frame(
 
 # Mostrar la salida en formato de tabla con kable
 kable(str_df, col.names = c("Tipo de datos y previsualización"), align = "l")
+
 ```
 
-Se filtra por la columna `soltype` para obtener solo los registros de exoplanetas confirmados, o valor "Published Confirmed", además se eliman las columnas con referencias a sitios web no relevantes para el análisis. También se eliminan los datos de referencia de los planetas, estrellas y sistemas no relevantes para el análisis.
+Se eliman las columnas con referencias a sitios web no relevantes para el análisis. También se eliminan los datos de referencia de los planetas, estrellas y sistemas no relevantes para el análisis.
+
+Por último, para determina la habitabilidad de los exoplanetas es necesario conocer el tipo espectral de la estrella central del sistema. Por lo tanto, se eliminan los sistemas con tipo espectral desconocido.
 
 ```{r filter_data}
 
 library(dplyr)
-# Filtrar los datos por soltype = "Published Confirmed"
-kepler_data <- kepler_data %>%
-  filter(soltype == "Published Confirmed")
 
-# Eliminar también soltype
+# Eliminar los sistemas con tipo espectrales desconocidos (NA)
 kepler_data <- kepler_data %>%
-  select(-soltype)
+  filter(!is.na(st_spectype))
 
 # Eliminar columnas de referencias a sitios web
 kepler_data <- kepler_data %>%
   select(-disc_refname, -pl_refname, -st_refname, -sy_refname)
 
-# Eliminar columnas de id de estrellas y sistemas
+# Eliminar columnas de id de catalogos externos de estrellas y sistemas
 kepler_data <- kepler_data %>%
   select(-tic_id, -gaia_id, hostname, hd_name, hip_name)
 
@@ -118,11 +118,12 @@ kepler_data <- kepler_data %>%
 # Eliminar columnas con información adicional de fotometria
 kepler_data <- kepler_data %>%
   select(-st_nphot, -st_nrvc, -st_nspec, -pl_nespec, -pl_ntranspec)
+
 ```
 
-El dataset resultante se guarda en un archivo CSV llamado `keplerfiltered.csv`. El dataset resultante contiene 10.895 registros y 67 columnas.
+El dataset resultante se guarda en un archivo CSV llamado `keplerfiltered.csv`. El dataset resultante contiene 182 registros y 68 columnas.
 
-Las columnas en el dataset filtrado son las siguientes:
+Las columnas en el dataset filtrado, y su descripción extraída de https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html,  son las siguientes:
 
 ```{r show_filtered_data_structure, echo=FALSE}
 library(dplyr)
@@ -135,6 +136,7 @@ column_names <- data.frame(
 )
 
 # Agregar una columna con la descripción de la variable
+# Fuente: https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html
 column_names <- column_names %>%
   mutate(Description = c(
     "pl_name: Nombre del planeta",
@@ -146,6 +148,7 @@ column_names <- column_names %>%
     "sy_pnum: Número de planetas en el sistema",
     "cb_flag: Flag de circumbinario (el planeta orbita un sistema binario)",
     "discoverymethod: Método de descubrimiento del planeta",
+    "soltype: Disposición del planeta según el conjunto de parámetros planetarios dado",
     "pl_orbper: Periodo orbital del planeta (en días)",
     "pl_orbsmax: Distancia orbital semieje mayor (en UA)",
     "pl_rade: Radio del planeta (en radios terrestres)",
@@ -208,7 +211,7 @@ column_names <- column_names %>%
 # Ordenar el data frame por la columna "Column"
 column_names <- column_names[order(column_names$Column), ]
 
-# Eliminar de la columan Description el prefijo de la variable
+# Eliminar de la columna Description el prefijo de la variable
 column_names$Description <- gsub("^.*: ", "", column_names$Description)
 
 # Elimina la columna con el numero de fila
@@ -254,11 +257,11 @@ resumen <- resumen[order(resumen$skim_variable), ]
 # Filtrar columnas relevantes
 resumen <- resumen %>%
   select(skim_variable, numeric.mean, numeric.sd, numeric.p0, numeric.p25, 
-         numeric.p50, numeric.p75, numeric.p100)
+         numeric.p50, numeric.p75, numeric.p100, numeric.hist)
 
 # Mostrar tabla formateada
 kable(resumen, format = "markdown", digits = 4,
-      col.names = c("Variable", "Media", "Des.Est.", "Mín.", "P25", "Mediana", "P75", "Máx.")
+      col.names = c("Variable", "Media", "Des.Est.", "Mín.", "P25", "Mediana", "P75", "Máx.","Hist.")
       )
 
 ```
@@ -342,7 +345,7 @@ Buena parte de las variables faltantes corresponden a parámetros de los exoplan
 
 El propósito de este trabajo es estimar los valores faltantes de los exoplanetas y predecir la habitabilidad de los mismos. Para ello, se utilizarán técnicas de regresión lineal y logística para estimar los valores faltantes y predecir la habitabilidad de los exoplanetas.
 
-Tomando las variables conocida de los exoplanetas (parámetros con prefijo `pl_`), busca aquellas posibles predictoras de las variables faltantes. Por ejemplo para el caso del radio del exoplaneta (`pl_radj` en términos de radios jovianos y `pl_rade` en términos terrestres) con 4014 faltantes, hay suficiente información para estimar el radio del exoplaneta a partir de otras variables conocidas como el periodo orbital en días (`pl_orbper` con 2210 faltantes), el tiempo de conjunción (`pl_tranmid` con 3399 faltantes) o el logaritmo en base 10 de gravedad superficial de la estrella en el centro del sistema planteario (`st_logg` con 3187 faltantes).
+Tomando las variables conocida de los exoplanetas (parámetros con prefijo `pl_`), busca aquellas posibles predictoras de las variables faltantes. Por ejemplo para el caso del radio del exoplaneta (`pl_radj` en términos de radios jovianos y `pl_rade` en términos terrestres) con 11 faltantes, hay suficiente información para estimar el radio del exoplaneta a partir de otras variables conocidas como el periodo orbital en días (`pl_orbper` con 147 faltantes), el tiempo de conjunción (`pl_tranmid` con 80 faltantes) o el logaritmo en base 10 de gravedad superficial de la estrella en el centro del sistema planteario (`st_logg` con 96 faltantes).
 
 Para saber cuál de estas variables es la mejor predictoras de la variable faltante, se utilizará la matriz de correlación para identificar las relaciones entre las variables numéricas del dataset con mayor correlación positiva o negativa con la variable faltante.
 
@@ -428,102 +431,96 @@ corrplot(
 
 La matriz de correlación muestra las relaciones lineales entre las variables numéricas del dataset. Se observan algunas correlaciones positivas y negativas entre las variables, lo que indica posibles relaciones entre ellas. Por ejemplo el cociente entre el semieje orbital mayor y el periodo orbital (`pl_ratdor`) tiene una correlación positiva con el periodo orbital (`pl_orbper`) y una correlación negativa con la temperatura de equilibrio(`pl_eqt`). Respecto de la variable que se seleccionó como clase en el apartado anterior, el radio del exoplaneta (`pl_radj`) tiene una correlación positiva con la profundidad del tránsito (`pl_trandep`) y una correlación negativa con la gravedad superficial de la estrella (`st_logg`).
 
+Para entender mejor la relación entre las variables con algo de correlación (umbral de 50% en valor absoluto) y seleccionar las mejores variables predictoras, se realiza un pair plot de las variables con mayor correlación positiva o negativa con la variable faltante. Se descartan como variables predictores aquellos que tengan más de 50% de valores faltantes.
+
+``` {r most_correlated_variables, include=FALSE}
+
+# Seleccionar de la matriz de correlación las variables con correlacion mayor o
+# igual a 0.3 en valor absoluto con la variable faltante
+correlated_vars <- names(which(abs(correlation_matrix_pearson["pl_radj", ]) >= 0.5))
+
+# Se genera un dataframe con la correlacion entre las variables seleccionadas
+# en correlated_vars y la variable faltante tomando de la matriz de correlacion
+# solo las filas y columnas correspondientes a las variables seleccionadas
+correlation_df <- data.frame(
+  Variable = names(correlation_matrix_pearson[correlated_vars, "pl_radj"]),
+  Correlacion = correlation_matrix_pearson[correlated_vars, "pl_radj"]
+)
+
+# Agregar una columna con la cantidad de valores faltantes
+correlation_df$Faltantes <- sapply(correlation_df$Variable, function(x) sum(is.na(kepler_data[[x]])))
+
+# Eliminar los registros que tenga màs de 50% de valores faltantes
+correlation_df <- correlation_df[correlation_df$Faltantes <= 0.5 * nrow(kepler_data), ]
+
+# Escribo a correlated_vars las variables seleccionadas
+correlated_vars <- correlation_df$Variable
+
+# Ordenar el dataframe por valor absoluto de correlación
+# De mayor a menor
+correlation_df <- correlation_df[order(abs(correlation_df$Correlacion), decreasing = TRUE), ]
+
+# Eliminar la columna de indice
+rownames(correlation_df) <- NULL
+
+# Mostrar tabla formateada
+kable(correlation_df, columns = c("Variable","Correlación","Faltantes"), align = "l")
+
+```
+
+```{r pair_plot_correlated_variables, include=FALSE, warning=FALSE}
+
+pairs(kepler_data_num[correlated_vars], pch=10, cex=0.5)
+
+```
+
+Más allá de la correlación de la obvia relacion lineal entre el radio del exoplaneta en unidades jovianas y terrestres, parece haber una relación lineal entre el radio del exoplaneta y, en orden de correlación descendente, las siguientes variables:
+
+- el cociente del radio planetario sobre el radio estelar (`pl_ratdor`)
+- La masa de la estrella (`st_mass`) en términos de masas solares
+- la temperatura de qeuilibrio del planeta (`pl_eqt`)
+
+Se seleccionan como variables predictoras del radio del exploneta las variables con mayor correlación positiva o negativa que muestran una relación lineal con la variable faltante. 
+
+# Detección de Valores Atípicos (Outliers)
+Para las variables predictoras seleccionadas (`pl_ratdor`,`st_mass`,`pl_eqt`), se detectan valores atípicos en el dataset que puedan afectar el análisis y la predicción de la variable faltante (`pl_radj`).
+
+```{r outliers_detection, include=FALSE}
+
+# Seleccionar las variables predictoras
+predictor_vars <- c("pl_ratdor", "st_mass", "pl_eqt")
+
+# Crear un data frame con las variables predictoras
+predictor_data <- kepler_data_num[predictor_vars]
+
+# Normalizar los datos
+predictor_data <- scale(predictor_data)
+
+# Graficar los valores atípicos con un boxplot
+boxplot(predictor_data, outline = TRUE, col = "skyblue", main = "Detección de Valores Atípicos")
+```
+Como puede observarse en el boxplot, las variables predictoras seleccionadas presentan valores atípicos que pueden afectar el análisis y la predicción de la variable faltante. Para tratar con esta situacié se puede considerar la utilización de métodos de regresión robustos que sean menos sensibles a los valores atípicos, como Huber. 
+
 # Analisis de Regresión
 
-Para analizar la relación entre las variables conocidas de la estrella del sistema y las caracteristicas de los exoplanetas, se realiza un análisis de regresión lineal. Se seleccionan las caracteristicas conocidas del sistema planetarios como variables independientes.
+Para analizar la relación entre las variables conocidas caracteristicas de los exoplanetas, se realiza un análisis de regresión lineal. La variable de dependiende `pl_radj` se intentará predecir a partir de las variables independientes:
+
+- `pl_ratdor`
+- `st_mass`
+- `pl_eqt`
 
 ## Regresión Lineal Univariada
 
 Las variablies de características de los sistemas exoplanetarios tales como periodo orbital, radio planetario, temperatura de la estrella central del sistema y masa del planeta pueden inferirse indirectamente a partir de otras variables como excentricidad orbital, distancia a la estrella, caracteristicas de la estrella y otras. Se explorar un análisis de regresión lineal univariada con varias variables independientes evaluando la capacidad de predicción de cada modelo planteado.
 
-Se realiza un análisis de regresión lineal univariada para predecir el radio del exoplaneta (`pl_radj`) consecutivamente a partir de la profundidad del tránsito (`pl_trandep`), el cociente del semieje orbital mayor sobre el radio estelar (`pl_ratdor`), la amplitud de la velocidad radial (`pl_rvamp`) y el radio de la estrella(`st_rad`). Para cada variable independiente, se ajusta un modelo de regresión lineal con la variable dependiente (`pl_radj`) y se evalúa la capacidad predictiva de cada modelo.
-
-```{r univar_reg_pl_trandep}
-
-# Regresion de pl_radj con pl_trandep
-model_pl_trandep <- lm(pl_radj ~ pl_trandep, data = kepler_data_num)
-
-model_pl_trandep_summary <- summary(model_pl_trandep)
-
-model_pl_trandep_summary
-```
-
-```{r univar_reg_pl_trandep_plot, warning=FALSE}
-
-# Scatter plot de pl_radj vs pl_trandep con la recta de regresión en rojo
-# y los margenes de confianza en gris
-ggplot(kepler_data_num, aes(x = pl_trandep, y = pl_radj)) +
-  geom_point(color = "steelblue") +
-  geom_smooth(method = "lm", color = "red", fill = "grey", alpha = 0.2) +
-  labs(title = "Regresión Lineal: Radio del Exoplaneta vs Profundidad del Tránsito",
-       x = "Profundidad del Tránsito (%)",
-       y = "Radio del Exoplaneta (Júpiter)") +
-  theme_minimal()
-
-```
-
-```{r univar_reg_pl_trandep_res_plot, warning=FALSE}
-
-# Obtener los residuos y valores ajustados
-res_pl_trandep <- residuals(model_pl_trandep)
-
-# Estimar los valores ajustados
-fit_val_pl_trandep <- fitted(model_pl_trandep)
-
-# Crear un data frame con los residuos y valores ajustados
-res_pl_trandep_df <- data.frame(
-  Residuals = res_pl_trandep,
-  Fitted_Values = fit_val_pl_trandep
-)
-
-# Scatter plot de residuos vs valores ajustados
-ggplot(res_pl_trandep_df, aes(x = Fitted_Values, y = Residuals)) +
-  geom_point(color = "steelblue") +
-  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
-  labs(title = "Residuos vs Valores Ajustados",
-       x = "Valores Ajustados",
-       y = "Residuos") +
-  theme_minimal()
-
-```
-
-```{r univar_reg_pl_trandep_qq_plot, warning=FALSE}
-
-# Crear un gráfico Q-Q de los residuos
-qqnorm(res_pl_trandep, main = "Gráfico Q-Q de los Residuos")
-
-```
-
-```{r univar_reg_pl_trandep_shapiro_test}
-
-# Prueba de normalidad de Shapiro-Wilk
-shapiro_test_pl_trandep <- shapiro.test(res_pl_trandep)
-
-shapiro_test_pl_trandep
-
-```
-
-```{r univar_reg_pl_trandep_bp_test}
-
-# Prueba de homocedasticidad de Breusch-Pagan
-library(lmtest)
-
-# Prueba de Breusch-Pagan
-bp_test_pl_trandep <- bptest(model_pl_trandep)
-
-bp_test_pl_trandep
-
-```
-
-[Analisis sobre los resultados obtenidos]
+Se realiza un análisis de regresión lineal univariada para predecir el radio del exoplaneta (`pl_radj`) consecutivamente a partir de las variables independientes seleccionadas.
 
 ```{r univar_reg_pl_ratdor}
 
-# Regresion del radio del exploplaneta (pl_radj) 
-# usando el cociente del semieje orbital mayor sobre 
-# el radio estelar (pl_ratdor) como predictor
+# Regresion de pl_radj con pl_ratdor
 model_pl_ratdor <- lm(pl_radj ~ pl_ratdor, data = kepler_data_num)
 
+# Resumen del modelo
 model_pl_ratdor_summary <- summary(model_pl_ratdor)
 
 model_pl_ratdor_summary
@@ -535,9 +532,9 @@ model_pl_ratdor_summary
 # y los margenes de confianza en gris
 ggplot(kepler_data_num, aes(x = pl_ratdor, y = pl_radj)) +
   geom_point(color = "steelblue") +
-  geom_smooth(method = "lm", color = "indianred", fill = "grey", alpha = 0.2) +
-  labs(title = "Regresión Lineal: Radio del Exoplaneta vs Cociente Semieje Orbital Mayor sobre Radio Estelar",
-       x = "Cociente Semieje Orbital Mayor sobre Radio Estelar",
+  geom_smooth(method = "lm", color = "red", fill = "grey", alpha = 0.2) +
+  labs(title = "Regresión Lineal: Radio del Exoplaneta segun Ratio sobre el Radio Estelar",
+       x = "Ratio sobre Radio Estelar",
        y = "Radio del Exoplaneta (Júpiter)") +
   theme_minimal()
 
@@ -548,14 +545,11 @@ ggplot(kepler_data_num, aes(x = pl_ratdor, y = pl_radj)) +
 # Obtener los residuos y valores ajustados
 res_pl_ratdor <- residuals(model_pl_ratdor)
 
-# Calcular los valores ajustados
+# Estimar los valores ajustados
 fit_val_pl_ratdor <- fitted(model_pl_ratdor)
 
 # Crear un data frame con los residuos y valores ajustados
-res_pl_ratdor_df <- data.frame(
-  Residuals = res_pl_ratdor,
-  Fitted_Values = fit_val_pl_ratdor
-)
+res_pl_ratdor_df <- data.frame(Fitted_Values = fit_val_pl_ratdor, Residuals = res_pl_ratdor)
 
 # Scatter plot de residuos vs valores ajustados
 ggplot(res_pl_ratdor_df, aes(x = Fitted_Values, y = Residuals)) +
@@ -578,9 +572,9 @@ qqnorm(res_pl_ratdor, main = "Gráfico Q-Q de los Residuos")
 ```{r univar_reg_pl_ratdor_shapiro_test}
 
 # Prueba de normalidad de Shapiro-Wilk
-shapiro_test_ratdor <- shapiro.test(res_pl_ratdor)
+shapiro_test_pl_ratdor <- shapiro.test(res_pl_ratdor)
 
-shapiro_test_ratdor
+shapiro_test_pl_ratdor
 
 ```
 
@@ -590,56 +584,77 @@ shapiro_test_ratdor
 library(lmtest)
 
 # Prueba de Breusch-Pagan
-bp_test_ratdor <- bptest(model_pl_ratdor)
+bp_test_pl_ratdor <- bptest(model_pl_ratdor)
 
-bp_test_ratdor
+bp_test_pl_ratdor
 
 ```
 
 [Analisis sobre los resultados obtenidos]
 
-```{r univar_reg_pl_rvamp}
+Dado que el modelo de regresión lineal simple no es robusto a los valores atípicos, se analizar si una transformación logarítmica de las variables predictoras puede mejorar la capacidad predictiva del modelo mediante una prueba de Box-Cox.
 
-# Regresion del radio del exoplaneta (pl_radj) 
-# utilizando la amplitud de la velocidad radial del planeta (pl_rvamp)
-# como predictor
-model_pl_rvamp <- lm(pl_radj ~ pl_rvamp, data = kepler_data_num)
+```{r univar_reg_pl_ratdor_boxcox, warning=FALSE}
 
-model_pl_rvamp_summary <- summary(model_pl_rvamp)
+# Prueba de Box-Cox para transformar la variable st_rad
+library(MASS)
 
-model_pl_rvamp_summary
+# Prueba de Box-Cox
+boxcox_pl_ratdor <- boxcox(model_pl_ratdor, lambda = seq(-2, 2, by = 0.1))
+
+```
+``` {r univar_reg_pl_ratdor_boxcox_optimal_lambda, warning=FALSE}
+
+# Obtener el lambda óptimo
+lambda_optimal <- boxcox_pl_ratdor$x[which.max(boxcox_pl_ratdor$y)]
+
+lambda_optimal
+
 ```
 
-```{r univar_reg_pl_rvamp_plot, warning=FALSE}
+El lambda óptimo es mayor que 0 (0.1414141), una transformación logarítmica de la variable `pl_ratdor` puede mejorar la capacidad predictiva del modelo de regresión lineal simple. Se realiza una regresión lineal con la variable transformada y se evalúa la capacidad predictiva del modelo.
 
-# Scatter plot de pl_radj vs pl_rvamp con la recta de regresión en rojo
+
+``` {r univar_reg_pl_ratdor_log, warning=FALSE}
+
+# Regresión de pl_radj con log(pl_ratdor) 
+model_pl_ratdor_log <- lm(pl_radj ~ log(pl_ratdor), data = kepler_data_num)
+
+model_pl_ratdor_log_summary <- summary(model_pl_ratdor_log)
+
+model_pl_ratdor_log_summary
+
+```
+
+```{r univar_reg_pl_ratdor_log_plot, warning=FALSE}
+
+# Scatter plot de pl_radj vs log(pl_ratdor) con la recta de regresión en rojo
 # y los margenes de confianza en gris
-ggplot(kepler_data_num, aes(x = pl_rvamp, y = pl_radj)) +
+ggplot(kepler_data_num, aes(x = log(pl_ratdor), y = pl_radj)) +
   geom_point(color = "steelblue") +
   geom_smooth(method = "lm", color = "indianred", fill = "grey", alpha = 0.2) +
-  labs(title = "Regresión Lineal: Radio del Exoplaneta vs Ampitud de Velocidad Radial",
-       x = "Ampitud de Velocidad Radial",
+  labs(title = "Regresión Lineal: Radio del Exoplaneta segun Logaritmo del Ratio sobre el Radio Estelar",
+       x = "Logaritmo del Ratio sobre Radio Estelar",
        y = "Radio del Exoplaneta (Júpiter)") +
   theme_minimal()
 
 ```
-
-```{r univar_reg_pl_rvamp_res_plot, warning=FALSE}
+```{r univar_reg_pl_ratdor_log_res_plot, warning=FALSE}    
 
 # Obtener los residuos y valores ajustados
-res_pl_rvamp <- residuals(model_pl_rvamp)
+res_pl_ratdor_log <- residuals(model_pl_ratdor_log)
 
 # Calcular los valores ajustados
-fit_val_pl_rvamp <- fitted(model_pl_rvamp)
+fit_val_pl_ratdor_log <- fitted(model_pl_ratdor_log)
 
 # Crear un data frame con los residuos y valores ajustados
-res_pl_rvamp_df <- data.frame(
-  Residuals = res_pl_rvamp,
-  Fitted_Values = fit_val_pl_rvamp
+res_pl_ratdor_log_df <- data.frame(
+  Residuals = res_pl_ratdor_log,
+  Fitted_Values = fit_val_pl_ratdor_log
 )
 
 # Scatter plot de residuos vs valores ajustados
-ggplot(res_pl_rvamp_df, aes(x = Fitted_Values, y = Residuals)) +
+ggplot(res_pl_ratdor_log_df, aes(x = Fitted_Values, y = Residuals)) +
   geom_point(color = "steelblue") +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   labs(title = "Residuos vs Valores Ajustados",
@@ -649,19 +664,159 @@ ggplot(res_pl_rvamp_df, aes(x = Fitted_Values, y = Residuals)) +
 
 ```
 
-```{r univar_reg_pl_rvamp_qq_plot, warning=FALSE}
+```{r univar_reg_pl_ratdor_log_qq_plot, warning=FALSE}
 
 # Crear un gráfico Q-Q de los residuos
-qqnorm(res_pl_rvamp, main = "Gráfico Q-Q de los Residuos")
+qqnorm(res_pl_ratdor_log, main = "Gráfico Q-Q de los Residuos")
 
 ```
 
-```{r univar_reg_pl_rvamp_shapiro_test}
+```{r univar_reg_st_mass}
+
+# Regresion del radio del exploplaneta (pl_radj) 
+# la masa estelar (st_mass) como predictor
+model_st_mass <- lm(pl_radj ~ st_mass, data = kepler_data_num)
+
+model_st_mass_summary <- summary(model_st_mass)
+
+model_st_mass_summary
+```
+
+```{r univar_reg_st_mass_plot, warning=FALSE}
+
+# Scatter plot de pl_radj vs st_mass con la recta de regresión en rojo
+# y los margenes de confianza en gris
+ggplot(kepler_data_num, aes(x = st_mass, y = pl_radj)) +
+  geom_point(color = "steelblue") +
+  geom_smooth(method = "lm", color = "indianred", fill = "grey", alpha = 0.2) +
+  labs(title = "Regresión Lineal: Radio del Exoplaneta segun Masa Estelar",
+       x = "Mas Estelar (Masas Solares)",
+       y = "Radio del Exoplaneta (Júpiter)") +
+  theme_minimal()
+
+```
+
+```{r univar_reg_st_mass_res_plot, warning=FALSE}
+
+# Obtener los residuos y valores ajustados
+res_st_mass <- residuals(model_st_mass)
+
+# Calcular los valores ajustados
+fit_val_st_mass <- fitted(model_st_mass)
+
+# Crear un data frame con los residuos y valores ajustados
+res_st_mass_df <- data.frame(
+  Residuals = res_st_mass,
+  Fitted_Values = fit_val_st_mass
+)
+
+# Scatter plot de residuos vs valores ajustados
+ggplot(res_st_mass_df, aes(x = Fitted_Values, y = Residuals)) +
+  geom_point(color = "steelblue") +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  labs(title = "Residuos vs Valores Ajustados",
+       x = "Valores Ajustados",
+       y = "Residuos") +
+  theme_minimal()
+
+```
+
+```{r univar_reg_pl_ratdor_qq_plot, warning=FALSE}
+
+# Crear un gráfico Q-Q de los residuos
+qqnorm(res_st_mass, main = "Gráfico Q-Q de los Residuos")
+
+```
+
+```{r univar_reg_st_mass_shapiro_test}
 
 # Prueba de normalidad de Shapiro-Wilk
-shapiro_test_pl_rvamp <- shapiro.test(res_pl_rvamp)
+shapiro_test_st_mass <- shapiro.test(res_st_mass)
 
-shapiro_test_pl_rvamp
+shapiro_test_st_mass
+
+```
+
+```{r univar_reg_st_mass_bp_test}
+
+# Prueba de homocedasticidad de Breusch-Pagan
+library(lmtest)
+
+# Prueba de Breusch-Pagan
+bp_test_st_mass <- bptest(model_st_mass)
+
+bp_test_st_mass
+
+```
+
+[Analisis sobre los resultados obtenidos]
+
+```{r univar_reg_pl_eqt}
+
+# Regresion del radio del exoplaneta (pl_radj) 
+# utilizando la temperatura de equilibrio (pl_eqt)
+# como predictor
+
+model_pl_eqt <- lm(pl_radj ~ pl_eqt, data = kepler_data_num)
+
+model_pl_eqt_summary <- summary(model_pl_eqt)
+
+model_pl_eqt_summary
+
+```
+
+```{r univar_reg_pl_eqt_plot, warning=FALSE}
+
+# Scatter plot de pl_radj vs pl_eqt con la recta de regresión en rojo
+# y los margenes de confianza en gris
+ggplot(kepler_data_num, aes(x = pl_eqt, y = pl_radj)) +
+  geom_point(color = "steelblue") +
+  geom_smooth(method = "lm", color = "indianred", fill = "grey", alpha = 0.2) +
+  labs(title = "Regresión Lineal: Radio del Exoplaneta vs Temperatura de Equilibrio",
+       x = "Tempertura de Equilibrio (K)",
+       y = "Radio del Exoplaneta (Júpiter)") +
+  theme_minimal()
+
+```
+
+```{r univar_reg_pl_eqt_res_plot, warning=FALSE}
+
+# Obtener los residuos y valores ajustados
+res_pl_eqt <- residuals(model_pl_eqt)
+
+# Calcular los valores ajustados
+fit_val_pl_eqt <- fitted(model_pl_eqt)
+
+# Crear un data frame con los residuos y valores ajustados
+res_pl_eqt_df <- data.frame(
+  Residuals = res_pl_eqt,
+  Fitted_Values = fit_val_pl_eqt
+)
+
+# Scatter plot de residuos vs valores ajustados
+ggplot(res_pl_eqt_df, aes(x = Fitted_Values, y = Residuals)) +
+  geom_point(color = "steelblue") +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  labs(title = "Residuos vs Valores Ajustados",
+       x = "Valores Ajustados",
+       y = "Residuos") +
+  theme_minimal()
+
+```
+
+```{r univar_reg_pl_eqt_qq_plot, warning=FALSE}
+
+# Crear un gráfico Q-Q de los residuos
+qqnorm(res_pl_eqt, main = "Gráfico Q-Q de los Residuos")
+
+```
+
+```{r univar_reg_pl_eqt_shapiro_test}
+
+# Prueba de normalidad de Shapiro-Wilk
+shapiro_test_pl_eqt <- shapiro.test(res_pl_eqt)
+
+shapiro_test_pl_eqt
 
 ```
 
@@ -671,111 +826,24 @@ shapiro_test_pl_rvamp
 library(lmtest)
 
 # Prueba de Breusch-Pagan
-bp_test_pl_rvamp <- bptest(model_pl_rvamp)
+bp_test_pl_eqt <- bptest(model_pl_eqt)
 
-bp_test_pl_rvamp
+bp_test_pl_eqt
 
 ```
 
 [Analisis sobre los resultados obtenidos]
 
-```{r univar_reg_st_rad}
-
-# Regresion del radio del exoplaneta (pl_radj) 
-# utilizando el radio estelar (st_rad)
-# como predictor
-
-model_st_rad <- lm(pl_radj ~ st_rad, data = kepler_data_num)
-
-model_st_rad_summary <- summary(model_st_rad)
-
-model_st_rad_summary
-```
-
-```{r univar_reg_st_rad_plot, warning=FALSE}
-
-# Scatter plot de pl_radj vs st_rad con la recta de regresión en rojo
-# y los margenes de confianza en gris
-ggplot(kepler_data_num, aes(x = st_rad, y = pl_radj)) +
-  geom_point(color = "steelblue") +
-  geom_smooth(method = "lm", color = "indianred", fill = "grey", alpha = 0.2) +
-  labs(title = "Regresión Lineal: Radio del Exoplaneta vs Radio de la Estrella",
-       x = "Radio de la Estrella (Radios Solares)",
-       y = "Radio del Exoplaneta (Júpiter)") +
-  theme_minimal()
-
-```
-
-```{r univar_reg_st_rad_res_plot, warning=FALSE}
-
-# Obtener los residuos y valores ajustados
-res_st_rad <- residuals(model_st_rad)
-
-# Calcular los valores ajustados
-fit_val_st_rad <- fitted(model_st_rad)
-
-# Crear un data frame con los residuos y valores ajustados
-res_st_rad_df <- data.frame(
-  Residuals = res_st_rad,
-  Fitted_Values = fit_val_st_rad
-)
-
-# Scatter plot de residuos vs valores ajustados
-ggplot(res_st_rad_df, aes(x = Fitted_Values, y = Residuals)) +
-  geom_point(color = "steelblue") +
-  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
-  labs(title = "Residuos vs Valores Ajustados",
-       x = "Valores Ajustados",
-       y = "Residuos") +
-  theme_minimal()
-
-```
-
-```{r univar_reg_st_rad_qq_plot, warning=FALSE}
-
-# Crear un gráfico Q-Q de los residuos
-
-qqnorm(res_st_rad, main = "Gráfico Q-Q de los Residuos")
-
-```
-
-```{r univar_reg_st_rad_shapiro_test}
-
-length(res_st_rad)
-
-# Dado que el test de Shapiro-Wilk funciona con 
-# entre 3 y 5000 valores se toman 5000 valores 
-# al azar de res_st_rad
-res_st_rad <- sample(res_st_rad, 5000)
-
-# Prueba de normalidad de Shapiro-Wilk
-shapiro_test_st_rad <- shapiro.test(res_st_rad)
-
-shapiro_test_st_rad
-
-```
-
-```{r univar_reg_st_rad_bp_test}
-
-# Prueba de homocedasticidad de Breusch-Pagan
-library(lmtest)
-
-# Prueba de Breusch-Pagan
-bp_test_st_rad <- bptest(model_st_rad)
-
-bp_test_st_rad
-
-```
-
 ## Regresión Lineal Multivariada
 
-Se realiza un análisis de regresión lineal multivariada para predecir el radio del exoplaneta (`pl_radj`) simultaneamente a partir de la profundidad del tránsito (`pl_trandep`), el cociente del semieje orbital mayor sobre el radio estelar (`pl_ratdor`), la amplitud de la velocidad radial (`pl_rvamp`) y el radio de la estrella(`st_rad`).
+Se realiza un análisis de regresión lineal multivariada para predecir el radio del exoplaneta (`pl_radj`) simultaneamente a partir del cociente del radio planetario sobre el radio estelar (`pl_ratdor`), La masa de la estrella (`st_mass`) en términos de masas solares y la temperatura de qeuilibrio del planeta (`pl_eqt`)).
 
 ```{r multivar_reg}
 
-# Regresion de pl_radj con pl_trandep, pl_ratdor, pl_rvamp y st_rad
-model_multivar <- lm(pl_radj ~ pl_trandep + pl_ratdor + pl_rvamp + st_rad, data = kepler_data_num)
+# Regresion de pl_radj con pl_ratdor, st_mass y pl_eqt
+model_multivar <- lm(pl_radj ~ pl_ratdor + st_mass + pl_eqt, data = kepler_data_num)
 
+# Resumen del modelo
 model_multivar_summary <- summary(model_multivar)
 
 model_multivar_summary
@@ -832,6 +900,61 @@ library(lmtest)
 bp_test_multivar <- bptest(model_multivar)
 
 bp_test_multivar
+
+```
+
+``` {r multivar_reg_boxcox, warning=FALSE}
+
+# Prueba de Box-Cox para transformar la variable pl_radj
+library(MASS)
+
+# Prueba de Box-Cox
+boxcox_multivar <- boxcox(model_multivar, lambda = seq(-2, 2, by = 0.1))
+
+```
+``` {r multivar_reg_boxcox_optimal_lambda, warning=FALSE}
+
+# Obtener el lambda óptimo
+lambda_optimal <- boxcox_multivar$x[which.max(boxcox_multivar$y)]
+
+lambda_optimal
+
+```
+
+El lambda óptimo es mayor que 0 (0.7070707) por lo que una transformación de raíz cuadrada de la variable `pl_radj` puede mejorar la capacidad predictiva del modelo de regresión lineal múltiple. Se realiza una regresión lineal con la variable transformada y se evalúa la capacidad predictiva del modelo.
+
+```{r multivar_reg_sqrt, warning=FALSE}
+
+# Regresión de pl_radj con sqrt(pl_ratdor + st_mass + pl_eqt)
+model_multivar_sqrt <- lm(pl_radj ~ sqrt(pl_ratdor + st_mass + pl_eqt), data = kepler_data_num)
+
+model_multivar_sqrt_summary <- summary(model_multivar_sqrt)
+
+model_multivar_sqrt_summary
+```
+
+```{r multivar_reg_sqrt_res_plot, warning=FALSE}
+
+# Obtener los residuos y valores ajustados
+res_multivar_sqrt <- residuals(model_multivar_sqrt)
+
+# Calcular los valores ajustados
+fit_val_multivar_sqrt <- fitted(model_multivar_sqrt)
+
+# Crear un data frame con los residuos y valores ajustados
+res_multivar_sqrt_df <- data.frame(
+  Residuals = res_multivar_sqrt,
+  Fitted_Values = fit_val_multivar_sqrt
+)
+
+# Scatter plot de residuos vs valores ajustados
+ggplot(res_multivar_sqrt_df, aes(x = Fitted_Values, y = Residuals)) +
+  geom_point(color = "steelblue") +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  labs(title = "Residuos vs Valores Ajustados",
+       x = "Valores Ajustados",
+       y = "Residuos") +
+  theme_minimal()
 
 ```
 
@@ -893,9 +1016,11 @@ En la literatura especializada se considera que el peso de las propiedades estel
 
 ```{r log_reg}
 
+library(dplyr)
+
 # Crear un data frame con las variables seleccionadas
 kepler_data_logistic <- kepler_data_num %>%
-  select(pl_eqt, pl_insol, pl_orbsmax, st_teff, st_mass, st_lum, st_logg, st_age)
+  dplyr::select(pl_eqt, pl_insol, pl_orbsmax, st_teff, st_mass, st_lum, st_logg, st_age)
 
 # Normalizar las variables
 kepler_data_logistic_normalized <- kepler_data_logistic %>%
@@ -917,16 +1042,34 @@ kepler_data_logistic_normalized <- kepler_data_logistic_normalized %>%
       0.1 * (0.45 * st_teff_normalized + 0.30 * st_mass_normalized + 0.20 * st_lum_normalized + 0.15 * st_logg_normalized + 0.10 * st_age_normalized)
   )
 
-# Crear un data frame con las variables normalizadas y el índice de habitabilidad
-#kepler_data_logistic_normalized <- kepler_data_logistic_normalized %>%
-#  select(pl_eqt_normalized, pl_insol_normalized, pl_orbsmax_normalized, st_teff_normalized, st_mass_normalized, st_lum_normalized, st_logg_normalized, st_age_normalized, phi)
-
-
 # Crear un modelo de regresión logística
 model_logistic <- glm(phi ~ ., data = kepler_data_logistic_normalized, family = binomial)
 
 model_logistic_summary <- summary(model_logistic)
 
 model_logistic_summary
+
+```
+```{r log_reg_plot, warning=FALSE}
+
+# Graficar la curva logistica del modelo
+# Crear un data frame con los valores de PHI y las probabilidades predichas
+# de habitabilidad. Seleccionar solo los registros donde se conoce la habitabilidad
+phi_prob <- predict(model_logistic, type = "response")
+
+# Filtrar los registros donde se conoce la habitabilidad
+kepler_data_logistic_normalized <- kepler_data_logistic_normalized %>%
+  filter(!is.na(phi))
+
+phi_prob_df <- data.frame(PHI = kepler_data_logistic_normalized$phi, Probabilidad = phi_prob)
+
+# Scatter plot de PHI vs Probabilidad
+ggplot(phi_prob_df, aes(x = PHI, y = Probabilidad)) +
+  geom_point(color = "steelblue") +
+  geom_smooth(method = "glm", method.args = list(family = "binomial"), color = "indianred", fill = "grey", alpha = 0.2) +
+  labs(title = "Curva Logística del Modelo de Regresión",
+       x = "PHI",
+       y = "Probabilidad") +
+  theme_minimal()
 
 ```

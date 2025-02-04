@@ -45,6 +45,7 @@ pl_trueobliq,Inclinación verdadera del planeta respecto de la línea de visión
 pl_tsystemref,Sistema de Tiempo de Referencia del sistema planetario
 ra,Ascensión recta de la estrella (en grados decimales)
 rastr,Ascensión recta de la estrella (en grados sexagesimales)
+soltype,Disposición del planeta según el conjunto de parámetros planetarios dado
 st_age,"Edad de la estrella (en Ga, gigaaños, o miles de millones de años)"
 st_dens,Densidad de la estrella (en g/cm³)
 st_logg,Gravedad superficial de la estrella (en logaritmo en base 10 de cm/s²)
