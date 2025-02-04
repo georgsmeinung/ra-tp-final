@@ -131,7 +131,7 @@ kepler_data <- kepler_data %>%
 
 El dataset resultante se guarda en un archivo CSV llamado `keplerfiltered.csv`. El dataset resultante contiene 2547 registros y 68 columnas.
 
-Las columnas en el dataset filtrado, y su descripción extraída de https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html,  son las siguientes:
+Las columnas en el dataset filtrado, y su descripción extraída de https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html, son las siguientes:
 
 ```{r show_filtered_data_structure, echo=FALSE}
 library(dplyr)
@@ -291,9 +291,6 @@ missing_values <- kepler_data %>%
 # Eliminar las columnas sin valores faltantes
 missing_values <- missing_values %>%
   filter(value > 0)
-
-# Crear un gráfico de barras con los valores faltantes que no sean cero
-# con la primera mitad de las filas
 
 # Total de columnas
 total_rows <- nrow(missing_values)
@@ -461,9 +458,9 @@ correlation_df$Faltantes <- sapply(correlation_df$Variable, function(x) sum(is.n
 # Escribo a correlated_vars las variables seleccionadas
 correlated_vars <- correlation_df$Variable
 
-# Ordenar el dataframe por valor absoluto de correlación
-# De mayor a menor
-correlation_df <- correlation_df[order(abs(correlation_df$Correlacion), decreasing = TRUE), ]
+# Ordenar el dataframe por cantidad de faltantes ascendente
+# y por valor absoluto de correlación descendente
+correlation_df <- correlation_df[order(correlation_df$Faltantes, -abs(correlation_df$Correlacion)), ]
 
 # Eliminar la columna de indice
 rownames(correlation_df) <- NULL
@@ -475,7 +472,17 @@ kable(correlation_df, columns = c("Variable","Correlación","Faltantes"), align 
 
 ```{r pair_plot_correlated_variables, include=FALSE, warning=FALSE}
 
-pairs(kepler_data_num[correlated_vars], pch=10, cex=0.5)
+# pairs(kepler_data_num[correlated_vars], pch=19, cex=0.3, col = "red")
+
+panel.hist <- function(x, ...) {
+  usr <- par("usr"); on.exit(par(usr))
+  par(usr = c(usr[1:2], 0, 1.5)) 
+  hist(x, col = "indianred", border = "white", probability = TRUE, add = TRUE)
+}
+
+pairs(kepler_data_num[, correlated_vars], 
+      diag.panel = panel.hist,     # Histogramas en la diagonal
+      col = "steelblue", pch = 19, cex = 1.2)
 
 ```
 
@@ -501,8 +508,22 @@ predictor_data <- kepler_data_num[predictor_vars]
 # Normalizar los datos
 predictor_data <- scale(predictor_data)
 
+library(ggplot2)
+library(tidyr)
+
+predictor_data <- as.data.frame(predictor_data)
+
+# Convertir a formato largo para ggplot2
+data_long <- pivot_longer(predictor_data, cols = everything(), names_to = "Variable", values_to = "Valores")
+
 # Graficar los valores atípicos con un boxplot
-boxplot(predictor_data, outline = TRUE, col = "skyblue", main = "Detección de Valores Atípicos")
+ggplot(data_long, aes(x = Variable, y = Valores)) +
+  geom_boxplot(outlier.colour = "indianred", outlier.shape = 1, outlier.size = 2, width = 0.2, fill = "steelblue") +
+  labs(title = "Boxplot de Variables predictoras",
+       x = "Variable", y = "Valores") +
+  coord_flip() +
+  theme_minimal(base_size = 14)
+
 ```
 Como puede observarse en el boxplot, las variables predictoras seleccionadas presentan valores atípicos que pueden afectar el análisis y la predicción de la variable faltante. Para tratar con esta situacié se puede considerar la utilización de métodos de regresión robustos que sean menos sensibles a los valores atípicos, como Huber. 
 
@@ -537,7 +558,7 @@ model_pl_ratdor_summary
 # y los margenes de confianza en gris
 ggplot(kepler_data_num, aes(x = pl_ratdor, y = pl_radj)) +
   geom_point(color = "steelblue") +
-  geom_smooth(method = "lm", color = "red", fill = "grey", alpha = 0.2) +
+  geom_smooth(method = "lm", color = "indianred", fill = "grey", alpha = 0.2) +
   labs(title = "Regresión Lineal: Radio del Exoplaneta segun Ratio sobre el Radio Estelar",
        x = "Ratio sobre Radio Estelar",
        y = "Radio del Exoplaneta (Júpiter)") +
@@ -559,7 +580,7 @@ res_pl_ratdor_df <- data.frame(Fitted_Values = fit_val_pl_ratdor, Residuals = re
 # Scatter plot de residuos vs valores ajustados
 ggplot(res_pl_ratdor_df, aes(x = Fitted_Values, y = Residuals)) +
   geom_point(color = "steelblue") +
-  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  geom_hline(yintercept = 0, color = "indianred", linetype = "dashed") +
   labs(title = "Residuos vs Valores Ajustados",
        x = "Valores Ajustados",
        y = "Residuos") +
@@ -570,7 +591,7 @@ ggplot(res_pl_ratdor_df, aes(x = Fitted_Values, y = Residuals)) +
 ```{r univar_reg_pl_ratdor_qq_plot, warning=FALSE}
 
 # Crear un gráfico Q-Q de los residuos
-qqnorm(res_pl_ratdor, main = "Gráfico Q-Q de los Residuos")
+qqnorm(res_pl_ratdor, main = "Gráfico Q-Q de los Residuos", col = "indianred")
 
 ```
 
@@ -661,7 +682,7 @@ res_pl_ratdor_log_df <- data.frame(
 # Scatter plot de residuos vs valores ajustados
 ggplot(res_pl_ratdor_log_df, aes(x = Fitted_Values, y = Residuals)) +
   geom_point(color = "steelblue") +
-  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  geom_hline(yintercept = 0, color = "indianred", linetype = "dashed") +
   labs(title = "Residuos vs Valores Ajustados",
        x = "Valores Ajustados",
        y = "Residuos") +
@@ -672,7 +693,7 @@ ggplot(res_pl_ratdor_log_df, aes(x = Fitted_Values, y = Residuals)) +
 ```{r univar_reg_pl_ratdor_log_qq_plot, warning=FALSE}
 
 # Crear un gráfico Q-Q de los residuos
-qqnorm(res_pl_ratdor_log, main = "Gráfico Q-Q de los Residuos")
+qqnorm(res_pl_ratdor_log, main = "Gráfico Q-Q de los Residuos", col="indianred")
 
 ```
 
@@ -720,7 +741,7 @@ res_pl_trandep_df <- data.frame(
 # Scatter plot de residuos vs valores ajustados
 ggplot(res_pl_trandep_df, aes(x = Fitted_Values, y = Residuals)) +
   geom_point(color = "steelblue") +
-  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  geom_hline(yintercept = 0, color = "indianred", linetype = "dashed") +
   labs(title = "Residuos vs Valores Ajustados",
        x = "Valores Ajustados",
        y = "Residuos") +
@@ -731,7 +752,7 @@ ggplot(res_pl_trandep_df, aes(x = Fitted_Values, y = Residuals)) +
 ```{r univar_reg_pl_trandep_qq_plot, warning=FALSE}
 
 # Crear un gráfico Q-Q de los residuos
-qqnorm(res_pl_trandep, main = "Gráfico Q-Q de los Residuos")
+qqnorm(res_pl_trandep, main = "Gráfico Q-Q de los Residuos", col="indianred")
 
 ```
 
@@ -811,7 +832,7 @@ res_pl_trandep_poly_df <- data.frame(
 # Scatter plot de residuos vs valores ajustados
 ggplot(res_pl_trandep_poly_df, aes(x = Fitted_Values, y = Residuals)) +
   geom_point(color = "steelblue") +
-  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  geom_hline(yintercept = 0, color = "indianred", linetype = "dashed") +
   labs(title = "Residuos vs Valores Ajustados",
        x = "Valores Ajustados",
        y = "Residuos") +
@@ -822,7 +843,7 @@ ggplot(res_pl_trandep_poly_df, aes(x = Fitted_Values, y = Residuals)) +
 ``` {r univar_reg_pl_trandep_poly_qq_plot, warning=FALSE}
 
 # Crear un gráfico Q-Q de los residuos
-qqnorm(res_pl_trandep_poly, main = "Gráfico Q-Q de los Residuos")
+qqnorm(res_pl_trandep_poly, main = "Gráfico Q-Q de los Residuos", col="indianred")
 
 ```
 
@@ -892,7 +913,7 @@ res_pl_rvamp_df <- data.frame(
 # Scatter plot de residuos vs valores ajustados
 ggplot(res_pl_rvamp_df, aes(x = Fitted_Values, y = Residuals)) +
   geom_point(color = "steelblue") +
-  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  geom_hline(yintercept = 0, color = "indianred", linetype = "dashed") +
   labs(title = "Residuos vs Valores Ajustados",
        x = "Valores Ajustados",
        y = "Residuos") +
@@ -903,7 +924,7 @@ ggplot(res_pl_rvamp_df, aes(x = Fitted_Values, y = Residuals)) +
 ```{r univar_pl_rvamp_eqt_qq_plot, warning=FALSE}
 
 # Crear un gráfico Q-Q de los residuos
-qqnorm(res_pl_rvamp, main = "Gráfico Q-Q de los Residuos")
+qqnorm(res_pl_rvamp, main = "Gráfico Q-Q de los Residuos", col="indianred")
 
 ```
 
@@ -962,7 +983,7 @@ res_multivar_df <- data.frame(
 # Scatter plot de residuos vs valores ajustados
 ggplot(res_multivar_df, aes(x = Fitted_Values, y = Residuals)) +
   geom_point(color = "steelblue") +
-  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  geom_hline(yintercept = 0, color = "indianred", linetype = "dashed") +
   labs(title = "Residuos vs Valores Ajustados",
        x = "Valores Ajustados",
        y = "Residuos") +
@@ -973,7 +994,7 @@ ggplot(res_multivar_df, aes(x = Fitted_Values, y = Residuals)) +
 ```{r multivar_reg_qq_plot, warning=FALSE}
 
 # Crear un gráfico Q-Q de los residuos
-qqnorm(res_multivar, main = "Gráfico Q-Q de los Residuos")
+qqnorm(res_multivar, main = "Gráfico Q-Q de los Residuos", col="indianred")
 
 ```
 
@@ -1041,7 +1062,7 @@ $$
 
 La insolación es un factor crítico para mantener agua líquida en la superficie del planeta, pero su impacto depende de otros factores como la atmósfera y el albedo, según la literatura especializada el peso de la insolación en el índice de habitabilidad es de $w_2=0.30$. Es importante destacar que El rango de $I_{min}$ e $I_{max}$ puede variar según la luminosidad de la estrella, ya que la zona habitable cambia en función del tipo estelar por lo que esta estimación sirve para estrellas similares al Sol.
 
-**Distancia orbital semieje mayor** (`pl_orbsmax`): La distancia orbital semieje mayor es un indicador de la zona habitable de un sistema planetario. La distancia orbital semieje mayor se mide en unidades astronómicas (UA) y se puede normalizar en un rango de 0 a 1. La distancia orbital semieje mayor ideal para la vida es aquella que permite la presencia de agua líquida en la superficie del planeta. La distancia orbital semieje mayor se puede normalizar considerando que La Tierra tiene una distancia orbital semieje mayor de 1 UA y se puede considerar que la vida puede existir en un rango de distancias de $D_{\text{min}}=1,05$ UA (aproximadamente el límite interior de la zona habitable para una estrella como el Sol, más allá de este valor el agua podría congelarse) a $D_{\text{max}}=2$ UA (aproximadamente el límite exterior de la zona habitable, más allá de este valor el agua podría evaporarse). Así la normalización resulta en:
+**Distancia orbital semieje mayor** (`pl_orbsmax`): La distancia orbital semieje mayor es un indicador de la zona habitable de un sistema planetario. La distancia orbital semieje mayor se mide en unidades astronómicas (UA) y se puede normalizar en un rango de 0 a 1. La distancia orbital semieje mayor ideal para la vida es aquella que permite la presencia de agua líquida en la superficie del planeta. La distancia orbital semieje mayor se puede normalizar considerando que La Tierra tiene una distancia orbital semieje mayor de 1 UA y se puede considerar que la vida puede existir en un rango de distancias de $D_{\text{min}}=0,5$ UA (aproximadamente el límite interior de la zona habitable para una estrella como el Sol, más allá de este valor el agua podría congelarse) a $D_{\text{max}}=2$ UA (aproximadamente el límite exterior de la zona habitable, más allá de este valor el agua podría evaporarse). Estos rangos pueden variar según el tipo de estrella. Así la normalización resulta en:
 
 $$
 f_3(\text{pl_orbsmax}) = \max\left(0, \min\left(1, \frac{\text{pl_orbsmax} - D_{\text{min}}}{D_{\text{max}} - D_{\text{min}}}\right)\right)
@@ -1061,7 +1082,7 @@ $$
 library(dplyr)
 
 # Crear un data frame con las variables seleccionadas
-kepler_data_logistic <- kepler_data_num %>%
+kepler_data_logistic <- kepler_data %>%
   dplyr::select(pl_eqt, pl_insol, pl_orbsmax)
 
 # Normalizar las variables
@@ -1069,7 +1090,7 @@ kepler_data_logistic_normalized <- kepler_data_logistic %>%
   mutate(
     pl_eqt_normalized = pmin(1, pmax(0, (pl_eqt - 200) / (400 - 200))),
     pl_insol_normalized = pmin(1, pmax(0, (pl_insol - 0.3) / (1.7 - 0.3))),
-    pl_orbsmax_normalized = pmin(1, pmax(0, (pl_orbsmax - 1.05) / (2 - 1.05)))
+    pl_orbsmax_normalized = pmin(1, pmax(0, (pl_orbsmax - 0.05) / (2 - 1.05)))
   )
 
 # Calcular el índice de habitabilidad planetaria (PHI)
@@ -1078,9 +1099,8 @@ kepler_data_logistic_normalized <- kepler_data_logistic_normalized %>%
     phi = 0.4 * pl_eqt_normalized + 0.3 * pl_insol_normalized + 0.3 * pl_orbsmax_normalized 
   )
 
-# Eliminar las variables originales
-kepler_data_logistic_normalized <- kepler_data_logistic_normalized %>%
-  select(-pl_eqt, -pl_insol, -pl_orbsmax)
+# Remover columnas no normalizadas
+kepler_data_logistic_normalized <- subset(kepler_data_logistic_normalized, select = -c(pl_eqt, pl_insol, pl_orbsmax))
 
 # Crear un modelo de regresión logística
 model_logistic <- glm(phi ~ ., data = kepler_data_logistic_normalized, family = binomial)
@@ -1114,251 +1134,3 @@ ggplot(phi_prob_df, aes(x = PHI, y = Probabilidad)) +
 
 ```
 El modelo de regresión logística resultante no es muy bueno por la poca cantidad de datos que se tienen de exoplanetas para calcular el PHI: solo se tienen 17 exoplanetas con datos completos de temperatura de equilibrio, insolación y semieje mayor orbital. 
-
-Una opción para mejorar el modelo es regresionar las variables faltantes para calcular el PHI de más exoplanetas. Se pueden usar las variables de características de la estrella y del sistema planetario para predecir las variables faltantes. Se regresionan las variables `pl_eqt`, `pl_insol` y `pl_orbsmax` a partir de las variables de características de la estrella y del sistema planetario.
-
-``` {r most_correlated_variables_pl_eqt, include=FALSE}
-
-# Seleccionar de la matriz de correlación las variables con correlacion mayor o
-# igual a 0.5 en valor absoluto con la variable faltante
-correlated_vars_pl_eqt <- names(which(abs(correlation_matrix_pearson["pl_eqt", ]) >= 0.5))
-
-# Se genera un dataframe con la correlacion entre las variables seleccionadas
-# en correlated_vars y la variable faltante tomando de la matriz de correlacion
-# solo las filas y columnas correspondientes a las variables seleccionadas
-correlation_pl_eqt_df <- data.frame(
-  Variable = names(correlation_matrix_pearson[correlated_vars_pl_eqt, "pl_eqt"]),
-  Correlacion = correlation_matrix_pearson[correlated_vars_pl_eqt, "pl_eqt"]
-)
-
-# Descartar las otras columnas en la ecuacion de PHI
-# pl_eqt, pl_insol y pl_orbsmax
-correlation_pl_eqt_df <- correlation_pl_eqt_df[!correlation_pl_eqt_df$Variable %in% c("pl_eqt", "pl_insol", "pl_orbsmax"), ]
-
-# Contar la cantidad de faltantes de cada variable
-# y agregar a la tabla
-correlation_pl_eqt_df <- cbind(correlation_pl_eqt_df, Faltantes = colSums(is.na(kepler_data_num[, correlation_pl_eqt_df$Variable])))
-
-
-# Ordenar por correlacion descendente
-correlation_pl_eqt_df <- correlation_pl_eqt_df[order(-abs(correlation_pl_eqt_df$Correlacion)), ]
-
-# Eliminar la columna de indice
-rownames(correlation_pl_eqt_df) <- NULL
-
-# Mostrar tabla formateada
-kable(correlation_pl_eqt_df, columns = c("Variable","Correlación","Faltantes"), align = "l")
-
-```
-
-Por tener la menor cantidad de faltantes y correlación con la variable `pl_eqt` se elige la variable `pl_trandur` (duracion del tránsito) como predictor de `pl_eqt` para imputar los valores faltantes de `pl_eqt`.
-
-``` {r pl_eqt_reg, include=FALSE}
-
-# Regresion de pl_eqt con pl_trandur
-model_pl_eqt <- lm(pl_eqt ~ pl_trandur, data = kepler_data_num)
-
-model_pl_eqt_summary <- summary(model_pl_eqt)
-
-model_pl_eqt_summary
-
-```
-
-``` {r pl_eqt_reg_plot, include=FALSE}
-
-# Scatter plot de pl_eqt vs pl_trandur con la recta de regresión en rojo
-# y los margenes de confianza en gris
-ggplot(kepler_data_num, aes(x = pl_trandur, y = pl_eqt)) +
-  geom_point(color = "steelblue") +
-  geom_smooth(method = "lm", color = "indianred", fill = "grey", alpha = 0.2) +
-  labs(title = "Regresión Lineal: Temperatura de Equilibrio vs Duración del Tránsito",
-       x = "Duración del Tránsito (días)",
-       y = "Temperatura de Equilibrio (K)") +
-  theme_minimal()
-
-```
-Los datos ajustados se iran usando para imputar los valores faltantes de `pl_eqt` en el data frame `kepler_data_num_imputed` que se va a usar también para imputar los valores faltantes de `pl_insol` y `pl_orbsmax`.
-
-``` {r pl_eqt_imputation, include=FALSE}
-
-# Copiar los datos en nuevo data frame
-kepler_data_num_imputed <- kepler_data_num
-
-# Imputar los valores faltantes de pl_eqt con los datos ajustados
-kepler_data_num_imputed$pl_eqt[is.na(kepler_data_num_imputed$pl_eqt)] <- predict(model_pl_eqt, newdata = kepler_data_num_imputed[is.na(kepler_data_num_imputed$pl_eqt), ])
-
-```
-
-Luego se regresiona los datos faltantes de `pl_insol` a partir de las variables de características de la estrella y del sistema planetario.
-
-``` {r most_correlated_variables_pl_insol, include=FALSE}
-
-# Seleccionar de la matriz de correlación las variables con correlacion mayor o
-# igual a 0.5 en valor absoluto con la variable faltante
-correlated_vars_pl_insol <- names(which(abs(correlation_matrix_pearson["pl_insol", ]) >= 0.5))
-
-# Se genera un dataframe con la correlacion entre las variables seleccionadas
-# en correlated_vars y la variable faltante tomando de la matriz de correlacion
-# solo las filas y columnas correspondientes a las variables seleccionadas
-correlation_pl_insol_df <- data.frame(
-  Variable = names(correlation_matrix_pearson[correlated_vars_pl_insol, "pl_insol"]),
-  Correlacion = correlation_matrix_pearson[correlated_vars_pl_insol, "pl_insol"]
-)
-
-# Descartar las otras columnas en la ecuacion de PHI
-# pl_eqt, pl_insol y pl_orbsmax
-correlation_pl_insol_df <- correlation_pl_insol_df[!correlation_pl_insol_df$Variable %in% c("pl_eqt", "pl_insol", "pl_orbsmax"), ]
-
-# Contar la cantidad de faltantes de cada variable
-# y agregar a la tabla
-correlation_pl_insol_df <- cbind(correlation_pl_insol_df, Faltantes = colSums(is.na(kepler_data_num[, correlation_pl_insol_df$Variable])))
-
-# Ordenar por correlacion descendente
-correlation_pl_insol_df <- correlation_pl_insol_df[order(-abs(correlation_pl_insol_df$Correlacion)), ]
-
-# Eliminar la columna de indice
-rownames(correlation_pl_insol_df) <- NULL
-
-# Mostrar tabla formateada
-kable(correlation_pl_insol_df, columns = c("Variable","Correlación","Faltantes"), align = "l")
-
-``` 
-
-Por tener la menor cantidad de faltantes y correlación con la variable `pl_insol` se elige la variable `pl_orbincl` (inclinación orbital) como predictor de `pl_insol` para imputar los valores faltantes de `pl_insol` dado que se utilizar la variable `pl_trandur` para imputar los valores faltantes de `pl_eqt`.
-
-``` {r pl_insol_reg, include=FALSE}
-
-# Regresion de pl_insol con pl_orbincl
-model_pl_insol <- lm(pl_insol ~ pl_orbincl, data = kepler_data_num)
-
-model_pl_insol_summary <- summary(model_pl_insol)
-
-model_pl_insol_summary
-
-```
-``` {r pl_insol_reg_plot, include=FALSE}
-
-# Scatter plot de pl_insol vs pl_trandur con la recta de regresión en rojo
-# y los margenes de confianza en gris
-ggplot(kepler_data_num, aes(x = pl_orbincl, y = pl_insol)) +
-  geom_point(color = "steelblue") +
-  geom_smooth(method = "lm", color = "indianred", fill = "grey", alpha = 0.2) +
-  labs(title = "Regresión Lineal: Insolación vs Duración del Tránsito",
-       x = "Inclinación Orbital (°)",
-       y = "Insolación (S)") +
-  theme_minimal()
-
-```
-Los datos ajustados se iran usando para imputar los valores faltantes de `pl_insol` en el data frame `kepler_data_num_imputed`.
-
-``` {r pl_insol_imputation, include=FALSE}
-
-# Imputar los valores faltantes de pl_insol con los datos ajustados
-kepler_data_num_imputed$pl_insol[is.na(kepler_data_num_imputed$pl_insol)] <- predict(model_pl_insol, newdata = kepler_data_num_imputed[is.na(kepler_data_num_imputed$pl_insol), ])
-
-```
-
-``` {r most_correlated_variables_pl_orbsmax, include=FALSE}
-
-# Seleccionar de la matriz de correlación las variables con correlacion mayor o
-# igual a 0.5 en valor absoluto con la variable faltante
-correlated_vars_pl_orbsmax <- names(which(abs(correlation_matrix_pearson["pl_orbsmax", ]) >= 0.5))
-
-# Se genera un dataframe con la correlacion entre las variables seleccionadas
-# en correlated_vars y la variable faltante tomando de la matriz de correlacion
-# solo las filas y columnas correspondientes a las variables seleccionadas
-correlation_pl_orbsmax_df <- data.frame(
-  Variable = names(correlation_matrix_pearson[correlated_vars_pl_orbsmax, "pl_orbsmax"]),
-  Correlacion = correlation_matrix_pearson[correlated_vars_pl_orbsmax, "pl_orbsmax"]
-)
-
-# Descartar las otras columnas en la ecuacion de PHI
-# pl_eqt, pl_insol y pl_orbsmax
-correlation_pl_orbsmax_df <- correlation_pl_orbsmax_df[!correlation_pl_orbsmax_df$Variable %in% c("pl_eqt", "pl_insol", "pl_orbsmax"), ]
-
-# Contar la cantidad de faltantes de cada variable
-# y agregar a la tabla
-correlation_pl_orbsmax_df <- cbind(correlation_pl_orbsmax_df, Faltantes = colSums(is.na(kepler_data_num[, correlation_pl_orbsmax_df$Variable])))
-
-# Ordenar por correlacion descendente
-correlation_pl_orbsmax_df <- correlation_pl_orbsmax_df[order(-abs(correlation_pl_orbsmax_df$Correlacion)), ]
-
-# Eliminar la columna de indice
-rownames(correlation_pl_orbsmax_df) <- NULL
-
-# Mostrar tabla formateada
-kable(correlation_pl_orbsmax_df, columns = c("Variable","Correlación","Faltantes"), align = "l")
-
-``` 
-
-Por tener la menor cantidad de faltantes y correlación con la variable `pl_eqt` se elige la variable `pl_orbper` (periodo orbital) como predictor de `pl_orbsmax` para imputar los valores faltantes de `pl_orbsmax`.
-
-``` {r pl_orbsmax_reg, include=FALSE}
-
-# Regresion de pl_orbsmax con pl_orbper
-model_pl_orbsmax <- lm(pl_orbsmax ~ pl_orbper, data = kepler_data_num)
-
-model_pl_orbsmax_summary <- summary(model_pl_orbsmax)
-
-model_pl_orbsmax_summary
-
-```
-
-``` {r pl_orbsmax_reg_plot, include=FALSE}
-
-# Scatter plot de pl_orbsmax vs pl_orbper con la recta de regresión en rojo
-# y los margenes de confianza en gris
-ggplot(kepler_data_num, aes(x = pl_orbper, y = pl_orbsmax)) +
-  geom_point(color = "steelblue") +
-  geom_smooth(method = "lm", color = "indianred", fill = "grey", alpha = 0.2) +
-  labs(title = "Regresión Lineal: Semieje Mayor Orbital vs Periodo Orbital",
-       x = "Periodo Orbital (días)",
-       y = "Semieje Mayor Orbital (UA)") +
-  theme_minimal()
-
-```
-
-Los datos ajustados se iran usando para imputar los valores faltantes de `pl_orbsmax` se almacenan en el data frame `kepler_data_num_imputed`.
-
-``` {r pl_orbsmax_imputation, include=FALSE}
-
-# Imputar los valores faltantes de pl_orbsmax con los datos ajustados
-kepler_data_num_imputed$pl_orbsmax[is.na(kepler_data_num_imputed$pl_orbsmax)] <- predict(model_pl_orbsmax, newdata = kepler_data_num_imputed[is.na(kepler_data_num_imputed$pl_orbsmax), ])
-
-```
-
-Finalmente se calcula el índice de habitabilidad planetaria (PHI) con las variables imputadas y se ajusta un modelo de regresión logística para predecir la habitabilidad de los exoplanetas.
-
-``` {r log_reg_imputed}
-
-# Crear un data frame con las variables seleccionadas
-kepler_data_logistic_imputed <- kepler_data_num_imputed %>%
-  dplyr::select(pl_eqt, pl_insol, pl_orbsmax)
-
-# Normalizar las variables con los límites definidos
-kepler_data_logistic_imputed <- kepler_data_logistic_imputed %>%
-  mutate(
-    pl_eqt_normalized = pmin(1, pmax(0, (pl_eqt - 200) / (400 - 200))),
-    pl_insol_normalized = pmin(1, pmax(0, (pl_insol - 0.3) / (1.7 - 0.3))),
-    pl_orbsmax_normalized = pmin(1, pmax(0, (pl_orbsmax - 1.05) / (2 - 1.05)))
-  )
-
-# Calcular el índice de habitabilidad planetaria (PHI)
-kepler_data_logistic_imputed <- kepler_data_logistic_imputed %>%
-  mutate(
-    phi = 0.4 * pl_eqt + 0.3 * pl_insol + 0.3 * pl_orbsmax 
-  )
-
-# Eliminar las variables originales
-kepler_data_logistic_imputed <- kepler_data_logistic_imputed %>%
-  select(-pl_eqt, -pl_insol, -pl_orbsmax)
-
-# Crear un modelo de regresión logística
-model_logistic_imputed <- glm(phi ~ ., data = kepler_data_logistic_imputed, family = binomial)
-
-model_logistic_imputed_summary <- summary(model_logistic_imputed)
-
-model_logistic_imputed_summary
-
-```
-
