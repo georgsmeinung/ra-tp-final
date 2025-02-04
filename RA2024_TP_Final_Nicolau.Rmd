@@ -75,15 +75,23 @@ kable(str_df, col.names = c("Tipo de datos y previsualización"), align = "l")
 
 Se eliman las columnas con referencias a sitios web no relevantes para el análisis. También se eliminan los datos de referencia de los planetas, estrellas y sistemas no relevantes para el análisis.
 
-Por último, para determina la habitabilidad de los exoplanetas es necesario conocer el tipo espectral de la estrella central del sistema. Por lo tanto, se eliminan los sistemas con tipo espectral desconocido.
+Como se busca predecir la habitabilidad de los exoplanetas, se filtran los sistemas con estrellas de tamaño similar al Sol (0.9 a 1.1 radios solares). Hay muchas entradas con valores faltantes en las columnas de tipo espectral de las estrellas (la mayoría), por eso se toma como criterio de filtro el tamaño de las estrellas.
+
+Además se consideraran para la muesta solo los exoplanetas publicados en la literatura científica, por lo que se filtra por "Published Confirmed" en la columna `soltype`.
+
 
 ```{r filter_data}
 
 library(dplyr)
 
-# Eliminar los sistemas con tipo espectrales desconocidos (NA)
+# Seleccionar los sistemas con estrellas de tamaño
+# similar al Sol (0.9 a 1.1 radios solares)
 kepler_data <- kepler_data %>%
-  filter(!is.na(st_spectype))
+  filter(st_rad >= 0.9 & st_rad <= 1.1)
+
+# Seleccionar solo los exoplanetas publicados en la literatura científica
+kepler_data <- kepler_data %>%
+  filter(soltype == "Published Confirmed")
 
 # Eliminar columnas de referencias a sitios web
 kepler_data <- kepler_data %>%
@@ -121,7 +129,7 @@ kepler_data <- kepler_data %>%
 
 ```
 
-El dataset resultante se guarda en un archivo CSV llamado `keplerfiltered.csv`. El dataset resultante contiene 182 registros y 68 columnas.
+El dataset resultante se guarda en un archivo CSV llamado `keplerfiltered.csv`. El dataset resultante contiene 2547 registros y 68 columnas.
 
 Las columnas en el dataset filtrado, y su descripción extraída de https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html,  son las siguientes:
 
@@ -345,7 +353,7 @@ Buena parte de las variables faltantes corresponden a parámetros de los exoplan
 
 El propósito de este trabajo es estimar los valores faltantes de los exoplanetas y predecir la habitabilidad de los mismos. Para ello, se utilizarán técnicas de regresión lineal y logística para estimar los valores faltantes y predecir la habitabilidad de los exoplanetas.
 
-Tomando las variables conocida de los exoplanetas (parámetros con prefijo `pl_`), busca aquellas posibles predictoras de las variables faltantes. Por ejemplo para el caso del radio del exoplaneta (`pl_radj` en términos de radios jovianos y `pl_rade` en términos terrestres) con 11 faltantes, hay suficiente información para estimar el radio del exoplaneta a partir de otras variables conocidas como el periodo orbital en días (`pl_orbper` con 147 faltantes), el tiempo de conjunción (`pl_tranmid` con 80 faltantes) o el logaritmo en base 10 de gravedad superficial de la estrella en el centro del sistema planteario (`st_logg` con 96 faltantes).
+Tomando las variables conocida de los exoplanetas (parámetros con prefijo `pl_`), busca aquellas posibles predictoras de las variables faltantes. Por ejemplo para el caso del radio del exoplaneta (`pl_radj` en términos de radios jovianos y `pl_rade` en términos terrestres) con 886 faltantes, hay suficiente información para estimar el radio del exoplaneta a partir de otras variables conocidas como el periodo orbital en días (`pl_orbper` con 450 faltantes), el tiempo de conjunción (`pl_tranmid` con 675 faltantes) o el logaritmo en base 10 de gravedad superficial de la estrella en el centro del sistema planteario (`st_logg` con 554 faltantes).
 
 Para saber cuál de estas variables es la mejor predictoras de la variable faltante, se utilizará la matriz de correlación para identificar las relaciones entre las variables numéricas del dataset con mayor correlación positiva o negativa con la variable faltante.
 
@@ -380,8 +388,8 @@ corrplot(
   method = "color",
   type = "upper",
   addCoef.col = "black",
-  number.cex = 0.3,
-  tl.cex = 0.5,
+  number.cex = 0.5,
+  tl.cex = 0.7,
   tl.col = "black",
   col = colorRampPalette(c("indianred", "white", "steelblue"))(20),
   title = ""
@@ -400,8 +408,8 @@ corrplot(
   method = "color",
   type = "full",  # Mostrar todas las correlaciones en esta sección
   addCoef.col = "black",
-  number.cex = 0.3,
-  tl.cex = 0.5,
+  number.cex = 0.5,
+  tl.cex = 0.7,
   tl.col = "black",
   col = colorRampPalette(c("indianred", "white", "steelblue"))(20),
   title = ""
@@ -420,8 +428,8 @@ corrplot(
   method = "color",
   type = "upper",
   addCoef.col = "black",
-  number.cex = 0.3,
-  tl.cex = 0.5,
+  number.cex = 0.5,
+  tl.cex = 0.7,
   tl.col = "black",
   col = colorRampPalette(c("indianred", "white", "steelblue"))(20),
   title = ""
@@ -431,7 +439,7 @@ corrplot(
 
 La matriz de correlación muestra las relaciones lineales entre las variables numéricas del dataset. Se observan algunas correlaciones positivas y negativas entre las variables, lo que indica posibles relaciones entre ellas. Por ejemplo el cociente entre el semieje orbital mayor y el periodo orbital (`pl_ratdor`) tiene una correlación positiva con el periodo orbital (`pl_orbper`) y una correlación negativa con la temperatura de equilibrio(`pl_eqt`). Respecto de la variable que se seleccionó como clase en el apartado anterior, el radio del exoplaneta (`pl_radj`) tiene una correlación positiva con la profundidad del tránsito (`pl_trandep`) y una correlación negativa con la gravedad superficial de la estrella (`st_logg`).
 
-Para entender mejor la relación entre las variables con algo de correlación (umbral de 50% en valor absoluto) y seleccionar las mejores variables predictoras, se realiza un pair plot de las variables con mayor correlación positiva o negativa con la variable faltante. Se descartan como variables predictores aquellos que tengan más de 50% de valores faltantes.
+Para entender mejor la relación entre las variables con algo de correlación (umbral de 30% en valor absoluto) y seleccionar las mejores variables predictoras, se realiza un pair plot de las variables con mayor correlación positiva o negativa con la variable faltante. Se descartan como variables predictores aquellos que tengan más de 50% de valores faltantes.
 
 ``` {r most_correlated_variables, include=FALSE}
 
@@ -449,9 +457,6 @@ correlation_df <- data.frame(
 
 # Agregar una columna con la cantidad de valores faltantes
 correlation_df$Faltantes <- sapply(correlation_df$Variable, function(x) sum(is.na(kepler_data[[x]])))
-
-# Eliminar los registros que tenga màs de 50% de valores faltantes
-correlation_df <- correlation_df[correlation_df$Faltantes <= 0.5 * nrow(kepler_data), ]
 
 # Escribo a correlated_vars las variables seleccionadas
 correlated_vars <- correlation_df$Variable
@@ -474,21 +479,21 @@ pairs(kepler_data_num[correlated_vars], pch=10, cex=0.5)
 
 ```
 
-Más allá de la correlación de la obvia relacion lineal entre el radio del exoplaneta en unidades jovianas y terrestres, parece haber una relación lineal entre el radio del exoplaneta y, en orden de correlación descendente, las siguientes variables:
+Más allá de la correlación de la obvia relacion lineal entre el radio del exoplaneta en unidades jovianas y terrestres, parece haber una relación lineal entre el radio del exoplaneta y, en orden de correlación de las 3 primeras descendente, las siguientes variables:
 
-- el cociente del radio planetario sobre el radio estelar (`pl_ratdor`)
-- La masa de la estrella (`st_mass`) en términos de masas solares
-- la temperatura de qeuilibrio del planeta (`pl_eqt`)
+- el cociente del radio planetario sobre el radio estelar (`pl_ratror`)
+- la profundidad del tránsito del planeta (`pl_trandep`)
+- la amplitud de la velocidad radial del planeta (`pl_rvamp`)
 
 Se seleccionan como variables predictoras del radio del exploneta las variables con mayor correlación positiva o negativa que muestran una relación lineal con la variable faltante. 
 
 # Detección de Valores Atípicos (Outliers)
-Para las variables predictoras seleccionadas (`pl_ratdor`,`st_mass`,`pl_eqt`), se detectan valores atípicos en el dataset que puedan afectar el análisis y la predicción de la variable faltante (`pl_radj`).
+Para las variables predictoras seleccionadas (`pl_ratdor`,`pl_trandep`,`pl_rvamp`), se detectan valores atípicos en el dataset que puedan afectar el análisis y la predicción de la variable faltante (`pl_radj`).
 
 ```{r outliers_detection, include=FALSE}
 
 # Seleccionar las variables predictoras
-predictor_vars <- c("pl_ratdor", "st_mass", "pl_eqt")
+predictor_vars <- c("pl_ratdor", "pl_trandep", "pl_rvamp")
 
 # Crear un data frame con las variables predictoras
 predictor_data <- kepler_data_num[predictor_vars]
@@ -506,8 +511,8 @@ Como puede observarse en el boxplot, las variables predictoras seleccionadas pre
 Para analizar la relación entre las variables conocidas caracteristicas de los exoplanetas, se realiza un análisis de regresión lineal. La variable de dependiende `pl_radj` se intentará predecir a partir de las variables independientes:
 
 - `pl_ratdor`
-- `st_mass`
-- `pl_eqt`
+- `pl_trandep`
+- `pl_rvamp`
 
 ## Regresión Lineal Univariada
 
@@ -612,7 +617,7 @@ lambda_optimal
 
 ```
 
-El lambda óptimo es mayor que 0 (0.1414141), una transformación logarítmica de la variable `pl_ratdor` puede mejorar la capacidad predictiva del modelo de regresión lineal simple. Se realiza una regresión lineal con la variable transformada y se evalúa la capacidad predictiva del modelo.
+El lambda óptimo es menor que 0 (-0.02020202), aunque muy cercano, una transformación logarítmica de la variable `pl_ratdor` podría mejorar la capacidad predictiva del modelo de regresión lineal simple. Se realiza una regresión lineal con la variable transformada y se evalúa la capacidad predictiva del modelo.
 
 
 ``` {r univar_reg_pl_ratdor_log, warning=FALSE}
@@ -671,47 +676,49 @@ qqnorm(res_pl_ratdor_log, main = "Gráfico Q-Q de los Residuos")
 
 ```
 
-```{r univar_reg_st_mass}
+```{r univar_reg_pl_trandep}
 
 # Regresion del radio del exploplaneta (pl_radj) 
-# la masa estelar (st_mass) como predictor
-model_st_mass <- lm(pl_radj ~ st_mass, data = kepler_data_num)
+# con la profundidad del tránsito del planeta (pl_trandep)
+# como predictor
+model_pl_trandep <- lm(pl_radj ~ pl_trandep, data = kepler_data_num)
 
-model_st_mass_summary <- summary(model_st_mass)
+model_pl_trandep_summary <- summary(model_pl_trandep)
 
-model_st_mass_summary
+model_pl_trandep_summary
+
 ```
 
-```{r univar_reg_st_mass_plot, warning=FALSE}
+```{r univar_reg_pl_trandep_plot, warning=FALSE}
 
-# Scatter plot de pl_radj vs st_mass con la recta de regresión en rojo
+# Scatter plot de pl_radj vs pl_trandep con la recta de regresión en rojo
 # y los margenes de confianza en gris
-ggplot(kepler_data_num, aes(x = st_mass, y = pl_radj)) +
+ggplot(kepler_data_num, aes(x = pl_trandep, y = pl_radj)) +
   geom_point(color = "steelblue") +
   geom_smooth(method = "lm", color = "indianred", fill = "grey", alpha = 0.2) +
-  labs(title = "Regresión Lineal: Radio del Exoplaneta segun Masa Estelar",
-       x = "Mas Estelar (Masas Solares)",
+  labs(title = "Regresión Lineal: Radio del Exoplaneta vs Profundidad del Tránsito",
+       x = "Profundidad del Tránsito (%)",
        y = "Radio del Exoplaneta (Júpiter)") +
   theme_minimal()
 
 ```
 
-```{r univar_reg_st_mass_res_plot, warning=FALSE}
+```{r univar_reg_pl_trandep_res_plot, warning=FALSE}
 
 # Obtener los residuos y valores ajustados
-res_st_mass <- residuals(model_st_mass)
+res_pl_trandep <- residuals(model_pl_trandep)
 
 # Calcular los valores ajustados
-fit_val_st_mass <- fitted(model_st_mass)
+fit_val_pl_trandep <- fitted(model_pl_trandep)
 
 # Crear un data frame con los residuos y valores ajustados
-res_st_mass_df <- data.frame(
-  Residuals = res_st_mass,
-  Fitted_Values = fit_val_st_mass
+res_pl_trandep_df <- data.frame(
+  Residuals = res_pl_trandep,
+  Fitted_Values = fit_val_pl_trandep
 )
 
 # Scatter plot de residuos vs valores ajustados
-ggplot(res_st_mass_df, aes(x = Fitted_Values, y = Residuals)) +
+ggplot(res_pl_trandep_df, aes(x = Fitted_Values, y = Residuals)) +
   geom_point(color = "steelblue") +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   labs(title = "Residuos vs Valores Ajustados",
@@ -721,80 +728,88 @@ ggplot(res_st_mass_df, aes(x = Fitted_Values, y = Residuals)) +
 
 ```
 
-```{r univar_reg_pl_ratdor_qq_plot, warning=FALSE}
+```{r univar_reg_pl_trandep_qq_plot, warning=FALSE}
 
 # Crear un gráfico Q-Q de los residuos
-qqnorm(res_st_mass, main = "Gráfico Q-Q de los Residuos")
+qqnorm(res_pl_trandep, main = "Gráfico Q-Q de los Residuos")
 
 ```
 
-```{r univar_reg_st_mass_shapiro_test}
+```{r univar_reg_pl_trandep_shapiro_test}
 
 # Prueba de normalidad de Shapiro-Wilk
-shapiro_test_st_mass <- shapiro.test(res_st_mass)
+shapiro_test_pl_trandep <- shapiro.test(res_pl_trandep)
 
-shapiro_test_st_mass
+shapiro_test_pl_trandep
 
 ```
 
-```{r univar_reg_st_mass_bp_test}
+```{r univar_reg_pl_trandep_bp_test}
 
 # Prueba de homocedasticidad de Breusch-Pagan
 library(lmtest)
 
 # Prueba de Breusch-Pagan
-bp_test_st_mass <- bptest(model_st_mass)
+bp_test_pl_trandep <- bptest(model_pl_trandep)
 
-bp_test_st_mass
+bp_test_pl_trandep
 
 ```
-
 [Analisis sobre los resultados obtenidos]
 
-```{r univar_reg_pl_eqt}
+Por detecarse un patron de U invertida en el scatter plot de los residuos vs valores ajustados, se puede inferir que la relación entre la variable dependiente y la independiente no es lineal. Se puede intentar ajustar un modelo polinómico de grado superior para mejorar la capacidad predictiva del modelo.
 
-# Regresion del radio del exoplaneta (pl_radj) 
-# utilizando la temperatura de equilibrio (pl_eqt)
+Dado que la variable independiente `pl_trandep` presenta muchos valores faltantes se imputarán los valores faltantes de la variable `pl_trandep` usando la mediana de la variable.
+
+```{r univar_reg_pl_trandep_poly}
+
+# Regresion del radio del exoplaneta (pl_radj)
+# con la profundidad del tránsito del planeta (pl_trandep)
 # como predictor
 
-model_pl_eqt <- lm(pl_radj ~ pl_eqt, data = kepler_data_num)
+# copiar los datos en nuevo data frame
+kepler_data_num_imputed <- kepler_data_num
 
-model_pl_eqt_summary <- summary(model_pl_eqt)
+# Imputar los valores faltantes de pl_trandep con la mediana
+kepler_data_num_imputed$pl_trandep[is.na(kepler_data_num_imputed$pl_trandep)] <- median(kepler_data_num_imputed$pl_trandep, na.rm = TRUE)
 
-model_pl_eqt_summary
+# Ajustar un modelo polinómico de grado 2
+model_pl_trandep_poly <- lm(pl_radj ~ poly(pl_trandep, 2), data = kepler_data_num_imputed)
+
+model_pl_trandep_poly_summary <- summary(model_pl_trandep_poly)
+
+model_pl_trandep_poly_summary
 
 ```
+``` {r univar_reg_pl_trandep_poly_plot, warning=FALSE}
 
-```{r univar_reg_pl_eqt_plot, warning=FALSE}
-
-# Scatter plot de pl_radj vs pl_eqt con la recta de regresión en rojo
+# Scatter plot de pl_radj vs pl_trandep con el polinomio de regresión en rojo
 # y los margenes de confianza en gris
-ggplot(kepler_data_num, aes(x = pl_eqt, y = pl_radj)) +
+ggplot(kepler_data_num, aes(x = pl_trandep, y = pl_radj)) +
   geom_point(color = "steelblue") +
-  geom_smooth(method = "lm", color = "indianred", fill = "grey", alpha = 0.2) +
-  labs(title = "Regresión Lineal: Radio del Exoplaneta vs Temperatura de Equilibrio",
-       x = "Tempertura de Equilibrio (K)",
+  geom_smooth(method = "lm", formula = y ~ poly(x, 2), color = "indianred", fill = "grey", alpha = 0.2) +
+  labs(title = "Regresión Polinómica: Radio del Exoplaneta vs Profundidad del Tránsito",
+       x = "Profundidad del Tránsito (%)",
        y = "Radio del Exoplaneta (Júpiter)") +
   theme_minimal()
 
 ```
-
-```{r univar_reg_pl_eqt_res_plot, warning=FALSE}
+``` {r univar_reg_pl_trandep_poly_res_plot, warning=FALSE}
 
 # Obtener los residuos y valores ajustados
-res_pl_eqt <- residuals(model_pl_eqt)
+res_pl_trandep_poly <- residuals(model_pl_trandep_poly)
 
 # Calcular los valores ajustados
-fit_val_pl_eqt <- fitted(model_pl_eqt)
+fit_val_pl_trandep_poly <- fitted(model_pl_trandep_poly)
 
 # Crear un data frame con los residuos y valores ajustados
-res_pl_eqt_df <- data.frame(
-  Residuals = res_pl_eqt,
-  Fitted_Values = fit_val_pl_eqt
+res_pl_trandep_poly_df <- data.frame(
+  Residuals = res_pl_trandep_poly,
+  Fitted_Values = fit_val_pl_trandep_poly
 )
 
 # Scatter plot de residuos vs valores ajustados
-ggplot(res_pl_eqt_df, aes(x = Fitted_Values, y = Residuals)) +
+ggplot(res_pl_trandep_poly_df, aes(x = Fitted_Values, y = Residuals)) +
   geom_point(color = "steelblue") +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   labs(title = "Residuos vs Valores Ajustados",
@@ -804,19 +819,100 @@ ggplot(res_pl_eqt_df, aes(x = Fitted_Values, y = Residuals)) +
 
 ```
 
-```{r univar_reg_pl_eqt_qq_plot, warning=FALSE}
+``` {r univar_reg_pl_trandep_poly_qq_plot, warning=FALSE}
 
 # Crear un gráfico Q-Q de los residuos
-qqnorm(res_pl_eqt, main = "Gráfico Q-Q de los Residuos")
+qqnorm(res_pl_trandep_poly, main = "Gráfico Q-Q de los Residuos")
 
 ```
 
-```{r univar_reg_pl_eqt_shapiro_test}
+```{r univar_reg_pl_trandep_poly_shapiro_test}
 
 # Prueba de normalidad de Shapiro-Wilk
-shapiro_test_pl_eqt <- shapiro.test(res_pl_eqt)
+shapiro_test_pl_trandep_poly <- shapiro.test(res_pl_trandep_poly)
 
-shapiro_test_pl_eqt
+shapiro_test_pl_trandep_poly
+
+```
+
+```{r univar_reg_pl_trandep_poly_bp_test}
+
+# Prueba de homocedasticidad de Breusch-Pagan
+library(lmtest)
+
+# Prueba de Breusch-Pagan
+bp_test_pl_trandep_poly <- bptest(model_pl_trandep_poly)
+
+bp_test_pl_trandep_poly
+
+```
+[Analisis de los valores obtenidos]
+
+```{r univar_reg_pl_rvamp}
+
+# Regresion del radio del exoplaneta (pl_radj) 
+# utilizando la amplitude de la velocidad radial del planeta (pl_rvamp)
+# como predictor
+model_pl_rvamp <- lm(pl_radj ~ pl_rvamp, data = kepler_data_num)
+
+model_pl_rvamp_summary <- summary(model_pl_rvamp)
+
+model_pl_rvamp_summary
+
+```
+
+```{r univar_reg_pl_rvamp_plot, warning=FALSE}
+
+# Scatter plot de pl_radj vs pl_rvamp con la recta de regresión en rojo
+# y los margenes de confianza en gris
+ggplot(kepler_data_num, aes(x = pl_rvamp, y = pl_radj)) +
+  geom_point(color = "steelblue") +
+  geom_smooth(method = "lm", color = "indianred", fill = "grey", alpha = 0.2) +
+  labs(title = "Regresión Lineal: Radio del Exoplaneta segun Amplitud de la Velocidad Radial",
+       x = "Amplitud de la Velocidad Radial (ma/s)",
+       y = "Radio del Exoplaneta (Júpiter)") +
+  theme_minimal()
+
+```
+
+```{r univar_reg_pl_rvamp_res_plot, warning=FALSE}
+
+# Obtener los residuos y valores ajustados
+res_pl_rvamp <- residuals(model_pl_rvamp)
+
+# Calcular los valores ajustados
+fit_val_pl_rvamp <- fitted(model_pl_rvamp)
+
+# Crear un data frame con los residuos y valores ajustados
+res_pl_rvamp_df <- data.frame(
+  Residuals = res_pl_rvamp,
+  Fitted_Values = fit_val_pl_rvamp
+)
+
+# Scatter plot de residuos vs valores ajustados
+ggplot(res_pl_rvamp_df, aes(x = Fitted_Values, y = Residuals)) +
+  geom_point(color = "steelblue") +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  labs(title = "Residuos vs Valores Ajustados",
+       x = "Valores Ajustados",
+       y = "Residuos") +
+  theme_minimal()
+
+```
+
+```{r univar_pl_rvamp_eqt_qq_plot, warning=FALSE}
+
+# Crear un gráfico Q-Q de los residuos
+qqnorm(res_pl_rvamp, main = "Gráfico Q-Q de los Residuos")
+
+```
+
+```{r univar_reg_pl_rvamp_shapiro_test}
+
+# Prueba de normalidad de Shapiro-Wilk
+shapiro_test_pl_rvamp <- shapiro.test(res_pl_rvamp)
+
+shapiro_test_pl_rvamp
 
 ```
 
@@ -826,9 +922,9 @@ shapiro_test_pl_eqt
 library(lmtest)
 
 # Prueba de Breusch-Pagan
-bp_test_pl_eqt <- bptest(model_pl_eqt)
+bp_test_pl_rvamp <- bptest(model_pl_rvamp)
 
-bp_test_pl_eqt
+bp_test_pl_rvamp
 
 ```
 
@@ -836,14 +932,13 @@ bp_test_pl_eqt
 
 ## Regresión Lineal Multivariada
 
-Se realiza un análisis de regresión lineal multivariada para predecir el radio del exoplaneta (`pl_radj`) simultaneamente a partir del cociente del radio planetario sobre el radio estelar (`pl_ratdor`), La masa de la estrella (`st_mass`) en términos de masas solares y la temperatura de qeuilibrio del planeta (`pl_eqt`)).
+Se realiza un análisis de regresión lineal multivariada para predecir el radio del exoplaneta (`pl_radj`) simultaneamente a partir del cociente del radio planetario sobre el radio estelar (`pl_ratdor`), la profundiad del transito (`pl_trandep`) y la amplitud de la velocidad radial del planeta (`pl_rvamp`).
 
 ```{r multivar_reg}
 
-# Regresion de pl_radj con pl_ratdor, st_mass y pl_eqt
-model_multivar <- lm(pl_radj ~ pl_ratdor + st_mass + pl_eqt, data = kepler_data_num)
+# Regresion de pl_radj con pl_ratdor, pl_trandep y pl_rvamp
+model_multivar <- lm(pl_radj ~ pl_ratdor + pl_trandep + pl_rvamp, data = kepler_data_num)
 
-# Resumen del modelo
 model_multivar_summary <- summary(model_multivar)
 
 model_multivar_summary
@@ -902,83 +997,29 @@ bp_test_multivar <- bptest(model_multivar)
 bp_test_multivar
 
 ```
-
-``` {r multivar_reg_boxcox, warning=FALSE}
-
-# Prueba de Box-Cox para transformar la variable pl_radj
-library(MASS)
-
-# Prueba de Box-Cox
-boxcox_multivar <- boxcox(model_multivar, lambda = seq(-2, 2, by = 0.1))
-
-```
-``` {r multivar_reg_boxcox_optimal_lambda, warning=FALSE}
-
-# Obtener el lambda óptimo
-lambda_optimal <- boxcox_multivar$x[which.max(boxcox_multivar$y)]
-
-lambda_optimal
-
-```
-
-El lambda óptimo es mayor que 0 (0.7070707) por lo que una transformación de raíz cuadrada de la variable `pl_radj` puede mejorar la capacidad predictiva del modelo de regresión lineal múltiple. Se realiza una regresión lineal con la variable transformada y se evalúa la capacidad predictiva del modelo.
-
-```{r multivar_reg_sqrt, warning=FALSE}
-
-# Regresión de pl_radj con sqrt(pl_ratdor + st_mass + pl_eqt)
-model_multivar_sqrt <- lm(pl_radj ~ sqrt(pl_ratdor + st_mass + pl_eqt), data = kepler_data_num)
-
-model_multivar_sqrt_summary <- summary(model_multivar_sqrt)
-
-model_multivar_sqrt_summary
-```
-
-```{r multivar_reg_sqrt_res_plot, warning=FALSE}
-
-# Obtener los residuos y valores ajustados
-res_multivar_sqrt <- residuals(model_multivar_sqrt)
-
-# Calcular los valores ajustados
-fit_val_multivar_sqrt <- fitted(model_multivar_sqrt)
-
-# Crear un data frame con los residuos y valores ajustados
-res_multivar_sqrt_df <- data.frame(
-  Residuals = res_multivar_sqrt,
-  Fitted_Values = fit_val_multivar_sqrt
-)
-
-# Scatter plot de residuos vs valores ajustados
-ggplot(res_multivar_sqrt_df, aes(x = Fitted_Values, y = Residuals)) +
-  geom_point(color = "steelblue") +
-  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
-  labs(title = "Residuos vs Valores Ajustados",
-       x = "Valores Ajustados",
-       y = "Residuos") +
-  theme_minimal()
-
-```
+[Analisis de los resultados obtenidos]
 
 ## Regresión Logística
 
 Para predecir la habitabilidad de los exoplanetas, se realiza un análisis de regresión logística utilizando las variables conocidas de los exoplanetas y las estrellas del sistema. Se seleccionan las variables conocidas de los exoplanetas y las estrellas como variables independientes y la habitabilidad como variable dependiente.
 
-Existen varios indicadores de habitabilidad de los exoplanetas, como la temperatura de equilibrio (`pl_eqt`), la insolación (`pl_insol`), la distancia orbital semieje mayor (`pl_orbsmax`), la temperatura efectiva de la estrella (`st_teff`), la masa de la estrella (`st_mass`), la luminosidad de la estrella (`st_lum`), la gravedad superficial de la estrella (`st_logg`) y la edad de la estrella (`st_age`). Se seleccionan estas variables como posibles predictores de la habitabilidad de los exoplanetas.
+Existen varios indicadores de habitabilidad de los exoplanetas. Considerando que estamos estudiando estrellas con radios similiares al solar (+/- 10%) los parámetros planetarios más relevantes son:
 
-La determinación de la habitabilidad de un exoplaneta es un tema complejo y multifactorial que depende de varios indicadores físicos y químicos. Si bien no existe una fórmula única universalmente aceptada para calcular la "habitabilidad", se pueden combinar los indicadores antes mencionados para aproximar el potencial de habitabilidad de un exoplaneta. Una de las aproximaciones más comunes es usar una combinación ponderada de las condiciones adecuadas para la presencia de agua líquida, ya que esta es fundamental para la vida tal como la conocemos.
+-La temperatura de equilibrio (`pl_eqt`) por ser una variable fundamental en la definición de la zona habitable, ya que está directamente relacionada con la posibilidad de agua líquida en la superficie de un planeta. En https://iopscience.iop.org/article/10.1088/0004-637X/765/2/131 analiza factores para ajustar los límites de la zona habitable y define los rangos ideales de temperatura para habitabilidad.
+- La insolación (`pl_insol`), esto es flujo de radiación recibido por el planeta en comparación con la Tierra, es otro predictor clave, ya que determina el balance energético del planeta. En https://arxiv.org/abs/1610.05765 se estudia los efectos del flujo de radiación en la zona habitable y su impacto en la capacidad de un planeta para retener agua.
+- El semieje mayor orbital (`pl_orbsmax`) es otro indicador importante, ya que determina la distancia del planeta a su estrella anfitriona y, por lo tanto, su temperatura superficial. En https://arxiv.org/abs/1205.2429 se demuestra cómo la distancia orbital y la luminosidad de la estrella afectan la habitabilidad.
+
+La determinación de la habitabilidad de un exoplaneta es un tema complejo y multifactorial que depende de varios indicadores físicos y químicos. Si bien no existe una fórmula única universalmente aceptada para calcular la "habitabilidad", se pueden combinar los indicadores antes mencionados para aproximar el potencial de habitabilidad de un exoplaneta. Una de las aproximaciones más comunes es usar una combinación ponderada de las condiciones adecuadas para la presencia de agua líquida, ya que esta es fundamental para la vida tal como la conocemos. El uso de una combinación lineal ponderada de  variables tales como las consideradas es una técnica válida en la modelización de habitabilidad planetaria. En https://www.researchgate.net/publication/353861442_Habitability_Models_for_Astrobiology se propone el Earth Similarity Index (ESI), que usa una fórmula normalizada combinando temperatura, flujo estelar y parámetros orbitales.
 
 Así con los indicadores seleccionados definimos un Índice de Habitabilidad Planetaria (PHI - Planetary Habitability Index) como una función normalizada que combine los indicadores clave:
 
 $$
-\text{PHI} = w_1 \cdot f_1(\text{pl_eqt}) + w_2 \cdot f_2(\text{pl_insol}) + w_3 \cdot f_3(\text{pl_orbsmax}) + w_4 \cdot f_{\text{estelar}} 
-$$ Donde:
+\text{PHI} = w_1 \cdot f_1(\text{pl_eqt}) + w_2 \cdot f_2(\text{pl_insol}) + w_3 \cdot f_3(\text{pl_orbsmax}) 
+$$ 
+Donde:
 
 -   $w_i$ son los pesos normalizados asociados a cada indicador sumando 1.
 -   $f_i(x)$ son funciones de transformación o normalización que convierten las medidas en valores entre 0 y 1, según el rango de habitabilidad conocido.
--   $f_{\text{estelar}}$ es una función que combina las propiedades estelares de la estrella anfitriona y a su vez es la ponderación de los siguientes parámetros estelares:
-
-$$
-    f_{\text{estelar}} = w_5 \cdot f_5(\text{st_teff}) + w_6 \cdot f_6(\text{st_mass}) + w_7 \cdot f_7(\text{st_lum}) + w_8 \cdot f_8(\text{st_logg}) + w_9 \cdot f_9(\text{st_age})
-    $$
 
 Estas variables se consideran como posibles predictores de la habitabilidad de los exoplanetas cuando están en determinados rangos.
 
@@ -986,9 +1027,11 @@ Estas variables se consideran como posibles predictores de la habitabilidad de l
 
 $$
 f_i(\text{pl_eqt}) = \max\left(0, \min\left(1, \frac{\text{pl_eqt} - T_{\text{min}}}{T_{\text{max}} - T_{\text{min}}}\right)\right)
-$$ Donde $T_{\text{min}}$ y $T_{\text{max}}$ son los límites inferiores y superiores. El agua líquida, esencial para la vida, puede existir en un rango de temperaturas superficiales de aproximadamente 273K (0 °C) a 373K (100 °C). Sin embargo, debido a factores atmosféricos y de presión, este rango puede extenderse ligeramente: $T_{\text{min}}=200K$ puede ser el umbral inferior, considerando atmósferas densas como la de Marte y $T_{\text{max}}=400K$ puede considerarse el umbral superior, considerando atmósferas con alta presión como la de Venus.
+$$ 
 
-Según la literatura especializada el peso de la temperatura de equilibrio en el índice de habitabilidad es de $w_1=0.45$ cuando se considera la temperatura de equilibrio como un indicador preponderante de habitabilidad y no se tienen muchos más datos del planeta.
+Donde $T_{\text{min}}$ y $T_{\text{max}}$ son los límites inferiores y superiores. El agua líquida, esencial para la vida, puede existir en un rango de temperaturas superficiales de aproximadamente 273K (0 °C) a 373K (100 °C). Sin embargo, debido a factores atmosféricos y de presión, este rango puede extenderse ligeramente: $T_{\text{min}}=200K$ puede ser el umbral inferior, considerando atmósferas densas como la de Marte y $T_{\text{max}}=400K$ puede considerarse el umbral superior, considerando atmósferas con alta presión como la de Venus.
+
+Según la literatura especializada el peso de la temperatura de equilibrio en el índice de habitabilidad es de $w_1=0.40$ cuando se considera la temperatura de equilibrio como un indicador preponderante de habitabilidad y no se tienen muchos más datos del planeta.
 
 **Insolación** (`pl_insol`): La insolación es la cantidad de energía recibida por el planeta y es un indicador importante de la habitabilidad. La insolación se mide en unidades de flujo de energía recibida por unidad de área y se puede normalizar en un rango de 0 a 1. La insolación ideal para la vida es aquella que permite la presencia de agua líquida en la superficie del planeta (generalmente valores cercanos a la Tierra son ideales). La insolación se puede normalizar considerando que La Tierra tiene una insolación de 1S (donde $S$ es la insolación solar a la distancia de la Tierra) y se puede considerar que la vida puede existir en un rango de insolación de $I_{min}=0.3S$ (aproximadamente el límite interior de la zona habitable para una estrella como el Sol, más allá de este valor el agua podría congelarse) a $I_{max}=1,7S$ (aproximadamente el límite exterior de la zona habitable, más allá de este valor el agua podría evaporarse). Así la normalización resulta en:
 
@@ -1002,17 +1045,16 @@ La insolación es un factor crítico para mantener agua líquida en la superfici
 
 $$
 f_3(\text{pl_orbsmax}) = \max\left(0, \min\left(1, \frac{\text{pl_orbsmax} - D_{\text{min}}}{D_{\text{max}} - D_{\text{min}}}\right)\right)
-$$ En la mayoría de los modelos, el peso para el valor normalizado de `pl_orbsmax` oscila entre 15% y 25%. Esto se debe a que `pl_orbsmax` complementa indicadores más directos como `pl_eqt` (temperatura de equilibrio) y `pl_insol` (insolación). Se tomará un peso de $w_3=0.20$.
+$$ 
 
-**Propiedades estelares** (`st_teff`, `st_mass`, `st_lum`, `st_logg`, `st_age`): Las propiedades estelares son cruciales para determinar la habitabilidad de un exoplaneta. La estabilidad y tipo de estrella son cruciales puesto que estrellas demasiado masivas tienen vidas cortas y no permiten la evolución de la vida compleja mientras que estrellas con alta actividad estelar pueden emitir radiación peligrosa. La normalización de las propiedades estelares se realiza de manera similar a los indicadores planetarios, considerando los rangos de habitabilidad conocidos para estrellas similares al Sol. La normalización de las propiedades estelares (`st_teff`, `st_mass`, `st_lum`, `st_logg`, `st_age`) es crucial para combinarlas en un único valor que refleje su influencia en la habitabilidad. Cada propiedad se normaliza al rango [0, 1], con valores cercanos a 1 representando condiciones ideales para la habitabilidad.
+En la mayoría de los modelos, el peso para el valor normalizado de `pl_orbsmax` oscila entre 15% y 25%. Esto se debe a que `pl_orbsmax` complementa indicadores más directos como `pl_eqt` (temperatura de equilibrio) y `pl_insol` (insolación). Se tomará un peso de $w_3=0.30$.
+
+Por lo tanto el índice de habitabilidad planetaria (PHI) con variables normalizadas y sus respectivos pesos es:
 
 $$
-f_{\text{estelar}} = w_5 \cdot f_5(\text{st_teff}) + w_6 \cdot f_6(\text{st_mass}) + w_7 \cdot f_7(\text{st_lum}) + w_8 \cdot f_8(\text{st_logg}) + w_9 \cdot f_9(\text{st_age})
-$$
+\text{PHI} = 0.4 \cdot f_1(\text{pl_eqt}) + 0.3 \cdot f_2(\text{pl_insol}) + 0,3 \cdot f_3(\text{pl_orbsmax}) 
+$$ 
 
-Donde: - f5(x) es la normalización de la temperatura efectiva de la estrella (`st_teff`) con la normalización de la temperatura efectiva de la estrella ideal para la habitabilidad en el rango de 4000K a 6000K. - f6(x) es la normalización de la masa de la estrella (`st_mass`) con la normalización de la masa de la estrella ideal para la habitabilidad en el rango de 0.8 a 1.2 masas solares. - f7(x) es la normalización de la luminosidad de la estrella (`st_lum`) con la normalización de la luminosidad de la estrella ideal para la habitabilidad en el rango de -0.5 (estrella demasiado débil) a 0.5 (estrella con radiación excesiva) veces la luminosidad solar. - f8(x) es la normalización de la gravedad superficial de la estrella (`st_logg`) con la normalización de la gravedad superficial de la estrella ideal para la habitabilidad en el rango de 4.0 (estrella en evolución fuera de la secuencia principal) a 4.5 (condiciones poco comunes para estrellas típicas). - f9(x) es la normalización de la edad de la estrella (`st_age`) con la normalización de la edad de la estrella ideal para la habitabilidad en el rango de 1 a 10 gigaaños.
-
-En la literatura especializada se considera que el peso de las propiedades estelares en el índice de habitabilidad es de $w_4=0.1$.
 
 ```{r log_reg}
 
@@ -1020,27 +1062,25 @@ library(dplyr)
 
 # Crear un data frame con las variables seleccionadas
 kepler_data_logistic <- kepler_data_num %>%
-  dplyr::select(pl_eqt, pl_insol, pl_orbsmax, st_teff, st_mass, st_lum, st_logg, st_age)
+  dplyr::select(pl_eqt, pl_insol, pl_orbsmax)
 
 # Normalizar las variables
 kepler_data_logistic_normalized <- kepler_data_logistic %>%
   mutate(
     pl_eqt_normalized = pmin(1, pmax(0, (pl_eqt - 200) / (400 - 200))),
     pl_insol_normalized = pmin(1, pmax(0, (pl_insol - 0.3) / (1.7 - 0.3))),
-    pl_orbsmax_normalized = pmin(1, pmax(0, (pl_orbsmax - 1.05) / (2 - 1.05))),
-    st_teff_normalized = pmin(1, pmax(0, (st_teff - 4000) / (6000 - 4000))),
-    st_mass_normalized = pmin(1, pmax(0, (st_mass - 0.8) / (1.2 - 0.8))),
-    st_lum_normalized = pmin(1, pmax(0, (st_lum + 0.5) / 1)),
-    st_logg_normalized = pmin(1, pmax(0, (st_logg - 4) / (4.5 - 4))),
-    st_age_normalized = pmin(1, pmax(0, (st_age - 1) / (10 - 1)))
+    pl_orbsmax_normalized = pmin(1, pmax(0, (pl_orbsmax - 1.05) / (2 - 1.05)))
   )
 
 # Calcular el índice de habitabilidad planetaria (PHI)
 kepler_data_logistic_normalized <- kepler_data_logistic_normalized %>%
   mutate(
-    phi = 0.45 * pl_eqt_normalized + 0.30 * pl_insol_normalized + 0.20 * pl_orbsmax_normalized +
-      0.1 * (0.45 * st_teff_normalized + 0.30 * st_mass_normalized + 0.20 * st_lum_normalized + 0.15 * st_logg_normalized + 0.10 * st_age_normalized)
+    phi = 0.4 * pl_eqt_normalized + 0.3 * pl_insol_normalized + 0.3 * pl_orbsmax_normalized 
   )
+
+# Eliminar las variables originales
+kepler_data_logistic_normalized <- kepler_data_logistic_normalized %>%
+  select(-pl_eqt, -pl_insol, -pl_orbsmax)
 
 # Crear un modelo de regresión logística
 model_logistic <- glm(phi ~ ., data = kepler_data_logistic_normalized, family = binomial)
@@ -1073,3 +1113,252 @@ ggplot(phi_prob_df, aes(x = PHI, y = Probabilidad)) +
   theme_minimal()
 
 ```
+El modelo de regresión logística resultante no es muy bueno por la poca cantidad de datos que se tienen de exoplanetas para calcular el PHI: solo se tienen 17 exoplanetas con datos completos de temperatura de equilibrio, insolación y semieje mayor orbital. 
+
+Una opción para mejorar el modelo es regresionar las variables faltantes para calcular el PHI de más exoplanetas. Se pueden usar las variables de características de la estrella y del sistema planetario para predecir las variables faltantes. Se regresionan las variables `pl_eqt`, `pl_insol` y `pl_orbsmax` a partir de las variables de características de la estrella y del sistema planetario.
+
+``` {r most_correlated_variables_pl_eqt, include=FALSE}
+
+# Seleccionar de la matriz de correlación las variables con correlacion mayor o
+# igual a 0.5 en valor absoluto con la variable faltante
+correlated_vars_pl_eqt <- names(which(abs(correlation_matrix_pearson["pl_eqt", ]) >= 0.5))
+
+# Se genera un dataframe con la correlacion entre las variables seleccionadas
+# en correlated_vars y la variable faltante tomando de la matriz de correlacion
+# solo las filas y columnas correspondientes a las variables seleccionadas
+correlation_pl_eqt_df <- data.frame(
+  Variable = names(correlation_matrix_pearson[correlated_vars_pl_eqt, "pl_eqt"]),
+  Correlacion = correlation_matrix_pearson[correlated_vars_pl_eqt, "pl_eqt"]
+)
+
+# Descartar las otras columnas en la ecuacion de PHI
+# pl_eqt, pl_insol y pl_orbsmax
+correlation_pl_eqt_df <- correlation_pl_eqt_df[!correlation_pl_eqt_df$Variable %in% c("pl_eqt", "pl_insol", "pl_orbsmax"), ]
+
+# Contar la cantidad de faltantes de cada variable
+# y agregar a la tabla
+correlation_pl_eqt_df <- cbind(correlation_pl_eqt_df, Faltantes = colSums(is.na(kepler_data_num[, correlation_pl_eqt_df$Variable])))
+
+
+# Ordenar por correlacion descendente
+correlation_pl_eqt_df <- correlation_pl_eqt_df[order(-abs(correlation_pl_eqt_df$Correlacion)), ]
+
+# Eliminar la columna de indice
+rownames(correlation_pl_eqt_df) <- NULL
+
+# Mostrar tabla formateada
+kable(correlation_pl_eqt_df, columns = c("Variable","Correlación","Faltantes"), align = "l")
+
+```
+
+Por tener la menor cantidad de faltantes y correlación con la variable `pl_eqt` se elige la variable `pl_trandur` (duracion del tránsito) como predictor de `pl_eqt` para imputar los valores faltantes de `pl_eqt`.
+
+``` {r pl_eqt_reg, include=FALSE}
+
+# Regresion de pl_eqt con pl_trandur
+model_pl_eqt <- lm(pl_eqt ~ pl_trandur, data = kepler_data_num)
+
+model_pl_eqt_summary <- summary(model_pl_eqt)
+
+model_pl_eqt_summary
+
+```
+
+``` {r pl_eqt_reg_plot, include=FALSE}
+
+# Scatter plot de pl_eqt vs pl_trandur con la recta de regresión en rojo
+# y los margenes de confianza en gris
+ggplot(kepler_data_num, aes(x = pl_trandur, y = pl_eqt)) +
+  geom_point(color = "steelblue") +
+  geom_smooth(method = "lm", color = "indianred", fill = "grey", alpha = 0.2) +
+  labs(title = "Regresión Lineal: Temperatura de Equilibrio vs Duración del Tránsito",
+       x = "Duración del Tránsito (días)",
+       y = "Temperatura de Equilibrio (K)") +
+  theme_minimal()
+
+```
+Los datos ajustados se iran usando para imputar los valores faltantes de `pl_eqt` en el data frame `kepler_data_num_imputed` que se va a usar también para imputar los valores faltantes de `pl_insol` y `pl_orbsmax`.
+
+``` {r pl_eqt_imputation, include=FALSE}
+
+# Copiar los datos en nuevo data frame
+kepler_data_num_imputed <- kepler_data_num
+
+# Imputar los valores faltantes de pl_eqt con los datos ajustados
+kepler_data_num_imputed$pl_eqt[is.na(kepler_data_num_imputed$pl_eqt)] <- predict(model_pl_eqt, newdata = kepler_data_num_imputed[is.na(kepler_data_num_imputed$pl_eqt), ])
+
+```
+
+Luego se regresiona los datos faltantes de `pl_insol` a partir de las variables de características de la estrella y del sistema planetario.
+
+``` {r most_correlated_variables_pl_insol, include=FALSE}
+
+# Seleccionar de la matriz de correlación las variables con correlacion mayor o
+# igual a 0.5 en valor absoluto con la variable faltante
+correlated_vars_pl_insol <- names(which(abs(correlation_matrix_pearson["pl_insol", ]) >= 0.5))
+
+# Se genera un dataframe con la correlacion entre las variables seleccionadas
+# en correlated_vars y la variable faltante tomando de la matriz de correlacion
+# solo las filas y columnas correspondientes a las variables seleccionadas
+correlation_pl_insol_df <- data.frame(
+  Variable = names(correlation_matrix_pearson[correlated_vars_pl_insol, "pl_insol"]),
+  Correlacion = correlation_matrix_pearson[correlated_vars_pl_insol, "pl_insol"]
+)
+
+# Descartar las otras columnas en la ecuacion de PHI
+# pl_eqt, pl_insol y pl_orbsmax
+correlation_pl_insol_df <- correlation_pl_insol_df[!correlation_pl_insol_df$Variable %in% c("pl_eqt", "pl_insol", "pl_orbsmax"), ]
+
+# Contar la cantidad de faltantes de cada variable
+# y agregar a la tabla
+correlation_pl_insol_df <- cbind(correlation_pl_insol_df, Faltantes = colSums(is.na(kepler_data_num[, correlation_pl_insol_df$Variable])))
+
+# Ordenar por correlacion descendente
+correlation_pl_insol_df <- correlation_pl_insol_df[order(-abs(correlation_pl_insol_df$Correlacion)), ]
+
+# Eliminar la columna de indice
+rownames(correlation_pl_insol_df) <- NULL
+
+# Mostrar tabla formateada
+kable(correlation_pl_insol_df, columns = c("Variable","Correlación","Faltantes"), align = "l")
+
+``` 
+
+Por tener la menor cantidad de faltantes y correlación con la variable `pl_insol` se elige la variable `pl_orbincl` (inclinación orbital) como predictor de `pl_insol` para imputar los valores faltantes de `pl_insol` dado que se utilizar la variable `pl_trandur` para imputar los valores faltantes de `pl_eqt`.
+
+``` {r pl_insol_reg, include=FALSE}
+
+# Regresion de pl_insol con pl_orbincl
+model_pl_insol <- lm(pl_insol ~ pl_orbincl, data = kepler_data_num)
+
+model_pl_insol_summary <- summary(model_pl_insol)
+
+model_pl_insol_summary
+
+```
+``` {r pl_insol_reg_plot, include=FALSE}
+
+# Scatter plot de pl_insol vs pl_trandur con la recta de regresión en rojo
+# y los margenes de confianza en gris
+ggplot(kepler_data_num, aes(x = pl_orbincl, y = pl_insol)) +
+  geom_point(color = "steelblue") +
+  geom_smooth(method = "lm", color = "indianred", fill = "grey", alpha = 0.2) +
+  labs(title = "Regresión Lineal: Insolación vs Duración del Tránsito",
+       x = "Inclinación Orbital (°)",
+       y = "Insolación (S)") +
+  theme_minimal()
+
+```
+Los datos ajustados se iran usando para imputar los valores faltantes de `pl_insol` en el data frame `kepler_data_num_imputed`.
+
+``` {r pl_insol_imputation, include=FALSE}
+
+# Imputar los valores faltantes de pl_insol con los datos ajustados
+kepler_data_num_imputed$pl_insol[is.na(kepler_data_num_imputed$pl_insol)] <- predict(model_pl_insol, newdata = kepler_data_num_imputed[is.na(kepler_data_num_imputed$pl_insol), ])
+
+```
+
+``` {r most_correlated_variables_pl_orbsmax, include=FALSE}
+
+# Seleccionar de la matriz de correlación las variables con correlacion mayor o
+# igual a 0.5 en valor absoluto con la variable faltante
+correlated_vars_pl_orbsmax <- names(which(abs(correlation_matrix_pearson["pl_orbsmax", ]) >= 0.5))
+
+# Se genera un dataframe con la correlacion entre las variables seleccionadas
+# en correlated_vars y la variable faltante tomando de la matriz de correlacion
+# solo las filas y columnas correspondientes a las variables seleccionadas
+correlation_pl_orbsmax_df <- data.frame(
+  Variable = names(correlation_matrix_pearson[correlated_vars_pl_orbsmax, "pl_orbsmax"]),
+  Correlacion = correlation_matrix_pearson[correlated_vars_pl_orbsmax, "pl_orbsmax"]
+)
+
+# Descartar las otras columnas en la ecuacion de PHI
+# pl_eqt, pl_insol y pl_orbsmax
+correlation_pl_orbsmax_df <- correlation_pl_orbsmax_df[!correlation_pl_orbsmax_df$Variable %in% c("pl_eqt", "pl_insol", "pl_orbsmax"), ]
+
+# Contar la cantidad de faltantes de cada variable
+# y agregar a la tabla
+correlation_pl_orbsmax_df <- cbind(correlation_pl_orbsmax_df, Faltantes = colSums(is.na(kepler_data_num[, correlation_pl_orbsmax_df$Variable])))
+
+# Ordenar por correlacion descendente
+correlation_pl_orbsmax_df <- correlation_pl_orbsmax_df[order(-abs(correlation_pl_orbsmax_df$Correlacion)), ]
+
+# Eliminar la columna de indice
+rownames(correlation_pl_orbsmax_df) <- NULL
+
+# Mostrar tabla formateada
+kable(correlation_pl_orbsmax_df, columns = c("Variable","Correlación","Faltantes"), align = "l")
+
+``` 
+
+Por tener la menor cantidad de faltantes y correlación con la variable `pl_eqt` se elige la variable `pl_orbper` (periodo orbital) como predictor de `pl_orbsmax` para imputar los valores faltantes de `pl_orbsmax`.
+
+``` {r pl_orbsmax_reg, include=FALSE}
+
+# Regresion de pl_orbsmax con pl_orbper
+model_pl_orbsmax <- lm(pl_orbsmax ~ pl_orbper, data = kepler_data_num)
+
+model_pl_orbsmax_summary <- summary(model_pl_orbsmax)
+
+model_pl_orbsmax_summary
+
+```
+
+``` {r pl_orbsmax_reg_plot, include=FALSE}
+
+# Scatter plot de pl_orbsmax vs pl_orbper con la recta de regresión en rojo
+# y los margenes de confianza en gris
+ggplot(kepler_data_num, aes(x = pl_orbper, y = pl_orbsmax)) +
+  geom_point(color = "steelblue") +
+  geom_smooth(method = "lm", color = "indianred", fill = "grey", alpha = 0.2) +
+  labs(title = "Regresión Lineal: Semieje Mayor Orbital vs Periodo Orbital",
+       x = "Periodo Orbital (días)",
+       y = "Semieje Mayor Orbital (UA)") +
+  theme_minimal()
+
+```
+
+Los datos ajustados se iran usando para imputar los valores faltantes de `pl_orbsmax` se almacenan en el data frame `kepler_data_num_imputed`.
+
+``` {r pl_orbsmax_imputation, include=FALSE}
+
+# Imputar los valores faltantes de pl_orbsmax con los datos ajustados
+kepler_data_num_imputed$pl_orbsmax[is.na(kepler_data_num_imputed$pl_orbsmax)] <- predict(model_pl_orbsmax, newdata = kepler_data_num_imputed[is.na(kepler_data_num_imputed$pl_orbsmax), ])
+
+```
+
+Finalmente se calcula el índice de habitabilidad planetaria (PHI) con las variables imputadas y se ajusta un modelo de regresión logística para predecir la habitabilidad de los exoplanetas.
+
+``` {r log_reg_imputed}
+
+# Crear un data frame con las variables seleccionadas
+kepler_data_logistic_imputed <- kepler_data_num_imputed %>%
+  dplyr::select(pl_eqt, pl_insol, pl_orbsmax)
+
+# Normalizar las variables con los límites definidos
+kepler_data_logistic_imputed <- kepler_data_logistic_imputed %>%
+  mutate(
+    pl_eqt_normalized = pmin(1, pmax(0, (pl_eqt - 200) / (400 - 200))),
+    pl_insol_normalized = pmin(1, pmax(0, (pl_insol - 0.3) / (1.7 - 0.3))),
+    pl_orbsmax_normalized = pmin(1, pmax(0, (pl_orbsmax - 1.05) / (2 - 1.05)))
+  )
+
+# Calcular el índice de habitabilidad planetaria (PHI)
+kepler_data_logistic_imputed <- kepler_data_logistic_imputed %>%
+  mutate(
+    phi = 0.4 * pl_eqt + 0.3 * pl_insol + 0.3 * pl_orbsmax 
+  )
+
+# Eliminar las variables originales
+kepler_data_logistic_imputed <- kepler_data_logistic_imputed %>%
+  select(-pl_eqt, -pl_insol, -pl_orbsmax)
+
+# Crear un modelo de regresión logística
+model_logistic_imputed <- glm(phi ~ ., data = kepler_data_logistic_imputed, family = binomial)
+
+model_logistic_imputed_summary <- summary(model_logistic_imputed)
+
+model_logistic_imputed_summary
+
+```
+
