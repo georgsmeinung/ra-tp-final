@@ -3,8 +3,7 @@
 :::
 
 ---
-title: "Regresión Avanzada 2024"
-subtitle: "Trabajo Práctico Final"
+title: "Regresión Avanzada 2024 - TP Final"
 author: "Jorge Nicolau"
 output:
    html_document:
@@ -20,7 +19,8 @@ editor_options:
     wrap: none
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, echo=FALSE}
+# Bloque de configuración de R Markdown
 # Limpieza del Workspace
 rm(list = ls())
 
@@ -34,22 +34,164 @@ setwd(script_path)
 knitr::opts_chunk$set(echo = TRUE)
 # Deshabilita la impresión de tus resultados en notación científica
 options(scipen=999)
+
+# Semilla global para reproducibilidad
+random_seed <- 235337
+set.seed(random_seed)
 ```
 
 # Preprocesamiento de Datos
 
-El dataset de exoplanetas detectados por la misión Kepler contiene información sobre 28.217 exoplanetas (entre confirmados y propuetos) y sus características. El objetivo de este trabajo es preprocesar los datos para realizar un análisis exploratorio y utilizar regresión linea y logística para la extracción de paramétros faltantes de los exoplanetas y para predecir la habitabilidad de los mismos.
+Al momento de la extracción (14 de enero de 2025) el dataset de exoplanetas contiene información sobre 28.217 exoplanetas (entre confirmados, propuestos y en estudio) y sus características. La base de datos de IPAC (<https://www.ipac.caltech.edu/>) contiene información sobre los exoplanetas detectados por la misión Kepler y otros telescopios, pero para este trabajo se utilizará solo la información de los exoplanetas detectados por la misión Kepler (<https://science.nasa.gov/mission/kepler/>).
 
-Se cargarán los datos, se filtrarán las filas de los explonetas confirmados, las columnas relevantes, se eliminarán los valores faltantes y se realizará un análisis exploratorio de los datos.
+El objetivo de este trabajo es procesar los datos para realizar un análisis exploratorio y utilizar regresión linea y logística para la extracción de paramétros faltantes de los exoplanetas y para predecir la habitabilidad de los mismos.
+
+Se cargarán los datos, se filtrarán las filas de los explonetas confirmados, las columnas relevantes, se eliminarán los valores faltantes y se realizará un análisis exploratorio de los datos para luego realizar la regresión lineal y logística.
 
 ## Carga de Datos
 
-Se cargan los datos del dataset de exoplanetas de la misión Kepler del archivo `keplerexoplanets.csv`. El mismo se obtuvo de la página del IPAC del Caltech (<https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS>) y contiene información sobre los sistemas exoplanetaarios detectados por la misión Kepler (<https://science.nasa.gov/mission/kepler/>).
+Se cargan los datos del dataset de exoplanetas de la misión Kepler del archivo `keplerexoplanets.csv`. El mismo se obtuvo de la página del IPAC del Caltech (<https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS>). La consulta usada para producir el dataset fue la siguiente:
+
+```         
+# This file was produced by the NASA Exoplanet Archive  http://exoplanetarchive.ipac.caltech.edu
+# Tue Jan 14 15:20:53 2025
+#
+# User preference: *
+#
+# CONSTRAINT:  where (disc_facility like '%Kepler%')
+#
+# COLUMN pl_name:        Planet Name
+# COLUMN hostname:       Host Name
+# COLUMN pl_letter:      Planet Letter
+# COLUMN hd_name:        HD ID
+# COLUMN hip_name:       HIP ID
+# COLUMN tic_id:         TIC ID
+# COLUMN gaia_id:        GAIA ID
+# COLUMN default_flag:   Default Parameter Set
+# COLUMN sy_snum:        Number of Stars
+# COLUMN sy_pnum:        Number of Planets
+# COLUMN sy_mnum:        Number of Moons
+# COLUMN cb_flag:        Circumbinary Flag
+# COLUMN discoverymethod: Discovery Method
+# COLUMN disc_year:      Discovery Year
+# COLUMN disc_refname:   Discovery Reference
+# COLUMN disc_pubdate:   Discovery Publication Date
+# COLUMN disc_locale:    Discovery Locale
+# COLUMN disc_facility:  Discovery Facility
+# COLUMN disc_telescope: Discovery Telescope
+# COLUMN disc_instrument: Discovery Instrument
+# COLUMN rv_flag:        Detected by Radial Velocity Variations
+# COLUMN pul_flag:       Detected by Pulsar Timing Variations
+# COLUMN ptv_flag:       Detected by Pulsation Timing Variations
+# COLUMN tran_flag:      Detected by Transits
+# COLUMN ast_flag:       Detected by Astrometric Variations
+# COLUMN obm_flag:       Detected by Orbital Brightness Modulations
+# COLUMN micro_flag:     Detected by Microlensing
+# COLUMN etv_flag:       Detected by Eclipse Timing Variations
+# COLUMN ima_flag:       Detected by Imaging
+# COLUMN dkin_flag:      Detected by Disk Kinematics
+# COLUMN soltype:        Solution Type
+# COLUMN pl_controv_flag: Controversial Flag
+# COLUMN pl_refname:     Planetary Parameter Reference
+# COLUMN pl_orbper:      Orbital Period [days]
+# COLUMN pl_orbsmax:     Orbit Semi-Major Axis [au]
+# COLUMN pl_rade:        Planet Radius [Earth Radius]
+# COLUMN pl_radj:        Planet Radius [Jupiter Radius]
+# COLUMN pl_masse:       Planet Mass [Earth Mass]
+# COLUMN pl_massj:       Planet Mass [Jupiter Mass]
+# COLUMN pl_msinie:      Planet Mass*sin(i) [Earth Mass]
+# COLUMN pl_msinij:      Planet Mass*sin(i) [Jupiter Mass]
+# COLUMN pl_cmasse:      Planet Mass*sin(i)/sin(i) [Earth Mass]
+# COLUMN pl_cmassj:      Planet Mass*sin(i)/sin(i) [Jupiter Mass]
+# COLUMN pl_bmasse:      Planet Mass or Mass*sin(i) [Earth Mass]
+# COLUMN pl_bmassj:      Planet Mass or Mass*sin(i) [Jupiter Mass]
+# COLUMN pl_bmassprov:   Planet Mass or Mass*sin(i) Provenance
+# COLUMN pl_dens:        Planet Density [g/cm**3]
+# COLUMN pl_orbeccen:    Eccentricity
+# COLUMN pl_insol:       Insolation Flux [Earth Flux]
+# COLUMN pl_eqt:         Equilibrium Temperature [K]
+# COLUMN pl_orbincl:     Inclination [deg]
+# COLUMN pl_tranmid:     Transit Midpoint [days]
+# COLUMN pl_tsystemref:  Time Reference Frame and Standard
+# COLUMN ttv_flag:       Data show Transit Timing Variations
+# COLUMN pl_imppar:      Impact Parameter
+# COLUMN pl_trandep:     Transit Depth [%]
+# COLUMN pl_trandur:     Transit Duration [hours]
+# COLUMN pl_ratdor:      Ratio of Semi-Major Axis to Stellar Radius
+# COLUMN pl_ratror:      Ratio of Planet to Stellar Radius
+# COLUMN pl_occdep:      Occultation Depth [%]
+# COLUMN pl_orbtper:     Epoch of Periastron [days]
+# COLUMN pl_orblper:     Argument of Periastron [deg]
+# COLUMN pl_rvamp:       Radial Velocity Amplitude [m/s]
+# COLUMN pl_projobliq:   Projected Obliquity [deg]
+# COLUMN pl_trueobliq:   True Obliquity [deg]
+# COLUMN st_refname:     Stellar Parameter Reference
+# COLUMN st_spectype:    Spectral Type
+# COLUMN st_teff:        Stellar Effective Temperature [K]
+# COLUMN st_rad:         Stellar Radius [Solar Radius]
+# COLUMN st_mass:        Stellar Mass [Solar mass]
+# COLUMN st_met:         Stellar Metallicity [dex]
+# COLUMN st_metratio:    Stellar Metallicity Ratio
+# COLUMN st_lum:         Stellar Luminosity [log(Solar)]
+# COLUMN st_logg:        Stellar Surface Gravity [log10(cm/s**2)]
+# COLUMN st_age:         Stellar Age [Gyr]
+# COLUMN st_dens:        Stellar Density [g/cm**3]
+# COLUMN st_vsin:        Stellar Rotational Velocity [km/s]
+# COLUMN st_rotp:        Stellar Rotational Period [days]
+# COLUMN st_radv:        Systemic Radial Velocity [km/s]
+# COLUMN sy_refname:     System Parameter Reference
+# COLUMN rastr:          RA [sexagesimal]
+# COLUMN ra:             RA [deg]
+# COLUMN decstr:         Dec [sexagesimal]
+# COLUMN dec:            Dec [deg]
+# COLUMN glat:           Galactic Latitude [deg]
+# COLUMN glon:           Galactic Longitude [deg]
+# COLUMN elat:           Ecliptic Latitude [deg]
+# COLUMN elon:           Ecliptic Longitude [deg]
+# COLUMN sy_pm:          Total Proper Motion [mas/yr]
+# COLUMN sy_pmra:        Proper Motion (RA) [mas/yr]
+# COLUMN sy_pmdec:       Proper Motion (Dec) [mas/yr]
+# COLUMN sy_dist:        Distance [pc]
+# COLUMN sy_plx:         Parallax [mas]
+# COLUMN sy_bmag:        B (Johnson) Magnitude
+# COLUMN sy_vmag:        V (Johnson) Magnitude
+# COLUMN sy_jmag:        J (2MASS) Magnitude
+# COLUMN sy_hmag:        H (2MASS) Magnitude
+# COLUMN sy_kmag:        Ks (2MASS) Magnitude
+# COLUMN sy_umag:        u (Sloan) Magnitude
+# COLUMN sy_gmag:        g (Sloan) Magnitude
+# COLUMN sy_rmag:        r (Sloan) Magnitude
+# COLUMN sy_imag:        i (Sloan) Magnitude
+# COLUMN sy_zmag:        z (Sloan) Magnitude
+# COLUMN sy_w1mag:       W1 (WISE) Magnitude
+# COLUMN sy_w2mag:       W2 (WISE) Magnitude
+# COLUMN sy_w3mag:       W3 (WISE) Magnitude
+# COLUMN sy_w4mag:       W4 (WISE) Magnitude
+# COLUMN sy_gaiamag:     Gaia Magnitude
+# COLUMN sy_icmag:       I (Cousins) Magnitude
+# COLUMN sy_tmag:        TESS Magnitude
+# COLUMN sy_kepmag:      Kepler Magnitude
+# COLUMN rowupdate:      Date of Last Update
+# COLUMN pl_pubdate:     Planetary Parameter Reference Publication Date
+# COLUMN releasedate:    Release Date
+# COLUMN pl_nnotes:      Number of Notes
+# COLUMN st_nphot:       Number of Photometry Time Series
+# COLUMN st_nrvc:        Number of Radial Velocity Time Series
+# COLUMN st_nspec:       Number of Stellar Spectra Measurements
+# COLUMN pl_nespec:      Number of Eclipse Spectra
+# COLUMN pl_ntranspec:   Number of Transmission Spectra
+# COLUMN pl_ndispec:     Number of Direct Imaging Spectra
+#
+```
+
+El encabezado más arriba estaba incluído en el archivo .CSV generado y se incluye aquí para reproducir la consulta. El dataset contiene información sobre los sistemas exoplanetarios detectados por la misión Kepler y el diccionario de datos se encuentra en <https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html> explicando en más profundidad la semántica de las variables.
+
+Todos los archivos necesarios para este trabajo se encuentran en el repositorio de GitHub del autor (<https://github.com/georgsmeinung/ra-tp-final/>) y se pueden descargar desde allí para reproducir este análisis, incluyendo el dataset `keplerexoplanets.csv` que a continuación se carga.
 
 ```{r load_data, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
 library(readr)
 
-# Cargar los datos
+# Cargar los datos del archivo CSV
 kepler_data <- read_csv("keplerexoplanets.csv")
 ```
 
@@ -73,69 +215,63 @@ kable(str_df, col.names = c("Tipo de datos y previsualización"), align = "l")
 
 ```
 
-Se eliman las columnas con referencias a sitios web no relevantes para el análisis. También se eliminan los datos de referencia de los planetas, estrellas y sistemas no relevantes para el análisis.
+Para el análisis se considerarán solo los exoplanetas confirmados y se eliminarán las columnas no relevantes para el análisis.
 
-Como se busca predecir la habitabilidad de los exoplanetas, se filtran los sistemas con estrellas de tamaño similar al Sol (0.9 a 1.1 radios solares). Hay muchas entradas con valores faltantes en las columnas de tipo espectral de las estrellas (la mayoría), por eso se toma como criterio de filtro el tamaño de las estrellas.
+Para reducir la dimensionalidad del problema, a continuación se eliminan las columnas con referencias a sitios web no relevantes para el análisis. También se eliminan los datos de referencia de los planetas, estrellas y sistemas no relevantes para el análisis tales como referencias a catálogos externos de estrellas y sistemas, información de publicación del descubrimiento, información de detección, información de fotometría, banderas de organización interna del dataset, información del sistema planetario y detalles técnicos de la detección.
 
-Además se consideraran para la muesta solo los exoplanetas publicados en la literatura científica, por lo que se filtra por "Published Confirmed" en la columna `soltype`.
-
+Para reducir la cantidad de registros del dataset y como se busca predecir la habitabilidad de los exoplanetas en sistemas similares al Solar, se filtran los sistemas con estrellas de tamaño similar al Sol (0.9 a 1.1 radios solares). Hay muchas entradas con valores faltantes en las columnas de tipo espectral de las estrellas (la mayoría) que sería un mejor indicador para determinarl la zona habitable, por eso se toma como criterio de filtro el tamaño de las estrellas. Además se consideraran para la muesta solo los exoplanetas publicados en la literatura científica, por lo que se filtra por "Published Confirmed" en la columna `soltype`.
 
 ```{r filter_data}
 
 library(dplyr)
 
+# PARTE 1 - FILTRO DE DATOS
 # Seleccionar los sistemas con estrellas de tamaño
 # similar al Sol (0.9 a 1.1 radios solares)
-kepler_data <- kepler_data %>%
-  filter(st_rad >= 0.9 & st_rad <= 1.1)
+kepler_data <- filter(kepler_data, st_rad >= 0.9 & st_rad <= 1.1)
 
 # Seleccionar solo los exoplanetas publicados en la literatura científica
-kepler_data <- kepler_data %>%
-  filter(soltype == "Published Confirmed")
+kepler_data <- filter(kepler_data, soltype == "Published Confirmed")
 
+# PARTE 2 - REDUCCION DE LA DIMENSIONALIDAD
 # Eliminar columnas de referencias a sitios web
-kepler_data <- kepler_data %>%
-  select(-disc_refname, -pl_refname, -st_refname, -sy_refname)
+kepler_data <- subset(kepler_data, select = c(-disc_refname, -pl_refname, -st_refname, -sy_refname))
 
 # Eliminar columnas de id de catalogos externos de estrellas y sistemas
-kepler_data <- kepler_data %>%
-  select(-tic_id, -gaia_id, hostname, hd_name, hip_name)
+kepler_data <- subset(kepler_data, select = c(-tic_id, -gaia_id))
 
 # Eliminar información referente a la publicación del descubrimiento
 # así como la información del instrumento utilizado, para todos es Kepler
-kepler_data <- kepler_data %>%
-  select(-disc_year, -disc_pubdate, -disc_locale, -disc_facility, -disc_telescope, -disc_instrument, -rowupdate, -pl_pubdate, -releasedate)
+kepler_data <- subset(kepler_data, select = c(-disc_year, -disc_pubdate, -disc_locale, -disc_facility, -disc_telescope, -disc_instrument, -rowupdate, -pl_pubdate, -releasedate))
 
 # Eliminar columnas con información referente a la detección
-kepler_data <- kepler_data %>%
-  select(-rv_flag, -pul_flag, -ptv_flag, -tran_flag, -ast_flag, -obm_flag, -micro_flag, -etv_flag, -ima_flag, dkin_flag)
+kepler_data <- subset(kepler_data, select = c(-rv_flag, -pul_flag, -ptv_flag, -tran_flag, -ast_flag, -obm_flag, -micro_flag, -etv_flag, -ima_flag, -dkin_flag))
 
 # Eliminar columnas con información de fotometria
-kepler_data <- kepler_data %>%
-  select(-sy_bmag, -sy_vmag, -sy_jmag, -sy_hmag, -sy_kmag, -sy_umag, -sy_gmag, -sy_rmag, -sy_imag, -sy_zmag, -sy_w1mag, -sy_w2mag, -sy_w3mag, -sy_w4mag, -sy_gaiamag, -sy_icmag, -sy_tmag, -sy_kepmag)
+kepler_data <- subset(kepler_data, select = c(-sy_bmag, -sy_vmag, -sy_jmag, -sy_hmag, -sy_kmag, -sy_umag, -sy_gmag, -sy_rmag, -sy_imag, -sy_zmag, -sy_w1mag, -sy_w2mag, -sy_w3mag, -sy_w4mag, -sy_gaiamag, -sy_icmag, -sy_tmag, -sy_kepmag))
 
 # Eliminar banderas de organización interna del dataset
-kepler_data <- kepler_data %>%
-  select(-pl_nnotes, -pl_controv_flag, -default_flag)
+kepler_data <- subset(kepler_data, select = c(-pl_nnotes, -pl_controv_flag, -default_flag))
 
 # Eliminar columnas con información del sistema planetario
 # y detalles técnicos de la detección
-kepler_data <- kepler_data %>%
-  select(-sy_mnum, -dkin_flag, -pl_ndispec)
+kepler_data <- subset(kepler_data, select = c(-sy_mnum, -pl_ndispec))
 
 # Eliminar columnas con información adicional de fotometria
-kepler_data <- kepler_data %>%
-  select(-st_nphot, -st_nrvc, -st_nspec, -pl_nespec, -pl_ntranspec)
+kepler_data <- subset( kepler_data, select = c(-st_nphot, -st_nrvc, -st_nspec, -pl_nespec, -pl_ntranspec))
 
 ```
 
 El dataset resultante se guarda en un archivo CSV llamado `keplerfiltered.csv`. El dataset resultante contiene 2547 registros y 68 columnas.
 
-Las columnas en el dataset filtrado, y su descripción extraída de https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html, son las siguientes:
+Las columnas en el dataset filtrado, y su descripción extraída de <https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html>, son las siguientes:
 
 ```{r show_filtered_data_structure, echo=FALSE}
 library(dplyr)
 library(knitr)
+
+# Ordenar las columnas alfabéticamente
+kepler_data <- kepler_data[, order(names(kepler_data))]
 
 # Copiar el nombre de las columnas a un data frame
 column_names <- data.frame(
@@ -147,77 +283,74 @@ column_names <- data.frame(
 # Fuente: https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html
 column_names <- column_names %>%
   mutate(Description = c(
-    "pl_name: Nombre del planeta",
-    "hostname: Nombre del sistema estelar utilizado en la literatura",
-    "pl_letter: Letra del planeta en el sistema (primer planeta es b)",
+    "cb_flag: Flag de circumbinario (el planeta orbita un sistema binario)",
+    "dec: Declinación de la estrella (en grados decimales)",
+    "decstr: Declinación de la estrella (en grados sexagesimales)",
+    "discoverymethod: Método de descubrimiento del planeta",
+    "elat: Latitud eclíptica de la estrella (en grados decimales)",
+    "elon: Longitud eclíptica de la estrella (en grados decimales)",
+    "glat: Latitud galáctica de la estrella (en grados decimales)",
+    "glon: Longitud galáctica de la estrella (en grados decimales)",
     "hd_name: Nombre del sistema estelar en el catálogo Henry Draper",
     "hip_name: Nombre del sistema estelar en el catálogo Hipparcos",
-    "sy_snum: Número de estrellas en el sistema",
-    "sy_pnum: Número de planetas en el sistema",
-    "cb_flag: Flag de circumbinario (el planeta orbita un sistema binario)",
-    "discoverymethod: Método de descubrimiento del planeta",
-    "soltype: Disposición del planeta según el conjunto de parámetros planetarios dado",
-    "pl_orbper: Periodo orbital del planeta (en días)",
-    "pl_orbsmax: Distancia orbital semieje mayor (en UA)",
-    "pl_rade: Radio del planeta (en radios terrestres)",
-    "pl_radj: Radio del planeta (en radios jovianos)",
+    "hostname: Nombre del sistema estelar utilizado en la literatura",
+    "pl_bmasse: Mejor estimación de la masa del planeta (en masas terrestres)",
+    "pl_bmassj: Mejor estimación de la masa del planeta (en masas jovianas)",
+    "pl_bmassprov: Proveedor de la mejor estimación de la masa del planeta (mínima o proyectada)",
+    "pl_cmasse: Masa mínima proyectada (en masas terrestres)",
+    "pl_cmassj: Masa mínima proyectada (en masas jovianas)",
+    "pl_dens: Densidad del planeta (en g/cm³)",
+    "pl_eqt: Temperatura de equilibrio del planeta considero como un cuerpo oscur (en grados K)",
+    "pl_imppar: Parámetro de impacto del planeta como distancia proyectada del centro del planeta al centro de la estrella (en radios estelares)",
+    "pl_insol: Insolación del planeta en terminos la insolación de la tierra (en W/m²)",
+    "pl_letter: Letra del planeta en el sistema (primer planeta es b)",
     "pl_masse: Masa del planeta (en masas terrestres)",
     "pl_massj: Masa del planeta (en masas jovianas)",
     "pl_msinie: Mínimo de masa medida por el método de velocidad radial (en masas terrestres)",
     "pl_msinij: Mínimo de masa medida por el método de velocidad radial (en masas jovianas)",
-    "pl_cmasse: Masa mínima proyectada (en masas terrestres)",
-    "pl_cmassj: Masa mínima proyectada (en masas jovianas)",
-    "pl_bmasse: Mejor estimación de la masa del planeta (en masas terrestres)",
-    "pl_bmassj: Mejor estimación de la masa del planeta (en masas jovianas)",
-    "pl_bmassprov: Proveedor de la mejor estimación de la masa del planeta (mínima o proyectada)",
-    "pl_dens: Densidad del planeta (en g/cm³)",
+    "pl_occdep: Profundidad del eclipse del planeta en terminos de el flujo relativo decreciente frente a su estrella (en %)",
     "pl_orbeccen: Excentricidad orbital del planeta",
-    "pl_insol: Insolación del planeta en terminos la insolación de la tierra (en W/m²)",
-    "pl_eqt: Temperatura de equilibrio del planeta considero como un cuerpo oscur (en grados K)",
     "pl_orbincl: Inclinación orbital del planeta respecto de la línea de visión desde la Tierra (en grados)",
-    "pl_tranmid: Tiempo de tránsito medio del planeta respecto de su estrella (en días)",
-    "pl_tsystemref: Sistema de Tiempo de Referencia del sistema planetario",
-    "ttv_flag: Flag de tránsito de tiempo variante",
-    "pl_imppar: Parámetro de impacto del planeta como distancia proyectada del centro del planeta al centro de la estrella (en radios estelares)",
-    "pl_trandep: Profundidad del tránsito del planeta en terminos de el flujo relativo decreciente frente a su estrella (en %)",
-    "pl_trandur: Duración del tránsito del planeta (en horas)",
+    "pl_orblper: El argumento del periastro del planeta (en grados)",
+    "pl_orbper: Periodo orbital del planeta (en días)",
+    "pl_orbsmax: Distancia orbital semieje mayor (en UA)",
+    "pl_orbtper: El momento del paso del planeta por el periastro (en grados)",
+    "pl_projobliq: Inclinación proyectada del planeta respecto de la línea de visión desde la Tierra (en grados)",
+    "pl_rade: Radio del planeta (en radios terrestres)",
+    "pl_radj: Radio del planeta (en radios jovianos)",
     "pl_ratdor: cociente del semieje orbital mayor sobre el radio estelar",
     "pl_ratror: cociente del radio del planeta sobre el radio estelar",
-    "pl_occdep: Profundidad del eclipse del planeta en terminos de el flujo relativo decreciente frente a su estrella (en %)",
-    "pl_orbtper: El momento del paso del planeta por el periastro (en grados)",
-    "pl_orblper: El argumento del periastro del planeta (en grados)",
     "pl_rvamp: Amplitud de la velocidad radial del planeta (en m/s)",
-    "pl_projobliq: Inclinación proyectada del planeta respecto de la línea de visión desde la Tierra (en grados)",
+    "pl_trandep: Profundidad del tránsito del planeta en terminos de el flujo relativo decreciente frente a su estrella (en %)",
+    "pl_trandur: Duración del tránsito del planeta (en horas)",
+    "pl_tranmid: Tiempo de tránsito medio del planeta respecto de su estrella (en días)",
     "pl_trueobliq: Inclinación verdadera del planeta respecto de la línea de visión desde la Tierra (en grados)",
-    "st_spectype: Tipo espectral de la estrella según el sistema Morgan-Keenan",
-    "st_teff: Temperatura efectiva de la estrella (en grados K)",
-    "st_rad: Radio de la estrella (en radios solares)",
+    "pl_tsystemref: Sistema de Tiempo de Referencia del sistema planetario",
+    "ra: Ascensión recta de la estrella (en grados decimales)",
+    "rastr: Ascensión recta de la estrella (en grados sexagesimales)",
+    "soltype: Disposición del planeta según el conjunto de parámetros planetarios dado",
+    "st_age: Edad de la estrella (en Ga, gigaaños, o miles de millones de años)",
+    "st_dens: Densidad de la estrella (en g/cm³)",
+    "st_logg: Gravedad superficial de la estrella (en logaritmo en base 10 de cm/s²)",
+    "st_lum: Luminosidad de la estrella (en logartima en base 10 de unidades solares)",
     "st_mass: Masa de la estrella (en masas solares)",
     "st_met: Medición del contenido de metales en la fotosfera de la estrella en comparación con el contenido de hidrógeno",
     "st_metratio: Relación de metalicidad de la estrella",
-    "st_lum: Luminosidad de la estrella (en logartima en base 10 de unidades solares)",
-    "st_logg: Gravedad superficial de la estrella (en logaritmo en base 10 de cm/s²)",
-    "st_age: Edad de la estrella (en Ga, gigaaños, o miles de millones de años)",
-    "st_dens: Densidad de la estrella (en g/cm³)",
-    "st_vsin: Velocidad de rotación de la estrella (en km/s)",
-    "st_rotp: Periodo de rotación de la estrella (en días)",
+    "st_rad: Radio de la estrella (en radios solares)",
     "st_radv: Velocidad radial de la estrella (en km/s)",
-    "rastr: Ascensión recta de la estrella (en grados sexagesimales)",
-    "ra: Ascensión recta de la estrella (en grados decimales)",
-    "decstr: Declinación de la estrella (en grados sexagesimales)",
-    "dec: Declinación de la estrella (en grados decimales)",
-    "glat: Latitud galáctica de la estrella (en grados decimales)",
-    "glon: Longitud galáctica de la estrella (en grados decimales)",
-    "elat: Latitud eclíptica de la estrella (en grados decimales)",
-    "elon: Longitud eclíptica de la estrella (en grados decimales)",
-    "sy_pm: Movimiento propio del sistema (en miliarcosegundos/año)",
-    "sy_pmra: Movimiento propio del sistema en ascensión recta (en miliarcosegundos/año)",
-    "sy_pmdec: Movimiento propio del sistema en declinación (en miliarcosegundos/año)",
+    "st_rotp: Periodo de rotación de la estrella (en días)",
+    "st_spectype: Tipo espectral de la estrella según el sistema Morgan-Keenan",
+    "st_teff: Temperatura efectiva de la estrella (en grados K)",
+    "st_vsin: Velocidad de rotación de la estrella (en km/s)",
     "sy_dist: Distancia del sistema (en parsecs)",
-    "sy_plx: Paralaje del sistema (en miliarcosegundos)"))
-
-# Ordenar el data frame por la columna "Column"
-column_names <- column_names[order(column_names$Column), ]
+    "sy_plx: Paralaje del sistema (en miliarcosegundos)",
+    "sy_pm: Movimiento propio del sistema (en miliarcosegundos/año)",
+    "sy_pmdec: Movimiento propio del sistema en declinación (en miliarcosegundos/año)",
+    "sy_pmra: Movimiento propio del sistema en ascensión recta (en miliarcosegundos/año)",
+    "sy_pnum: Número de planetas en el sistema",
+    "sy_snum: Número de estrellas en el sistema",
+    "ttv_flag: Flag de tránsito de tiempo variante",
+    "pl_name: Nombre del planeta"))
 
 # Eliminar de la columna Description el prefijo de la variable
 column_names$Description <- gsub("^.*: ", "", column_names$Description)
@@ -239,7 +372,7 @@ write_csv(column_names, "keplerdatadictionary.csv")
 
 # Análisis Exploratorio de Datos
 
-Para realizar un análisis exploratorio de los datos, se cargan el nuevo dataset y se realizan algunas visualizaciones y cálculos descriptivos.
+Para realizar un análisis exploratorio de los datos, se cargan el nuevo dataset (puede comenzarse el análisis en este punto porque el dataset preprocesado está almacenado en el archivo `keplerfiltered.csv`) y se realizan algunas visualizaciones y cálculos descriptivos.
 
 ```{r eda_filtered_data, echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -263,9 +396,9 @@ resumen <- skim(kepler_data_num)
 resumen <- resumen[order(resumen$skim_variable), ]
 
 # Filtrar columnas relevantes
-resumen <- resumen %>%
-  select(skim_variable, numeric.mean, numeric.sd, numeric.p0, numeric.p25, 
-         numeric.p50, numeric.p75, numeric.p100, numeric.hist)
+resumen <- subset(resumen, select = c(
+    skim_variable, numeric.mean, numeric.sd, numeric.p0, numeric.p25, 
+    numeric.p50, numeric.p75, numeric.p100, numeric.hist))
 
 # Mostrar tabla formateada
 kable(resumen, format = "markdown", digits = 4,
@@ -273,6 +406,31 @@ kable(resumen, format = "markdown", digits = 4,
       )
 
 ```
+
+En este análisis preliminar se observan las siguientes características de los parámetros en el dataset:
+
+-   `cb_flag` y `ttv_flag` son variables binarias con valores mayoritariamente en 0, dado que la media es baja (\~0.0024 y \~0.1496 respectivamente). Esto indica un fuerte desbalance en los datos.
+-   `sy_snum` casi siempre es 1, lo que sugiere que la mayoría de los sistemas tienen una sola estrella.
+-   `dec`, `ra` (declinación y ascención recta), `elat`, `elon`, `glat`, `glon` (latitud y logitud eclípticas y galácticas respectivamente) representan sistemas coordenadas celestes con distribuciones relativamente centradas. `elon` tiene un rango amplio (288-323), mientras que `glat` y `glon` presentan una distribución con valores bien concentrados en torno a la media, lo que probablimente implique la observación de un cúmulo estelar. La longitud eclíptica (`elon`) de 288° a 324° corresponde a la región de la constelación de Capricornio y Acuario, moviéndose hacia Piscis, mientras que la latitud eclíptica (`elat`) de 57° a 72° es alta y significa que estos objetos están lejos del plano de la eclíptica, ubicados en el hemisferio norte eclíptico.
+-   Como los valores de `elat` son relativamente altos (muy por encima del plano de la eclíptica), esto indica que los objetos en este conjunto de datos no están alineados con el disco principal del Sistema Solar, sino que se encuentran en una región más inclinada del cielo. Este sector del cielo abarca parte de la región del Polo Norte Eclíptico, en la dirección de la constelación del Dragón (Draco).
+-   `pl_bmasse`, `pl_masse` (masa en términos de unidades terrestres) y `pl_bmassj`, `pl_massj` (masa en términos de unidades de Júpiter) presentan distribuciones sesgadas a la derecha, con valores máximos extremadamente grandes (hasta 25426 masas terrestres). Hay muchos valores pequeños y unos pocos valores atípicos muy grandes.
+-   `pl_rade` (radio en radios terrestres) y `pl_radj` (radio en radios jovianos) presenta una distribución sesgada con pocos valores grandes. La mediana de `pl_rade` es 2.37, lo que indica que la mayoría de los exoplanetas en el conjunto son más de dos veces del tamaño de la Tierra.
+-   `pl_orbeccen` (excentricidad orbital) es mayormente cercana a 0, lo que implica órbitas casi circulares.
+-   `pl_orbincl` (inclinación orbital) tiene una alta concentración en valores cercanos a 90°, lo que sugiere que la mayoría de los planetas tienen órbitas casi perpendiculares a la línea de visión. Esto tiene sentido porque el principal método de detección de exoplanetas es el método de tránsito, que es más efectivo para planetas que pasan frente a su estrella.
+-   `pl_orbper` (período orbital en días) tiene una mediana de \~13 días, pero hay valores extremos (hasta 1322 días), lo que indica una gran variabilidad en los períodos orbitales.
+-   `pl_eqt` (temperatura planetaria de equilibrio) tiene una media de 938 K con una distribución amplia (min: 251 K, max: 2188 K); esto sugiere que hay una mezcla de planetas fríos y extremadamente calientes.
+-   `pl_dens` (densidad) tiene una mediana de 2.13 g/cm³ con una gran variabilidad, lo que refleja una diversidad en la composición de los exoplanetas.
+-   Para el caso de `st_mass` y `st_rad` la mayoría de las estrellas tienen masas y radios similares al Sol (\~1.0), lo cual es coherente con el filtro aplicado en el preprocesamiento.
+-   `st_teff` (temperatura estelar efectiva) tiene una media de 5685 K, consistente con estrellas tipo G (similares al Sol); aunque el filtro puede tener que ver con este fenómeno, también tiene que ver con la composición y la edad de las estrellas.
+-   `st_logg` (logartimo en base 10 de la gravedad estelar superficial) está muy concentrada en valores cercanos a 4.45, típico de estrellas en la secuencia principal en el marco moderno del ciclo vida estelar.
+-   `st_lum` (luminosidad en escala logarítmica de base 10 de aquella del Sol) tiene una distribución centrada alrededor de 0, lo que indica muchas estrellas con luminosidades similares al Sol.
+-   `sy_dist` (distancia en parsecs del sistema estelar) tiene valores muy variables (mín: 68 pc, máx: 2879 pc). La mediana de es de \~860 pc, indicando que la mayoría de estos sistemas están relativamente lejos (más de 2804 años luz).
+-   `sy_pm`, `sy_pmra`, `sy_pmdec` (movimiento propio del sistema estelar en milisegundos de arco por año) tiene valores centrados en 0 con algunas estrellas moviéndose a velocidades más altas.
+-   `sy_pnum` (número de planetas en el sistema) tiene una mediana de 2, con algunos sistemas llegando hasta 6 los planetas detectados.
+-   `pl_trandep` y `pl_trandur` (profundidad y duración del tránsito) tiene una distribución sesgada, con la mayoría de los valores en el extremo inferior; esto es esperado ya que la mayoría de los tránsitos son poco profundos y de corta duración.
+-   `pl_projobliq` (oblicuidad del eje de rotación del planeta) tiene una mediana en 0 (perpendicular a la elíptica de su sistema), pero con valores extremos hasta -135°.
+
+Muchas distribuciones están sesgadas, con valores extremos que pueden ser outliers o simplemente representar la naturaleza de los exoplanetas. Los datos sobre masa y radio de los planetas muestran que la mayoría son relativamente pequeños, pero hay algunos extremadamente grandes. Las temperaturas de los planetas varían bastante, lo que indica una diversidad en los tipos de planetas. Las estrellas en su mayoría son similares al Sol, pero con algunas diferencias en edad y metalicidad, lo cual es esperable por el filtro aplicado en el preprocesamiento.
 
 ## Detención de Valores Faltantes
 
@@ -340,7 +498,7 @@ ggplot(missing_values[(midpoint+1):total_rows,], aes(x = reorder(key, value), y 
 
 ```
 
-Se detectan grandes cantidades valores faltantes en varias columnas del dataset, probablemente debido a la falta de estimaciones o mediciones para esos exoplanetas. Según los prefijos de columnas explicados en el detalle del dataset (<https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html#planetparam>), se pueden identificar las siguientes categorías de variables:
+Se detectan grandes cantidades valores faltantes en varias columnas del dataset, probablemente debido a la falta de estimaciones o mediciones para esos exoplanetas. Según los prefijos de columnas explicados en el detalle del dataset, se pueden identificar las siguientes categorías de variables:
 
 -   `pl_`: Parámetros del planeta.
 -   `st_`: Parámetros de la estrella.
@@ -436,9 +594,9 @@ corrplot(
 
 La matriz de correlación muestra las relaciones lineales entre las variables numéricas del dataset. Se observan algunas correlaciones positivas y negativas entre las variables, lo que indica posibles relaciones entre ellas. Por ejemplo el cociente entre el semieje orbital mayor y el periodo orbital (`pl_ratdor`) tiene una correlación positiva con el periodo orbital (`pl_orbper`) y una correlación negativa con la temperatura de equilibrio(`pl_eqt`). Respecto de la variable que se seleccionó como clase en el apartado anterior, el radio del exoplaneta (`pl_radj`) tiene una correlación positiva con la profundidad del tránsito (`pl_trandep`) y una correlación negativa con la gravedad superficial de la estrella (`st_logg`).
 
-Para entender mejor la relación entre las variables con algo de correlación (umbral de 30% en valor absoluto) y seleccionar las mejores variables predictoras, se realiza un pair plot de las variables con mayor correlación positiva o negativa con la variable faltante. Se descartan como variables predictores aquellos que tengan más de 50% de valores faltantes.
+Para entender mejor la relación entre las variables con algo de correlación (umbral de 50% en valor absoluto) y seleccionar las mejores variables predictoras, se realiza un pair plot de las variables con mayor correlación positiva o negativa con la variable faltante.
 
-``` {r most_correlated_variables, include=FALSE}
+```{r most_correlated_variables, include=FALSE}
 
 # Seleccionar de la matriz de correlación las variables con correlacion mayor o
 # igual a 0.3 en valor absoluto con la variable faltante
@@ -472,8 +630,6 @@ kable(correlation_df, columns = c("Variable","Correlación","Faltantes"), align 
 
 ```{r pair_plot_correlated_variables, include=FALSE, warning=FALSE}
 
-# pairs(kepler_data_num[correlated_vars], pch=19, cex=0.3, col = "red")
-
 panel.hist <- function(x, ...) {
   usr <- par("usr"); on.exit(par(usr))
   par(usr = c(usr[1:2], 0, 1.5)) 
@@ -488,16 +644,17 @@ pairs(kepler_data_num[, correlated_vars],
 
 Más allá de la correlación de la obvia relacion lineal entre el radio del exoplaneta en unidades jovianas y terrestres, parece haber una relación lineal entre el radio del exoplaneta y, en orden de correlación de las 3 primeras descendente, las siguientes variables:
 
-- el cociente del radio planetario sobre el radio estelar (`pl_ratror`)
-- la profundidad del tránsito del planeta (`pl_trandep`)
-- la amplitud de la velocidad radial del planeta (`pl_rvamp`)
+-   el cociente del radio planetario sobre el radio estelar (`pl_ratror`)
+-   la profundidad del tránsito del planeta (`pl_trandep`)
+-   la amplitud de la velocidad radial del planeta (`pl_rvamp`)
 
-Se seleccionan como variables predictoras del radio del exploneta las variables con mayor correlación positiva o negativa que muestran una relación lineal con la variable faltante. 
+Se seleccionan como variables predictoras del radio del exploneta las variables con mayor correlación positiva o negativa que muestran una relación lineal con la variable faltante.
 
-# Detección de Valores Atípicos (Outliers)
+# Detección de Valores Atípicos (Outliers) en las predictoras
+
 Para las variables predictoras seleccionadas (`pl_ratdor`,`pl_trandep`,`pl_rvamp`), se detectan valores atípicos en el dataset que puedan afectar el análisis y la predicción de la variable faltante (`pl_radj`).
 
-```{r outliers_detection, include=FALSE}
+```{r outliers_detection, echo=FALSE, warning=FALSE}
 
 # Seleccionar las variables predictoras
 predictor_vars <- c("pl_ratdor", "pl_trandep", "pl_rvamp")
@@ -525,15 +682,16 @@ ggplot(data_long, aes(x = Variable, y = Valores)) +
   theme_minimal(base_size = 14)
 
 ```
-Como puede observarse en el boxplot, las variables predictoras seleccionadas presentan valores atípicos que pueden afectar el análisis y la predicción de la variable faltante. Para tratar con esta situacié se puede considerar la utilización de métodos de regresión robustos que sean menos sensibles a los valores atípicos, como Huber. 
+
+Como puede observarse en el boxplot, las variables predictoras seleccionadas presentan valores atípicos que pueden afectar el análisis y la predicción de la variable faltante. Para tratar con esta situacié se puede considerar la utilización de métodos de regresión robustos que sean menos sensibles a los valores atípicos, como Huber.
 
 # Analisis de Regresión
 
 Para analizar la relación entre las variables conocidas caracteristicas de los exoplanetas, se realiza un análisis de regresión lineal. La variable de dependiende `pl_radj` se intentará predecir a partir de las variables independientes:
 
-- `pl_ratdor`
-- `pl_trandep`
-- `pl_rvamp`
+-   `pl_ratdor`
+-   `pl_trandep`
+-   `pl_rvamp`
 
 ## Regresión Lineal Univariada
 
@@ -541,18 +699,19 @@ Las variablies de características de los sistemas exoplanetarios tales como per
 
 Se realiza un análisis de regresión lineal univariada para predecir el radio del exoplaneta (`pl_radj`) consecutivamente a partir de las variables independientes seleccionadas.
 
+### Regresión Lineal: Radio del Exoplaneta según Ratio sobre el Radio Estelar (`pl_ratdor`)
+
 ```{r univar_reg_pl_ratdor}
 
 # Regresion de pl_radj con pl_ratdor
 model_pl_ratdor <- lm(pl_radj ~ pl_ratdor, data = kepler_data_num)
 
-# Resumen del modelo
 model_pl_ratdor_summary <- summary(model_pl_ratdor)
 
 model_pl_ratdor_summary
 ```
 
-```{r univar_reg_pl_ratdor_plot, warning=FALSE}
+```{r univar_reg_pl_ratdor_plot, echo=FALSE, warning=FALSE}
 
 # Scatter plot de pl_radj vs pl_ratdor con la recta de regresión en rojo
 # y los margenes de confianza en gris
@@ -566,7 +725,19 @@ ggplot(kepler_data_num, aes(x = pl_ratdor, y = pl_radj)) +
 
 ```
 
-```{r univar_reg_pl_ratdor_res_plot, warning=FALSE}
+Para el modelo de regresión planteado:
+
+$$
+pl\_radj = \beta_0 + \beta_1 \cdot pl\_ratdor + \varepsilon
+$$
+
+Cada aumento de 1 unidad en `pl_ratdor` se asocia con un aumento de 0.0007341 en `pl_radj`, y dado que el valor p (`Pr(>|t|) = 0.152`) es mayor que 0.05 no hay evidencia estadística suficiente para afirmar que `pl_ratdor` tiene un efecto significativo sobre `pl_radj`. Esto podría indicar que el modelo planteado no es adecuado para predecir el radio del exoplaneta a partir del ratio del radio plantario sobre el radio estelar.
+
+Esto queda confirmado revisando las estadísticas de ajuste del modelo: - Residual Standard Error (0.3872) es una medida de cuánto se desvían los valores predichos de los valores reales, y es bastante alta. - R² múltiple (0.02618) muestra que sólo 2.6% de la variabilidad en `pl_radj` es explicada por `pl_ratdor` lo cual es un ajuste muy pobre. - R² ajustado (0.0137) ajustado por el número de predictores, sigue siendo bajo, lo que sugiere que `pl_ratdor` no es un buen predictor de `pl_radj`. - F-statistic (2.097, p = 0.1516) evalúa si el modelo en su conjunto es significativo. El valor p (0.1516) indica que el modelo no es significativo en su conjunto.
+
+De todos modos se analizan los residuos del modelo para verificar si cumplen con los supuestos de la regresión lineal.
+
+```{r univar_reg_pl_ratdor_res_plot, echo=FALSE, warning=FALSE}
 
 # Obtener los residuos y valores ajustados
 res_pl_ratdor <- residuals(model_pl_ratdor)
@@ -588,12 +759,26 @@ ggplot(res_pl_ratdor_df, aes(x = Fitted_Values, y = Residuals)) +
 
 ```
 
-```{r univar_reg_pl_ratdor_qq_plot, warning=FALSE}
+Se observa una mayor concentración de residuos cerca del eje de los valores ajustados más bajos (aproximadamente entre 0.4 y 0.5) y a medida que los valores ajustados aumentan, la dispersión de los residuos también parece aumentar ligeramente. No hay un patrón claro en forma de parábola o curva, lo que indica que la relación entre la variable independiente (`pl_ratdor`) y la dependiente (`pl_radj`) podría ser aproximadamente lineal.
+
+La mayoría de los residuos están relativamente cerca de 0, pero hay varios valores positivos grandes (\> 0.5), lo que sugiere que hay observaciones que el modelo subestima. Hay pocos valores negativos extremos, lo que indica que el modelo no está sobreestimando mucho los valores de `pl_radj`.
+
+Se detecta una heterocedasticidad leve puesto que la dispersión de los residuos parece mayor para valores ajustados más grandes. Esto podría indicar que el error varía con el nivel de los valores ajustados, lo que podría afectar la confiabilidad de las predicciones. Si el modelo cumpliera con la suposición de homocedasticidad (varianza constante de los errores), los residuos deberían estar distribuidos de manera uniforme alrededor de la línea roja (residuo = 0).
+
+Dado que el modelo tenía un R² muy bajo (\~2.6%), era esperable que los residuos mostraran una dispersión alta, lo que sugiere que `pl_ratdor` no es un buen predictor de `pl_radj`. La presencia de residuos altos (valores alejados de 0) sugiere que hay otras variables no consideradas que podrían explicar mejor la variabilidad en `pl_radj`.
+
+```{r univar_reg_pl_ratdor_qq_plot, echo=FALSE, warning=FALSE}
 
 # Crear un gráfico Q-Q de los residuos
 qqnorm(res_pl_ratdor, main = "Gráfico Q-Q de los Residuos", col = "indianred")
 
 ```
+
+Para que los residuos sean aproximadamente normales, los puntos deberían alinearse con la línea diagonal imaginaria. Sin embarog la gráfica muestra desviaciones en los extremos (cuantiles más bajos y más altos) que se alejan de la línea teórica, lo que indica colas más pesadas de lo esperado en una distribución normal. Esto sugiere la presencia de valores atípicos o que los residuos no son completamente normales. También hay una desviación en la parte central; aunque la parte central del gráfico muestra alineación con la línea teórica, hay una ligera curvatura, lo que puede indicar que los residuos no son perfectamente normales.
+
+La regresión lineal asume que los residuos deben seguir una distribución normal para que los intervalos de confianza y los valores p sean válidos. En este caso la normalidad de los residuos está en duda debido a la curvatura y las colas pesadas. Si los residuos no son normales, la inferencia estadística del modelo puede verse afectada, aunque la estimación de los coeficientes sigue siendo válida. La falta de normalidad podría indicar la necesidad de transformaciones en la variable dependiente (`pl_radj`), como logaritmos o raíces cuadradas.
+
+Se realizan pruebas de normalidad y homocedasticidad para evaluar si los residuos del modelo siguen una distribución normal y si la varianza de los errores es constante.
 
 ```{r univar_reg_pl_ratdor_shapiro_test}
 
@@ -603,6 +788,11 @@ shapiro_test_pl_ratdor <- shapiro.test(res_pl_ratdor)
 shapiro_test_pl_ratdor
 
 ```
+
+La prueba de Shapiro-Wilk se usa para evaluar si los residuos siguen una distribución normal. La hipótesis nula es que Los residuos siguen una distribución normal. Los resultados del test de normalidad muestran:
+
+-   Estadístico W = 0.81534. Un valor cercano a 1 indica normalidad. Aquí W=0.81534 sugiere desviación de la normalidad.
+-   P-valor = ≈ 0.00000001313. Un valor mucho menor a 0.05 indica que los datos no siguen una distribución normal dado que rechazamos la hipótesis nula con alta confianza.
 
 ```{r univar_reg_pl_ratdor_bp_test}
 
@@ -616,9 +806,13 @@ bp_test_pl_ratdor
 
 ```
 
-[Analisis sobre los resultados obtenidos]
+El test de Breusch-Pagan evalúa si los residuos del modelo presentan homocedasticidad (varianza constante) o heterocedasticidad (varianza no constante). Se basa en la hipótesis nula de que Los residuos tienen varianza constante (homocedasticidad). Los resultados del test de homocedasticidad muestran:
 
-Dado que el modelo de regresión lineal simple no es robusto a los valores atípicos, se analizar si una transformación logarítmica de las variables predictoras puede mejorar la capacidad predictiva del modelo mediante una prueba de Box-Cox.
+- BP = 1.1306 (Estadístico de la prueba): Un valor alto de BP indicaría heterocedasticidad, pero en este caso es bajo.
+- df = 1 (Grados de libertad): Como solo se tiene un predictor, el test se basa en 1 grado de libertad.
+- p-value = 0.2876: Como p > 0.05, no rechazamos la hipótesis nula. Esto sugiere que no hay suficiente evidencia estadística de heterocedasticidad en los residuos.
+
+El modelo no parece ajustarse bien a los datos, ya que hay una gran dispersión en los residuos y una posible heterocedasticidad. Por lo tanto se exporar transformaciones de la variable dependiente (como logaritmos) para mejorar el modelo. Se analizaa si una transformación logarítmica de las variables predictoras puede mejorar la capacidad predictiva del modelo mediante una prueba de Box-Cox.
 
 ```{r univar_reg_pl_ratdor_boxcox, warning=FALSE}
 
@@ -629,7 +823,18 @@ library(MASS)
 boxcox_pl_ratdor <- boxcox(model_pl_ratdor, lambda = seq(-2, 2, by = 0.1))
 
 ```
-``` {r univar_reg_pl_ratdor_boxcox_optimal_lambda, warning=FALSE}
+
+La transformación Box-Cox se utiliza para encontrar una transformación óptima de la variable dependiente en un modelo de regresión, con el objetivo de mejorar la normalidad de los residuos y la homocedasticidad. La gráfica muestra el la logverosimilitud en función del parámetro lambda que controla la transformación aplicada a la variable dependiente Y:
+
+$$
+Y' = 
+\begin{cases}
+\frac{Y^\lambda - 1}{\lambda}, & \lambda \neq 0 \\
+\log(Y), & \lambda = 0
+\end{cases}
+$$
+
+```{r univar_reg_pl_ratdor_boxcox_optimal_lambda, warning=FALSE}
 
 # Obtener el lambda óptimo
 lambda_optimal <- boxcox_pl_ratdor$x[which.max(boxcox_pl_ratdor$y)]
@@ -640,8 +845,7 @@ lambda_optimal
 
 El lambda óptimo es menor que 0 (-0.02020202), aunque muy cercano, una transformación logarítmica de la variable `pl_ratdor` podría mejorar la capacidad predictiva del modelo de regresión lineal simple. Se realiza una regresión lineal con la variable transformada y se evalúa la capacidad predictiva del modelo.
 
-
-``` {r univar_reg_pl_ratdor_log, warning=FALSE}
+```{r univar_reg_pl_ratdor_log, warning=FALSE}
 
 # Regresión de pl_radj con log(pl_ratdor) 
 model_pl_ratdor_log <- lm(pl_radj ~ log(pl_ratdor), data = kepler_data_num)
@@ -665,37 +869,16 @@ ggplot(kepler_data_num, aes(x = log(pl_ratdor), y = pl_radj)) +
   theme_minimal()
 
 ```
-```{r univar_reg_pl_ratdor_log_res_plot, warning=FALSE}    
+El modelo muesta que:
 
-# Obtener los residuos y valores ajustados
-res_pl_ratdor_log <- residuals(model_pl_ratdor_log)
+- Error estándar de los residuos: 0.3876, casi idéntico al del modelo original (0.3872), lo que indica que la transformación logarítmica no mejoró mucho la variabilidad de los residuos.
+- R2  múltiple = 0.02421 (2.4%). Solo 2.4% de la variabilidad de `pl_radj` es explicada por log(pl_ratdor), lo que sigue siendo muy bajo.
+- R2  ajustado = 0.0117 (1.2%) Apenas mejora al corregir por el número de predictores.
+- Estadístico F = 1.935, p = 0.1681 muestrq que no hay evidencia estadística suficiente para decir que `log(pl_ratdor)` mejora el modelo de manera significativa.
 
-# Calcular los valores ajustados
-fit_val_pl_ratdor_log <- fitted(model_pl_ratdor_log)
+El modelo sigue sin ser adecuado para predecir `pl_radj` basado en `pl_ratdor`, incluso con la transformación logarítmica, por lo que se prueba con otras variables predictoras o combinaciones de variables.
 
-# Crear un data frame con los residuos y valores ajustados
-res_pl_ratdor_log_df <- data.frame(
-  Residuals = res_pl_ratdor_log,
-  Fitted_Values = fit_val_pl_ratdor_log
-)
-
-# Scatter plot de residuos vs valores ajustados
-ggplot(res_pl_ratdor_log_df, aes(x = Fitted_Values, y = Residuals)) +
-  geom_point(color = "steelblue") +
-  geom_hline(yintercept = 0, color = "indianred", linetype = "dashed") +
-  labs(title = "Residuos vs Valores Ajustados",
-       x = "Valores Ajustados",
-       y = "Residuos") +
-  theme_minimal()
-
-```
-
-```{r univar_reg_pl_ratdor_log_qq_plot, warning=FALSE}
-
-# Crear un gráfico Q-Q de los residuos
-qqnorm(res_pl_ratdor_log, main = "Gráfico Q-Q de los Residuos", col="indianred")
-
-```
+### Regresión Lineal: Radio del Exoplaneta según Profundidad del Tránsito (`pl_trandep`)
 
 ```{r univar_reg_pl_trandep}
 
@@ -710,7 +893,7 @@ model_pl_trandep_summary
 
 ```
 
-```{r univar_reg_pl_trandep_plot, warning=FALSE}
+```{r univar_reg_pl_trandep_plot, echo=FALSE, warning=FALSE}
 
 # Scatter plot de pl_radj vs pl_trandep con la recta de regresión en rojo
 # y los margenes de confianza en gris
@@ -723,6 +906,20 @@ ggplot(kepler_data_num, aes(x = pl_trandep, y = pl_radj)) +
   theme_minimal()
 
 ```
+
+Para el modelo de regresión planteado:
+$$
+pl\_radj = \beta_0 + \beta_1 \cdot pl\_trandep + \varepsilon
+$$
+Cada aumento unitario en `pl_trandep` se asocia con un incremento de 0.61058 en `pl_radj`.
+Además es altamente significativo (con p-valor < 0.00000000000000022), lo que indica una fuerte relación entre `pl_trandep` y `pl_radj`. Además:
+
+- El error estándar de los residuos: 0.08315 indica que la variabilidad de los residuos es baja, lo que sugiere un buen ajuste.
+- R2 = 0.9402 (94.02%) muestra que el modelo explica el 94.02% de la variabilidad en `pl_radj`, lo que indica un ajuste excelente.
+- R2 ajustado = 0.9387 (93.87%) ajusta por el número de predictores y sigue siendo muy alto.
+- Estadístico F = 629.1 y un p-valor < 0.00000000000000022. La prueba F confirma que el modelo es altamente significativo.
+
+Este modelo tiene un ajuste drásticamente mejor que los anteriores (`pl_radj ~ pl_ratdor` y `pl_radj ~ log(pl_ratdor)`). El valor R cuadrado ajustado es muy alto (93.87%), lo que indica que el modelo explica la variabilidad en `pl_radj` muy bien. La relación entre `pl_trandep` y `pl_radj` es fuerte y altamente significativa.
 
 ```{r univar_reg_pl_trandep_res_plot, warning=FALSE}
 
@@ -748,6 +945,11 @@ ggplot(res_pl_trandep_df, aes(x = Fitted_Values, y = Residuals)) +
   theme_minimal()
 
 ```
+En el gráfico de residuos vs valores ajustados, se observan puntos más dispersos para valores ajustados bajos, esto es los residuos están más agrupados cerca de 0 para valores ajustados pequeños y luego aumentan su dispersión a medida que los valores ajustados crecen.
+
+Prodría haber una posible heterocedasticidad por el  patrón de parábola invertida, donde la dispersión de los residuos parece aumentar a medida que los valores ajustados crecen. Esto sugiere que la varianza de los errores no es constante. Esto puede confirmarse realizando el test de Breusch-Pagan.
+
+En un modelo correctamente especificado, los residuos deben distribuirse de manera aleatoria alrededor de la línea roja (y=0), sin un patrón claro. En este caso, hay mayor concentración de puntos en la parte izquierda, lo que podría indicar que el modelo no capta completamente la relación entre `pl_radj` y `pl_trandep`.
 
 ```{r univar_reg_pl_trandep_qq_plot, warning=FALSE}
 
@@ -755,6 +957,9 @@ ggplot(res_pl_trandep_df, aes(x = Fitted_Values, y = Residuals)) +
 qqnorm(res_pl_trandep, main = "Gráfico Q-Q de los Residuos", col="indianred")
 
 ```
+En el gráfico Q-Q de los residuos, los puntos se alinean bastante bien con la línea diagonal, lo que sugiere que los residuos siguen una distribución normal. Sin embargo presenta pequeñas desviaciones en los extremos (valores muy negativos y positivos) lo que sugiere la presencia de colas más pesadas o valores atípicos leves. Aún así, la desviación no es severa, por lo que no parece haber una fuerte violación de la normalidad.
+
+De todos modos se realizan pruebas de normalidad y homocedasticidad para evaluar si los residuos del modelo siguen una distribución normal y si la varianza de los errores es constante.
 
 ```{r univar_reg_pl_trandep_shapiro_test}
 
@@ -764,6 +969,12 @@ shapiro_test_pl_trandep <- shapiro.test(res_pl_trandep)
 shapiro_test_pl_trandep
 
 ```
+Del test de normalidad de Shapiro-Wilk:
+
+- Estadístico W=0.98715, con valor cercano a 1 indica que los datos se ajustan bien a una distribución normal.
+- P-valor = 0.9115, por ser p>0.05, no se rechaza la hipótesis nula, por lo que no hay evidencia estadística suficiente para decir que los residuos no son normales.
+
+El supuesto de normalidad de los residuos se cumple. El modelo es estadísticamente válido para realizar inferencias. Este resultado es coherente con el gráfico Q-Q anterior, que mostró residuos bien alineados con la distribución normal.
 
 ```{r univar_reg_pl_trandep_bp_test}
 
@@ -776,61 +987,89 @@ bp_test_pl_trandep <- bptest(model_pl_trandep)
 bp_test_pl_trandep
 
 ```
-[Analisis sobre los resultados obtenidos]
+El test de homocedasticidad de Breusch-Pagan muestra que:
 
-Por detecarse un patron de U invertida en el scatter plot de los residuos vs valores ajustados, se puede inferir que la relación entre la variable dependiente y la independiente no es lineal. Se puede intentar ajustar un modelo polinómico de grado superior para mejorar la capacidad predictiva del modelo.
+- BP = 6.2822 (Estadístico de la prueba) es un valor alto indica una mayor evidencia de heterocedasticidad.
+- df = 1 (Grados de libertad)Como solo se tiene un predictor, el test se basa en 1 grado de libertad.
+- p-value = 0.0122, siendo p < 0.05 se  la hipótesis nula. Esto significa que los residuos presentan heterocedasticidad significativa, es decir, la varianza de los errores no es constante.
 
-Dado que la variable independiente `pl_trandep` presenta muchos valores faltantes se imputarán los valores faltantes de la variable `pl_trandep` usando la mediana de la variable.
+El modelo viola la suposición de homocedasticidad. Los valores predichos tienen errores con varianza no constante, lo que puede afectar la precisión de las estimaciones y pruebas de hipótesis. Los intervalos de confianza y valores p podrían no ser confiables debido a la variabilidad desigual en los errores.
 
-```{r univar_reg_pl_trandep_poly}
+Dado que el modelo viola la suposición de homocedasticidad, se debe tener precaución al interpretar los resultados. También se puede corregir la heterocedasticidad mediante:
 
-# Regresion del radio del exoplaneta (pl_radj)
-# con la profundidad del tránsito del planeta (pl_trandep)
-# como predictor
+- El uso de una transformación en la variable dependiente, por por ejemplo logaritmo (`log(Y)` o raíz cuadrada (`sqrt(Y)`).
+- El uso de un método regresión robusta con errores estándar robustos de White 
+- Una regresión ponderada (WLS, Weighted Least Squares). Si la heterocedasticidad depende de una variable específica, se pueden aplicar ponderaciones para corregirla.
 
-# copiar los datos en nuevo data frame
-kepler_data_num_imputed <- kepler_data_num
+Primero se intenta corregir la heterocedasticidad mediante una transformación logarítmica de la variable dependiente `pl_radj`.
 
-# Imputar los valores faltantes de pl_trandep con la mediana
-kepler_data_num_imputed$pl_trandep[is.na(kepler_data_num_imputed$pl_trandep)] <- median(kepler_data_num_imputed$pl_trandep, na.rm = TRUE)
+```{r univar_reg_pl_trandep_boxcox, warning=FALSE}
 
-# Ajustar un modelo polinómico de grado 2
-model_pl_trandep_poly <- lm(pl_radj ~ poly(pl_trandep, 2), data = kepler_data_num_imputed)
+# Prueba de Box-Cox para transformar la variable pl_trandep
+library(MASS)
 
-model_pl_trandep_poly_summary <- summary(model_pl_trandep_poly)
-
-model_pl_trandep_poly_summary
+# Prueba de Box-Cox
+boxcox_pl_trandep <- boxcox(model_pl_trandep, lambda = seq(-2, 2, by = 0.1))
 
 ```
-``` {r univar_reg_pl_trandep_poly_plot, warning=FALSE}
+El pico de la curva ocurre cerca de lamda≈2, lo que indica que la transformación óptima está en esa región; como está dentro del intervalo de confianza, este valor es una buena opción para transformar la variable dependiente.
 
-# Scatter plot de pl_radj vs pl_trandep con el polinomio de regresión en rojo
+La transformación sugerida es el cuadrado de la variable dependiente. No se recomienda usar 
+log(Y) (para lambda = 0) ni  sqrt(Y) (para lambda = 0.5) ya que no están en el intervalo óptimo.
+
+``` {r univar_reg_pl_trandep_square_transf}
+
+# Regresión de pl_radj^2 con pl_trandep
+model_pl_trandep_square <- lm(I(pl_radj^2) ~ pl_trandep, data = kepler_data_num)
+
+model_pl_trandep_square_summary <- summary(model_pl_trandep_square)
+
+model_pl_trandep_square_summary
+
+```
+```{r univar_reg_pl_trandep_square_transf_scat_plot}
+
+# Scatter plot de pl_radj^2 vs pl_trandep con la recta de regresión en rojo
 # y los margenes de confianza en gris
-ggplot(kepler_data_num, aes(x = pl_trandep, y = pl_radj)) +
+ggplot(kepler_data_num, aes(x = pl_trandep, y = I(pl_radj^2)))+
   geom_point(color = "steelblue") +
-  geom_smooth(method = "lm", formula = y ~ poly(x, 2), color = "indianred", fill = "grey", alpha = 0.2) +
-  labs(title = "Regresión Polinómica: Radio del Exoplaneta vs Profundidad del Tránsito",
+  geom_smooth(method = "lm", color = "indianred", fill = "grey", alpha = 0.2) +
+  labs(title = "Regresión Lineal: Radio del Exoplaneta al Cuadrado segun Profundidad del Tránsito",
        x = "Profundidad del Tránsito (%)",
-       y = "Radio del Exoplaneta (Júpiter)") +
+       y = "Radio del Exoplaneta al Cuadrado (Júpiter^2)") +
   theme_minimal()
 
 ```
-``` {r univar_reg_pl_trandep_poly_res_plot, warning=FALSE}
+Para el modelo de regresión planteado:
+$$
+pl\_radj^2 = \beta_0 + \beta_1 \cdot pl\_trandep + \varepsilon
+$$
+
+Las estadísticas del modelo muestran que:
+
+- Error estándar de los residuos: 0.04049, menor que en el modelo anterior (antes de la transformación), indicando una mejor precisión.
+- R 2 =0.9914 (99.14%). El modelo explica el 99.14% de la variabilidad en pl_radj^2, lo que indica un ajuste excelente.
+- R 2 ajustado = 0.9912 (99.12%). Ajustado por el número de predictores y sigue siendo muy alto.
+- Estadístico F = 4596, p < 0.00000000000000022. Confirma que el modelo es altamente significativo.
+
+La transformación cuadrática mejoró significativamente el ajuste en comparación con el modelo sin transformación. El valor R cuadrado ajustado es muy alto (99.12%), lo que indica que el modelo explica la variabilidad en `pl_radj^2` muy bien. La relación entre `` pl_trandep` y `pl_radj^2` es fuerte y altamente significativa.
+
+```{r univar_reg_pl_trandep_square_transf_res_plot, warning=FALSE}
 
 # Obtener los residuos y valores ajustados
-res_pl_trandep_poly <- residuals(model_pl_trandep_poly)
+res_pl_trandep_square <- residuals(model_pl_trandep_square)
 
 # Calcular los valores ajustados
-fit_val_pl_trandep_poly <- fitted(model_pl_trandep_poly)
+fit_val_pl_trandep_square <- fitted(model_pl_trandep_square)
 
 # Crear un data frame con los residuos y valores ajustados
-res_pl_trandep_poly_df <- data.frame(
-  Residuals = res_pl_trandep_poly,
-  Fitted_Values = fit_val_pl_trandep_poly
+res_pl_trandep_square_df <- data.frame(
+  Residuals = res_pl_trandep_square,
+  Fitted_Values = fit_val_pl_trandep_square
 )
 
 # Scatter plot de residuos vs valores ajustados
-ggplot(res_pl_trandep_poly_df, aes(x = Fitted_Values, y = Residuals)) +
+ggplot(res_pl_trandep_square_df, aes(x = Fitted_Values, y = Residuals)) +
   geom_point(color = "steelblue") +
   geom_hline(yintercept = 0, color = "indianred", linetype = "dashed") +
   labs(title = "Residuos vs Valores Ajustados",
@@ -839,35 +1078,39 @@ ggplot(res_pl_trandep_poly_df, aes(x = Fitted_Values, y = Residuals)) +
   theme_minimal()
 
 ```
+Los residuos tienen menor dispersión, lo que confirma que la heterocedasticidad detectada anteriormente fue reducida con la transformación.
 
-``` {r univar_reg_pl_trandep_poly_qq_plot, warning=FALSE}
+```{r univar_reg_pl_trandep_square_transf_qq_plot, warning=FALSE}
 
 # Crear un gráfico Q-Q de los residuos
-qqnorm(res_pl_trandep_poly, main = "Gráfico Q-Q de los Residuos", col="indianred")
+qqnorm(res_pl_trandep_square, main = "Gráfico Q-Q de los Residuos", col="indianred")
 
 ```
+En el gráfico Q-Q de los residuos, los puntos se alinean bastante bien con la línea diagonal, lo que sugiere que los residuos siguen una distribución normal. Aunque hay una pequeña desviación en los extremos (valores muy negativos y positivos), la desviación no es severa.
 
-```{r univar_reg_pl_trandep_poly_shapiro_test}
+```{r univar_reg_pl_trandep_square_transf_shapiro_test}
 
 # Prueba de normalidad de Shapiro-Wilk
-shapiro_test_pl_trandep_poly <- shapiro.test(res_pl_trandep_poly)
+shapiro_test_pl_trandep_square <- shapiro.test(res_pl_trandep_square)
 
-shapiro_test_pl_trandep_poly
+shapiro_test_pl_trandep_square
 
 ```
 
-```{r univar_reg_pl_trandep_poly_bp_test}
+Con un W = 0.8507 y un p-value = 0.00006504, el test de normalidad de Shapiro-Wilk indica que los residuos no siguen una distribución normal. Aunque el gráfico Q-Q mostró una alineación razonable con la línea diagonal, la prueba de normalidad sugiere que los residuos no son completamente normales. Esto podría indicar la presencia de valores atípicos o una distribución no normal.
 
-# Prueba de homocedasticidad de Breusch-Pagan
+```{r univar_reg_pl_trandep_square_transf_bp_test}
+
 library(lmtest)
+# Prueba de homocedasticidad de Breusch-Pagan
+bp_test_pl_trandep_square <- bptest(model_pl_trandep_square)
 
-# Prueba de Breusch-Pagan
-bp_test_pl_trandep_poly <- bptest(model_pl_trandep_poly)
-
-bp_test_pl_trandep_poly
+bp_test_pl_trandep_square
 
 ```
-[Analisis de los valores obtenidos]
+Con un BP = 14.87, df = 1, p-value = 0.0001152 el test de Breusch-Pagan indica que los residuos presentan heterocedasticidad significativa. Aunque la transformación cuadrática redujo la heterocedasticidad, aún persiste en el modelo.
+
+### Regresión Lineal: Radio del Exoplaneta según Amplitud de la Velocidad Radial (`pl_rvamp`)
 
 ```{r univar_reg_pl_rvamp}
 
@@ -882,7 +1125,7 @@ model_pl_rvamp_summary
 
 ```
 
-```{r univar_reg_pl_rvamp_plot, warning=FALSE}
+```{r univar_reg_pl_rvamp_plot, echo=FALSE, warning=FALSE}
 
 # Scatter plot de pl_radj vs pl_rvamp con la recta de regresión en rojo
 # y los margenes de confianza en gris
@@ -895,6 +1138,18 @@ ggplot(kepler_data_num, aes(x = pl_rvamp, y = pl_radj)) +
   theme_minimal()
 
 ```
+Para el modelo de regresión planteado:
+
+$$
+pl\_radj = \beta_0 + \beta_1 \cdot pl\_rvamp + \varepsilon
+$$
+Las estadísticas del modelo muestran que:
+
+- R2 =0.5367 (53.67%): El modelo explica el 53.67% de la variabilidad en `pl_radj`. Indica una relación moderada-fuerte, aunque hay todavía un 46.33% de variabilidad sin explicar.
+- R2 ajustado = 0.5297 (52.97%) Ajustado por el número de predictores y sigue siendo alto.
+- Estadístico F = 76.46, p<0.000000000001239. Confirma que el modelo es altamente significativo.
+
+El modelo tiene un ajuste moderado, pero no tan bueno como el modelo `pl_radj ~ pl_trandep`. La relación entre `pl_rvamp` y `pl_radj` es moderada-fuerte y altamente significativa.
 
 ```{r univar_reg_pl_rvamp_res_plot, warning=FALSE}
 
@@ -920,6 +1175,11 @@ ggplot(res_pl_rvamp_df, aes(x = Fitted_Values, y = Residuals)) +
   theme_minimal()
 
 ```
+Patrón en forma de abanico: Se observa que la dispersión de los residuos no es constante a lo largo de los valores ajustados y muestra una mayor variabilidad en valores bajos y altos de los valores ajustados. Para En los valores ajustados pequeños (<0.5), los residuos están muy concentrados, lo que indica menor variabilidad, pero para valores ajustados más grandes (>1.0), la dispersión de los residuos aumenta, lo que sugiere heterocedasticidad (varianza no constante).
+
+Si se detecta heterocedasticidad, el modelo puede no estar capturando correctamente la variabilidad de los datos. Se puede corregir la heterocedasticidad mediante transformaciones de variables o métodos de regresión robustos.
+
+Si los residuos muestran una tendencia curva o agrupaciones, el modelo lineal puede no ser la mejor opción. Podría ser necesario un modelo no lineal o agregar términos polinomiales para capturar mejor la relación entre las variables.
 
 ```{r univar_pl_rvamp_eqt_qq_plot, warning=FALSE}
 
@@ -927,6 +1187,9 @@ ggplot(res_pl_rvamp_df, aes(x = Fitted_Values, y = Residuals)) +
 qqnorm(res_pl_rvamp, main = "Gráfico Q-Q de los Residuos", col="indianred")
 
 ```
+Se observan desviaciones significativas en los extremos, especialmente en los cuantiles más bajos y más altos. Esto puede implicar una distribución de residos con colas más pesadas: Los residuos más extremos (tanto negativos como positivos) se desvían significativamente de la línea teórica, lo que sugiere que la distribución de los errores tiene más valores extremos de lo esperado en una distribución normal. Aunque la acumulación de puntos en la parte central parecen ajustarse mejor a la distribución normal, pero los extremos muestran una curvatura.
+
+La normalidad de los residuos está en duda, lo que puede afectar la validez de los intervalos de confianza y las pruebas de hipótesis del modelo. Los valores extremos podrían estar influyendo en el modelo, lo que sugiere que hay valores atípicos que afectan la distribución de los residuos.
 
 ```{r univar_reg_pl_rvamp_shapiro_test}
 
@@ -936,6 +1199,8 @@ shapiro_test_pl_rvamp <- shapiro.test(res_pl_rvamp)
 shapiro_test_pl_rvamp
 
 ```
+
+A partir del W = 0.86708 y p-value = 0.000003207 arrojados por la prueba de normalidad de Shapiro-Wilk, se concluye que los residuos no siguen una distribución normal. Aunque el gráfico Q-Q mostró alguna alineación con la línea diagonal, la prueba de normalidad sugiere que los residuos no son completamente normales. Esto podría indicar la presencia de valores atípicos o una distribución no normal.
 
 ```{r univar_reg_pl_rvamp_rvamp_bp_test}
 
@@ -949,7 +1214,131 @@ bp_test_pl_rvamp
 
 ```
 
-[Analisis sobre los resultados obtenidos]
+Con el test arrojando un BP = 10.096 y un p-value = 0.001486 hay evidencia de que los residuos presentan heterocedasticidad significativa. La varianza de los errores no es constante, lo que puede afectar la precisión de las estimaciones y pruebas de hipótesis.
+
+Dado que el modelo no cumple con la suposición de homocedasticidad y los residuos no siguen una distribución normal se intenta corregir la heterocedasticidad mediante una transformación. Para determinar la transformación óptima se realiza una prueba de Box-Cox.
+
+```{r univar_reg_pl_rvamp_boxcox, warning=FALSE}
+
+# Prueba de Box-Cox para transformar la variable pl_rvamp
+library(MASS)
+
+# Prueba de Box-Cox
+boxcox_pl_rvamp <- boxcox(model_pl_rvamp, lambda = seq(-2, 2, by = 0.1))
+
+```
+El pico de la curva está cerca de lambda = 0, lo que indica que la transformación óptima está en esa región. Como  λ=0 está dentro del intervalo de confianza, esto sugiere que la mejor transformación es aplicar la transformación logarítmica a la variable dependiente.
+
+```{r univar_reg_pl_rvamp_log_transf}
+
+# Regresión de log(pl_radj) con logpl_rvamp
+model_pl_rvamp_log <- lm(log(pl_radj) ~ log(pl_rvamp), data = kepler_data_num)
+
+model_pl_rvamp_log_summary <- summary(model_pl_rvamp_log)
+
+model_pl_rvamp_log_summary
+
+```
+```{r univar_reg_pl_rvamp_log_transf_plot, echo=FALSE, warning=FALSE}
+
+# Scatter plot de log(pl_radj) vs pl_rvamp con la recta de regresión en rojo
+# y los margenes de confianza en gris
+ggplot(kepler_data_num, aes(x = pl_rvamp, y = log(pl_radj))) +
+  geom_point(color = "steelblue") +
+  geom_smooth(method = "lm", color = "indianred", fill = "grey", alpha = 0.2) +
+  labs(title = "Regresión Lineal: Logaritmo del Radio del Exoplaneta segun Logaritmo de la Amplitud de la Velocidad Radial",
+       x = "Logaritmo de la Amplitud de la Velocidad Radial",
+       y = "Logaritmo del Radio del Exoplaneta (Júpiter)") +
+  theme_minimal()
+
+```
+Para el modelo de regresión planteado:
+$$
+log(pl\_radj) = \beta_0 + \beta_1 \cdot pl\_rvamp + \varepsilon
+$$
+
+Las estadísticas del modelo muestran que:
+
+- R2 =0.8425 (84.25%). El modelo explica el 84.25% de la variabilidad en log(`pl_radj`), lo que indica un ajuste excelente. Mucho mejor que el modelo sin transformación (R2≈53.67%).
+- R2 ajustado = 0.8401 (84.01%). Ajustado por el número de predictores y sigue siendo alto.
+- Estadístico F = 353 y p < 0.00000000000000022 confirman que el modelo es altamente significativo.
+
+La transformación logarítmica mejoró significativamente el ajuste en comparación con el modelo sin transformación. El valor R cuadrado ajustado es muy alto (84.01%), lo que indica que el modelo explica la variabilidad en `log(pl_radj)` muy bien. La relación entre `pl_rvamp` y `log(pl_radj)` es fuerte y altamente significativa.
+
+```{r univar_reg_pl_rvamp_log_transf_res_plot, warning=FALSE}
+
+# Obtener los residuos y valores ajustados
+res_pl_rvamp_log <- residuals(model_pl_rvamp_log)
+
+# Calcular los valores ajustados
+fit_val_pl_rvamp_log <- fitted(model_pl_rvamp_log)
+
+# Crear un data frame con los residuos y valores ajustados
+res_pl_rvamp_log_df <- data.frame(
+  Residuals = res_pl_rvamp_log,
+  Fitted_Values = fit_val_pl_rvamp_log
+)
+
+# Scatter plot de residuos vs valores ajustados
+ggplot(res_pl_rvamp_log_df, aes(x = Fitted_Values, y = Residuals)) +
+  geom_point(color = "steelblue") +
+  geom_hline(yintercept = 0, color = "indianred", linetype = "dashed") +
+  labs(title = "Residuos vs Valores Ajustados",
+       x = "Valores Ajustados",
+       y = "Residuos") +
+  theme_minimal()
+
+```
+Los residuos tienen menor dispersión, lo que confirma que la heterocedasticidad detectada anteriormente fue reducida con la transformación.
+
+```{r univar_reg_pl_rvamp_log_transf_qq_plot, warning=FALSE}
+
+# Crear un gráfico Q-Q de los residuos
+qqnorm(res_pl_rvamp_log, main = "Gráfico Q-Q de los Residuos", col="indianred")
+
+```
+La alineación de los puntos con la línea diagonal sugiere que los residuos siguen una distribución normal. Aunque hay una pequeña desviación en los extremos (valores muy negativos y positivos), la desviación no es severa.
+
+```{r univar_reg_pl_rvamp_log_transf_shapiro_test}
+
+# Prueba de normalidad de Shapiro-Wilk
+shapiro_test_pl_rvamp_log <- shapiro.test(res_pl_rvamp_log)
+
+shapiro_test_pl_rvamp_log
+
+```
+Con un W = 0.97622, p-value = 0.2188, el test de normalidad de Shapiro-Wilk indica que los residuos siguen una distribución normal. Aunque el gráfico Q-Q mostró una alineación razonable con la línea diagonal, la prueba de normalidad sugiere que los residuos son normales.
+
+```{r univar_reg_pl_rvamp_log_transf_bp_test}
+
+# Prueba de homocedasticidad de Breusch-Pagan
+library(lmtest)
+
+# Prueba de Breusch-Pagan
+bp_test_pl_rvamp_log <- bptest(model_pl_rvamp_log)
+
+bp_test_pl_rvamp_log
+
+```
+
+El test de homocedasticidad arroja un BP = 0.48865 y un p-value = 0.4845 lo que indica que los residuos no presentan heterocedasticidad significativa. La varianza de los errores es constante, lo que sugiere que la transformación logarítmica corrigió la heterocedasticidad.
+
+De los tres modelos de regresión lineal univariada evaluados el modelo `pl_radj ~ pl_rvamp` con transformación logarítmica es el que mejor ajuste presenta. El modelo explica el 84.25% de la variabilidad en `log(pl_radj)`, lo que indica un ajuste excelente. La relación entre `pl_rvamp` y `log(pl_radj)` es fuerte y altamente significativa. Los residuos siguen una distribución normal y no presentan heterocedasticidad significativa.
+
+```{r univar_reg_summary}
+
+# Resumen de los modelos de regresión lineal univariada
+model_summaries <- list(
+  model_pl_ratdor_summary,
+  model_pl_trandep_summary,
+  model_pl_trandep_square_summary,
+  model_pl_rvamp_summary,
+  model_pl_rvamp_log_summary
+)
+
+model_summaries
+
+```
 
 ## Regresión Lineal Multivariada
 
@@ -965,60 +1354,22 @@ model_multivar_summary <- summary(model_multivar)
 model_multivar_summary
 
 ```
+El modelo de regresión planteado:
 
-```{r multivar_reg_res_plot, warning=FALSE}
+$$
+pl\_radj = \beta_0 + \beta_1 \cdot pl\_ratdor + \beta_2 \cdot pl\_trandep + \beta_3 \cdot pl\_rvamp + \varepsilon
+$$
+Presenta buenas estadísticas por cuanto:
 
-# Obtener los residuos y valores ajustados
-res_multivar <- residuals(model_multivar)
+- R2 =0.9731 (97.31%). El modelo explica el 97.31% de la variabilidad en pl_radj, lo que indica un ajuste excelente.
+- R2 ajustado = 0.953 (95.3%) Ajustado por el número de predictores, sigue siendo muy alto, lo que indica que el modelo generaliza bien.
+- El Estadístico F = 48.28 y el p=0.0013 muestran que modelo en su conjunto es altamente significativo, lo que indica que al menos una de las variables predictoras explica significativamente `pl_radj`.
 
-# Calcular los valores ajustados
-fit_val_multivar <- fitted(model_multivar)
+Sin embargo:
 
-# Crear un data frame con los residuos y valores ajustados
-res_multivar_df <- data.frame(
-  Residuals = res_multivar,
-  Fitted_Values = fit_val_multivar
-)
-
-# Scatter plot de residuos vs valores ajustados
-ggplot(res_multivar_df, aes(x = Fitted_Values, y = Residuals)) +
-  geom_point(color = "steelblue") +
-  geom_hline(yintercept = 0, color = "indianred", linetype = "dashed") +
-  labs(title = "Residuos vs Valores Ajustados",
-       x = "Valores Ajustados",
-       y = "Residuos") +
-  theme_minimal()
-
-```
-
-```{r multivar_reg_qq_plot, warning=FALSE}
-
-# Crear un gráfico Q-Q de los residuos
-qqnorm(res_multivar, main = "Gráfico Q-Q de los Residuos", col="indianred")
-
-```
-
-```{r multivar_reg_shapiro_test}
-
-# Prueba de normalidad de Shapiro-Wilk
-shapiro_test_multivar <- shapiro.test(res_multivar)
-
-shapiro_test_multivar
-
-```
-
-```{r multivar_reg_bp_test}
-
-# Prueba de homocedasticidad de Breusch-Pagan
-library(lmtest)
-
-# Prueba de Breusch-Pagan
-bp_test_multivar <- bptest(model_multivar)
-
-bp_test_multivar
-
-```
-[Analisis de los resultados obtenidos]
+- Solo hay 4 observaciones efectivas después de la eliminación de datos faltantes, lo que es extremadamente bajo para un modelo con 3 predictores. Esto puede hacer que el modelo sea poco confiable y que las estimaciones de los coeficientes sean inestables.
+- Hay una eliminación de 2539 observaciones por valores faltantes, por lo que cabría revisar la estructura de los datos y evaluar si se pueden recuperar más observaciones para mejorar la estabilidad del modelo.
+- Por la significancia de `pl_trapdep` se podría simplificar el modelo eliminando `pl_ratdor` y `pl_rvamp`, dejando solo `pl_trandep` lo que resulta en el segundo modelo evaluado.
 
 ## Regresión Logística
 
@@ -1026,17 +1377,16 @@ Para predecir la habitabilidad de los exoplanetas, se realiza un análisis de re
 
 Existen varios indicadores de habitabilidad de los exoplanetas. Considerando que estamos estudiando estrellas con radios similiares al solar (+/- 10%) los parámetros planetarios más relevantes son:
 
--La temperatura de equilibrio (`pl_eqt`) por ser una variable fundamental en la definición de la zona habitable, ya que está directamente relacionada con la posibilidad de agua líquida en la superficie de un planeta. En https://iopscience.iop.org/article/10.1088/0004-637X/765/2/131 analiza factores para ajustar los límites de la zona habitable y define los rangos ideales de temperatura para habitabilidad.
-- La insolación (`pl_insol`), esto es flujo de radiación recibido por el planeta en comparación con la Tierra, es otro predictor clave, ya que determina el balance energético del planeta. En https://arxiv.org/abs/1610.05765 se estudia los efectos del flujo de radiación en la zona habitable y su impacto en la capacidad de un planeta para retener agua.
-- El semieje mayor orbital (`pl_orbsmax`) es otro indicador importante, ya que determina la distancia del planeta a su estrella anfitriona y, por lo tanto, su temperatura superficial. En https://arxiv.org/abs/1205.2429 se demuestra cómo la distancia orbital y la luminosidad de la estrella afectan la habitabilidad.
+-La temperatura de equilibrio (`pl_eqt`) por ser una variable fundamental en la definición de la zona habitable, ya que está directamente relacionada con la posibilidad de agua líquida en la superficie de un planeta. En <https://iopscience.iop.org/article/10.1088/0004-637X/765/2/131> analiza factores para ajustar los límites de la zona habitable y define los rangos ideales de temperatura para habitabilidad. - La insolación (`pl_insol`), esto es flujo de radiación recibido por el planeta en comparación con la Tierra, es otro predictor clave, ya que determina el balance energético del planeta. En <https://arxiv.org/abs/1610.05765> se estudia los efectos del flujo de radiación en la zona habitable y su impacto en la capacidad de un planeta para retener agua. - El semieje mayor orbital (`pl_orbsmax`) es otro indicador importante, ya que determina la distancia del planeta a su estrella anfitriona y, por lo tanto, su temperatura superficial. En <https://arxiv.org/abs/1205.2429> se demuestra cómo la distancia orbital y la luminosidad de la estrella afectan la habitabilidad.
 
-La determinación de la habitabilidad de un exoplaneta es un tema complejo y multifactorial que depende de varios indicadores físicos y químicos. Si bien no existe una fórmula única universalmente aceptada para calcular la "habitabilidad", se pueden combinar los indicadores antes mencionados para aproximar el potencial de habitabilidad de un exoplaneta. Una de las aproximaciones más comunes es usar una combinación ponderada de las condiciones adecuadas para la presencia de agua líquida, ya que esta es fundamental para la vida tal como la conocemos. El uso de una combinación lineal ponderada de  variables tales como las consideradas es una técnica válida en la modelización de habitabilidad planetaria. En https://www.researchgate.net/publication/353861442_Habitability_Models_for_Astrobiology se propone el Earth Similarity Index (ESI), que usa una fórmula normalizada combinando temperatura, flujo estelar y parámetros orbitales.
+La determinación de la habitabilidad de un exoplaneta es un tema complejo y multifactorial que depende de varios indicadores físicos y químicos. Si bien no existe una fórmula única universalmente aceptada para calcular la "habitabilidad", se pueden combinar los indicadores antes mencionados para aproximar el potencial de habitabilidad de un exoplaneta. Una de las aproximaciones más comunes es usar una combinación ponderada de las condiciones adecuadas para la presencia de agua líquida, ya que esta es fundamental para la vida tal como la conocemos. El uso de una combinación lineal ponderada de variables tales como las consideradas es una técnica válida en la modelización de habitabilidad planetaria. En <https://www.researchgate.net/publication/353861442_Habitability_Models_for_Astrobiology> se propone el Earth Similarity Index (ESI), que usa una fórmula normalizada combinando temperatura, flujo estelar y parámetros orbitales.
 
 Así con los indicadores seleccionados definimos un Índice de Habitabilidad Planetaria (PHI - Planetary Habitability Index) como una función normalizada que combine los indicadores clave:
 
 $$
 \text{PHI} = w_1 \cdot f_1(\text{pl_eqt}) + w_2 \cdot f_2(\text{pl_insol}) + w_3 \cdot f_3(\text{pl_orbsmax}) 
 $$ 
+
 Donde:
 
 -   $w_i$ son los pesos normalizados asociados a cada indicador sumando 1.
@@ -1066,7 +1416,7 @@ La insolación es un factor crítico para mantener agua líquida en la superfici
 
 $$
 f_3(\text{pl_orbsmax}) = \max\left(0, \min\left(1, \frac{\text{pl_orbsmax} - D_{\text{min}}}{D_{\text{max}} - D_{\text{min}}}\right)\right)
-$$ 
+$$
 
 En la mayoría de los modelos, el peso para el valor normalizado de `pl_orbsmax` oscila entre 15% y 25%. Esto se debe a que `pl_orbsmax` complementa indicadores más directos como `pl_eqt` (temperatura de equilibrio) y `pl_insol` (insolación). Se tomará un peso de $w_3=0.30$.
 
@@ -1074,8 +1424,7 @@ Por lo tanto el índice de habitabilidad planetaria (PHI) con variables normaliz
 
 $$
 \text{PHI} = 0.4 \cdot f_1(\text{pl_eqt}) + 0.3 \cdot f_2(\text{pl_insol}) + 0,3 \cdot f_3(\text{pl_orbsmax}) 
-$$ 
-
+$$
 
 ```{r log_reg}
 
@@ -1133,4 +1482,24 @@ ggplot(phi_prob_df, aes(x = PHI, y = Probabilidad)) +
   theme_minimal()
 
 ```
-El modelo de regresión logística resultante no es muy bueno por la poca cantidad de datos que se tienen de exoplanetas para calcular el PHI: solo se tienen 17 exoplanetas con datos completos de temperatura de equilibrio, insolación y semieje mayor orbital. 
+
+El modelo de regresión logística resultante no es muy bueno por la poca cantidad de datos que se tienen de exoplanetas para calcular el PHI: solo se tienen 17 exoplanetas con datos completos de temperatura de equilibrio, insolación y semieje mayor orbital.
+
+El modelo de regresión logística planteado:
+
+$$
+
+\log \left( \frac{P(\phi = 1)}{1 - P(\phi = 1)} \right) = \beta_0 + \beta_1 \cdot pl\_eqt\_normalized + \beta_2 \cdot pl\_insol\_normalized + \beta_3 \cdot pl\_orbsmax\_normalized
+
+$$
+presenta los siguientes problemas:
+
+- Deviance nula: 0.4535 (cuando no se incluyen predictores).
+
+- Deviance residual: 0.0006 (cuando se incluyen los predictores). Una reducción fuerte en la deviance suele indicar que el modelo ha mejorado, pero en este caso, el número extremadamente bajo sugiere un sobreajuste.
+
+-AIC = 19.641. Un AIC bajo indica que el modelo tiene un buen ajuste en términos de penalización por complejidad, pero la falta de significancia de los coeficientes sugiere que el modelo no es útil para predicción.
+
+- Grados de libertad: se eliminaron 2530 observaciones debido a valores faltantes, lo que deja solo 17 observaciones en total y grados de libertad extremadamente bajos (df=13), lo que afecta la estabilidad y confiabilidad del modelo.
+
+El modelo no es útil en su estado actual porque no hay variables significativas y hay un problema grave de eliminación de datos. Es recomendable limpiar los datos y probar un modelo más simple antes de sacar conclusiones sobre la relación entre phi y las variables predictoras, pero dada la falta de observaciones, es posible que no se pueda obtener un modelo confiable para la predicción de habitabilidad.

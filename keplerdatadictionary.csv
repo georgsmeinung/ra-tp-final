@@ -24,46 +24,46 @@ pl_masse,Masa del planeta (en masas terrestres)
 pl_massj,Masa del planeta (en masas jovianas)
 pl_msinie,Mínimo de masa medida por el método de velocidad radial (en masas terrestres)
 pl_msinij,Mínimo de masa medida por el método de velocidad radial (en masas jovianas)
-pl_name,Nombre del planeta
-pl_occdep,Profundidad del eclipse del planeta en terminos de el flujo relativo decreciente frente a su estrella (en %)
-pl_orbeccen,Excentricidad orbital del planeta
-pl_orbincl,Inclinación orbital del planeta respecto de la línea de visión desde la Tierra (en grados)
-pl_orblper,El argumento del periastro del planeta (en grados)
-pl_orbper,Periodo orbital del planeta (en días)
-pl_orbsmax,Distancia orbital semieje mayor (en UA)
-pl_orbtper,El momento del paso del planeta por el periastro (en grados)
-pl_projobliq,Inclinación proyectada del planeta respecto de la línea de visión desde la Tierra (en grados)
-pl_rade,Radio del planeta (en radios terrestres)
-pl_radj,Radio del planeta (en radios jovianos)
-pl_ratdor,cociente del semieje orbital mayor sobre el radio estelar
-pl_ratror,cociente del radio del planeta sobre el radio estelar
-pl_rvamp,Amplitud de la velocidad radial del planeta (en m/s)
-pl_trandep,Profundidad del tránsito del planeta en terminos de el flujo relativo decreciente frente a su estrella (en %)
-pl_trandur,Duración del tránsito del planeta (en horas)
-pl_tranmid,Tiempo de tránsito medio del planeta respecto de su estrella (en días)
-pl_trueobliq,Inclinación verdadera del planeta respecto de la línea de visión desde la Tierra (en grados)
-pl_tsystemref,Sistema de Tiempo de Referencia del sistema planetario
-ra,Ascensión recta de la estrella (en grados decimales)
-rastr,Ascensión recta de la estrella (en grados sexagesimales)
-soltype,Disposición del planeta según el conjunto de parámetros planetarios dado
-st_age,"Edad de la estrella (en Ga, gigaaños, o miles de millones de años)"
-st_dens,Densidad de la estrella (en g/cm³)
-st_logg,Gravedad superficial de la estrella (en logaritmo en base 10 de cm/s²)
-st_lum,Luminosidad de la estrella (en logartima en base 10 de unidades solares)
-st_mass,Masa de la estrella (en masas solares)
-st_met,Medición del contenido de metales en la fotosfera de la estrella en comparación con el contenido de hidrógeno
-st_metratio,Relación de metalicidad de la estrella
-st_rad,Radio de la estrella (en radios solares)
-st_radv,Velocidad radial de la estrella (en km/s)
-st_rotp,Periodo de rotación de la estrella (en días)
-st_spectype,Tipo espectral de la estrella según el sistema Morgan-Keenan
-st_teff,Temperatura efectiva de la estrella (en grados K)
-st_vsin,Velocidad de rotación de la estrella (en km/s)
-sy_dist,Distancia del sistema (en parsecs)
-sy_plx,Paralaje del sistema (en miliarcosegundos)
-sy_pm,Movimiento propio del sistema (en miliarcosegundos/año)
-sy_pmdec,Movimiento propio del sistema en declinación (en miliarcosegundos/año)
-sy_pmra,Movimiento propio del sistema en ascensión recta (en miliarcosegundos/año)
-sy_pnum,Número de planetas en el sistema
-sy_snum,Número de estrellas en el sistema
-ttv_flag,Flag de tránsito de tiempo variante
+pl_name,Profundidad del eclipse del planeta en terminos de el flujo relativo decreciente frente a su estrella (en %)
+pl_occdep,Excentricidad orbital del planeta
+pl_orbeccen,Inclinación orbital del planeta respecto de la línea de visión desde la Tierra (en grados)
+pl_orbincl,El argumento del periastro del planeta (en grados)
+pl_orblper,Periodo orbital del planeta (en días)
+pl_orbper,Distancia orbital semieje mayor (en UA)
+pl_orbsmax,El momento del paso del planeta por el periastro (en grados)
+pl_orbtper,Inclinación proyectada del planeta respecto de la línea de visión desde la Tierra (en grados)
+pl_projobliq,Radio del planeta (en radios terrestres)
+pl_rade,Radio del planeta (en radios jovianos)
+pl_radj,cociente del semieje orbital mayor sobre el radio estelar
+pl_ratdor,cociente del radio del planeta sobre el radio estelar
+pl_ratror,Amplitud de la velocidad radial del planeta (en m/s)
+pl_rvamp,Profundidad del tránsito del planeta en terminos de el flujo relativo decreciente frente a su estrella (en %)
+pl_trandep,Duración del tránsito del planeta (en horas)
+pl_trandur,Tiempo de tránsito medio del planeta respecto de su estrella (en días)
+pl_tranmid,Inclinación verdadera del planeta respecto de la línea de visión desde la Tierra (en grados)
+pl_trueobliq,Sistema de Tiempo de Referencia del sistema planetario
+pl_tsystemref,Ascensión recta de la estrella (en grados decimales)
+ra,Ascensión recta de la estrella (en grados sexagesimales)
+rastr,Disposición del planeta según el conjunto de parámetros planetarios dado
+soltype,"Edad de la estrella (en Ga, gigaaños, o miles de millones de años)"
+st_age,Densidad de la estrella (en g/cm³)
+st_dens,Gravedad superficial de la estrella (en logaritmo en base 10 de cm/s²)
+st_logg,Luminosidad de la estrella (en logartima en base 10 de unidades solares)
+st_lum,Masa de la estrella (en masas solares)
+st_mass,Medición del contenido de metales en la fotosfera de la estrella en comparación con el contenido de hidrógeno
+st_met,Relación de metalicidad de la estrella
+st_metratio,Radio de la estrella (en radios solares)
+st_rad,Velocidad radial de la estrella (en km/s)
+st_radv,Periodo de rotación de la estrella (en días)
+st_rotp,Tipo espectral de la estrella según el sistema Morgan-Keenan
+st_spectype,Temperatura efectiva de la estrella (en grados K)
+st_teff,Velocidad de rotación de la estrella (en km/s)
+st_vsin,Distancia del sistema (en parsecs)
+sy_dist,Paralaje del sistema (en miliarcosegundos)
+sy_plx,Movimiento propio del sistema (en miliarcosegundos/año)
+sy_pm,Movimiento propio del sistema en declinación (en miliarcosegundos/año)
+sy_pmdec,Movimiento propio del sistema en ascensión recta (en miliarcosegundos/año)
+sy_pmra,Número de planetas en el sistema
+sy_pnum,Número de estrellas en el sistema
+sy_snum,Flag de tránsito de tiempo variante
+ttv_flag,Nombre del planeta
