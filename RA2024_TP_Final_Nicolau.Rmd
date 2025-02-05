@@ -1,7 +1,3 @@
-::: {style="text-align: center;"}
-![](logo-austral.png){width="200px"}
-:::
-
 ---
 title: "Regresión Avanzada 2024 - TP Final"
 author: "Jorge Nicolau"
@@ -18,6 +14,10 @@ editor_options:
   markdown: 
     wrap: none
 ---
+
+::: {style="text-align: center;"}
+![](logo-austral.png){width="200px"}
+:::
 
 ```{r setup, include=FALSE, echo=FALSE}
 # Bloque de configuración de R Markdown
@@ -40,15 +40,104 @@ random_seed <- 235337
 set.seed(random_seed)
 ```
 
-# Preprocesamiento de Datos
+# Detección de Exoplanetas y sus Características
 
-Al momento de la extracción (14 de enero de 2025) el dataset de exoplanetas contiene información sobre 28.217 exoplanetas (entre confirmados, propuestos y en estudio) y sus características. La base de datos de IPAC (<https://www.ipac.caltech.edu/>) contiene información sobre los exoplanetas detectados por la misión Kepler y otros telescopios, pero para este trabajo se utilizará solo la información de los exoplanetas detectados por la misión Kepler (<https://science.nasa.gov/mission/kepler/>).
+Durante casi tres décadas de investigación, la NASA ha confirmado la existencia de más de 5,600 exoplanetas en 4,151 sistemas planetarios. Estos mundos, conocidos como exoplanetas o planetas extrasolares, orbitan estrellas distintas al Sol. Aunque los astrónomos los imaginaron durante milenios, no fue hasta mediados de la década de 1990 cuando comenzaron a aparecer en los registros científicos.
+
+Aproximadamente dos tercios de los exoplanetas descubiertos hasta ahora provienen del telescopio espacial Kepler, mientras que cientos más han sido identificados gracias a la misión TESS y otros observatorios terrestres. Estas misiones han generado una enorme cantidad de datos, con cerca de 10,000 posibles exoplanetas aún pendientes de confirmación. Un número impresionante si consideramos que hasta principios de los años noventa no se conocía ninguno, pero diminuto en comparación con los cientos de miles de millones que podrían existir solo en la Vía Láctea.
+
+Para detectar estos mundos, los astrónomos emplean diversas técnicas, muchas de ellas llevadas al límite de la tecnología disponible en los observatorios espaciales.
+
+Fuente: <https://es.wired.com/articulos/cuales-son-las-tecnicas-utilizadas-para-descubrir-exoplanetas>
+
+## Métodos de Detección de Exoplanetas
+
+### Astrometría: Detectando Planetas a Través del Movimiento Estelar
+
+Cuando decimos que los planetas orbitan alrededor de las estrellas, en realidad no estamos contando toda la historia. En términos precisos, tanto la estrella como sus planetas giran en torno al **baricentro** del sistema, el punto en el espacio donde se equilibra la masa total del conjunto. Dado que las estrellas poseen la mayor parte de la masa, este punto suele ubicarse muy cerca de ellas. En el caso del Sol, por ejemplo, el baricentro se encuentra apenas fuera de su superficie.
+
+Esto implica que una estrella con planetas no permanece completamente estática en el espacio, sino que también se desplaza ligeramente mientras orbita el baricentro del sistema. Al observar esta leve oscilación, los astrónomos pueden detectar la presencia de exoplanetas mediante el método de la **astrometría**. Gracias a esta técnica, se han identificado más de 1,000 planetas extrasolares.
+
+Fuente: <https://neofronteras.com/?p=8093>
+
+### Velocidades Radiales: Detectando Exoplanetas a Través del Efecto Doppler
+
+La técnica de velocidad radial se basa en el mismo principio que la astrometría: la rotación de la estrella alrededor del baricentro del sistema debido a la influencia gravitatoria de un planeta. Sin embargo, mientras que la astrometría observa directamente el desplazamiento de la estrella en el cielo, la velocidad radial se centra en sus efectos espectroscópicos.
+
+Cuando la estrella se mueve acercándose a nosotros, la frecuencia de su luz se desplaza hacia el azul, y cuando se aleja, se desplaza hacia el rojo. Este fenómeno, conocido como **efecto Doppler**, permite detectar variaciones periódicas en el espectro estelar. Si se observa un patrón rítmico de estos desplazamientos, se puede inferir la presencia de un exoplaneta que provoca el vaivén gravitacional de la estrella.
+
+Fuente: <https://media4.obspm.fr/public/VAU/masa/binario/exoplaneta/velocidad-radial-extrasolar/APPRENDRE_4.html>
+
+### Método del Tránsito: Detectando Exoplanetas a Través de su Sombra
+
+Más de 4,200 exoplanetas han sido descubiertos mediante el **método del tránsito**, una técnica ampliamente utilizada por el telescopio espacial Kepler. Este método se basa en la observación de la disminución periódica del brillo de una estrella cuando un planeta pasa frente a ella, bloqueando parte de su luz, de manera similar a un eclipse solar.
+
+Al registrar estas variaciones de brillo en múltiples ocasiones, se puede confirmar la presencia de un planeta en órbita. Además, este método proporciona información clave sobre el exoplaneta, como su tamaño y distancia respecto a la estrella. Si el planeta posee una atmósfera, la luz estelar la atraviesa durante el tránsito, permitiendo a los astrónomos analizar su composición química a través de técnicas espectroscópicas. Gracias a esto, es posible estudiar la atmósfera de mundos que ni siquiera podemos observar directamente.
+
+Fuente: <https://www.iac.es/es/ciencia-y-tecnologia/publicaciones/deteccion-y-caracterizacion-de-exoplanetas-mediante-el-metodo-de-los-transitos>
+
+### Microlente Gravitacional: Exoplanetas Detectados a Través de la Curvatura del Espacio-Tiempo
+
+El **método de microlente gravitacional** se basa en un principio fundamental de la **Relatividad General**: la presencia de una masa curva el espacio-tiempo y, como consecuencia, desvía la trayectoria de la luz que pasa cerca de ella. Este fenómeno se conoce como **lente gravitacional** y puede usarse para detectar exoplanetas en circunstancias específicas.
+
+Cuando una estrella lejana se alinea con otra estrella más cercana en nuestra línea de visión, la gravedad de la estrella más cercana actúa como una lente natural, magnificando la luz de la estrella de fondo. Este efecto crea un **aumento temporal del brillo** de la estrella lejana, lo que se conoce como un **evento de microlente gravitacional**.\
+Si la estrella más cercana alberga un planeta, la gravedad del planeta también contribuirá al efecto de lente, provocando una **segunda variación en el brillo** de la estrella de fondo. Este cambio adicional en la luz nos permite inferir la presencia del planeta y estimar algunas de sus características, como su masa y distancia con respecto a su estrella.
+
+Fuente: <https://danielmarin.naukas.com/2011/05/23/detectando-planetas-desde-el-espacio-gracias-a-einstein/>
+
+### Observación Directa: Fotografiar Exoplanetas en Medio del Brillo Estelar
+
+Detectar exoplanetas mediante **observación directa** es un desafío, ya que estos son cuerpos pequeños y poco luminosos en comparación con las estrellas que orbitan. La intensa luz de la estrella suele eclipsar por completo la presencia del planeta, dificultando su detección.
+
+Sin embargo, existe una técnica para superar este problema: el uso de **coronógrafos**. Estos dispositivos bloquean la luz directa de la estrella, permitiendo que la tenue luz reflejada por el planeta sea visible. El concepto es similar a tapar el Sol con la mano para ver mejor lo que hay en el horizonte.
+
+Para que este método funcione, el planeta debe estar **lo suficientemente alejado de su estrella**, de modo que el coronógrafo pueda aislar su luz. Cuando esto ocurre, es posible capturar imágenes reales del exoplaneta, lo que se conoce como **observación directa**. Gracias a esta técnica, los astrónomos pueden analizar la luz reflejada por el planeta y obtener información sobre su composición, temperatura y atmósfera.
+
+Fuente: <https://www.agenciasinc.es/Noticias/Primera-imagen-directa-de-un-exoplaneta-captada-por-el-Webb>
+
+### La Rotación de los Púlsares y la Detección de Exoplanetas
+
+Los **púlsares** son un tipo especial de **estrellas de neutrones**, formadas tras la explosión de una supernova y comprimidas por la gravedad hasta alcanzar una densidad extrema. Estas estrellas pueden girar a velocidades sorprendentes, llegando a completar **decenas o incluso cientos de vueltas por segundo**.
+
+Una de las características más notables de los púlsares es la **precisión de su rotación**. Por ejemplo, el **púlsar del Cangrejo**, uno de los más estudiados, gira exactamente **33 veces por segundo**. Sin embargo, si un planeta orbita alrededor de un púlsar, su influencia gravitacional puede provocar **pequeñas variaciones en la periodicidad de los pulsos**.
+
+Midiendo con precisión estas sutiles anomalías en el tiempo de rotación, los astrónomos pueden **inferir la presencia de planetas** en sistemas de púlsares, un método que ha permitido descubrir algunos de los primeros exoplanetas conocidos.
+
+Fuente: <https://www.nature.com/articles/355145a0>
+
+# Detección de Exoplanetas usando la Ciencia de Datos
+
+La detección de exoplanetas es un campo de investigación en constante evolución, con nuevos descubrimientos y técnicas emergentes que amplían nuestro conocimiento del universo. La ciencia de datos juega un papel fundamental en este proceso, permitiendo a los astrónomos analizar grandes volúmenes de datos y extraer información relevante sobre los exoplanetas y sus características.
+
+Incluso nada anima a la detección amateur de exoplanetas a traves de su sitio Exoplanet Watch donde ofrece una guía detallada sobre cómo analizar observaciones de tránsitos de exoplanetas para generar curvas de luz, que representan las variaciones en el brillo de una estrella cuando un planeta pasa frente a ella.
+
+Fuente; <https://exoplanets.nasa.gov/exoplanet-watch/how-to-contribute/how-to-analyze-your-data/>
+
+NASA ha recopilado una gran cantidad de datos sobre exoplanetas detectados por misiones como Kepler y TESS, proporcionando una fuente invaluable de información para la investigación científica. Estos datos contienen una variedad de características sobre los exoplanetas y sus sistemas estelares, incluyendo su masa, radio, temperatura, órbita y composición química. Sin embargo esta información no siempre es completa y en muchos casos es necesario realizar análisis avanzados para extraer parámetros faltantes y predecir la habitabilidad de los exoplanetas.
 
 El objetivo de este trabajo es procesar los datos para realizar un análisis exploratorio y utilizar regresión linea y logística para la extracción de paramétros faltantes de los exoplanetas y para predecir la habitabilidad de los mismos.
 
+# El dataset de Explanetas detectados con Kepler
+
+El **Archivo de Exoplanetas de la NASA** es un catálogo astronómico en línea y un servicio de datos que recopila, correlaciona y organiza información sobre exoplanetas y sus estrellas anfitrionas. Además, proporciona herramientas para trabajar con estos datos.
+
+Este archivo está dedicado a la recopilación y difusión de **conjuntos de datos públicos clave** utilizados en la búsqueda y caracterización de planetas extrasolares y sus estrellas. Entre los datos disponibles se incluyen:
+
+-   **Parámetros estelares**: posiciones, magnitudes y temperaturas de las estrellas anfitrionas.\
+-   **Parámetros de exoplanetas**: masas, características orbitales y otros datos fundamentales.\
+-   **Datos de descubrimiento y caracterización**: curvas de velocidad radial publicadas, curvas de luz fotométricas, imágenes y espectros.
+
+Fuente: <https://exoplanetarchive.ipac.caltech.edu/docs/intro.html>
+
+Esta base de datos es una herramienta esencial para la investigación en el campo de la **astronomía de exoplanetas** y ha sido utilizada en numerosos estudios científicos y proyectos de investigación. Se encuentra disponible en línea y es de libre acceso para la comunidad científica y el público en general en el sitio del IPAC del Caltech. El **IPAC (Infrared Processing and Analysis Center)** es un centro de investigación y procesamiento de datos astronómicos ubicado en el **Instituto de Tecnología de California (Caltech)**. Se especializa en la gestión y análisis de datos de misiones espaciales y telescopios astronómicos, en colaboración con agencias como la **NASA, la Fundación Nacional de Ciencias (NSF) y el Laboratorio de Propulsión a Chorro (JPL)**.
+
+Fuente: <https://www.ipac.caltech.edu/page/mission>
+
+Al momento de la extracción (14 de enero de 2025) el dataset de exoplanetas contiene información sobre 28.217 exoplanetas (entre confirmados, propuestos y en estudio) y sus características. La base de datos de IPAC (<https://www.ipac.caltech.edu/>) contiene información sobre los exoplanetas detectados por la misión Kepler y otros telescopios, pero para este trabajo se utilizará solo la información de los exoplanetas detectados por la misión Kepler (<https://science.nasa.gov/mission/kepler/>).
+
 Se cargarán los datos, se filtrarán las filas de los explonetas confirmados, las columnas relevantes, se eliminarán los valores faltantes y se realizará un análisis exploratorio de los datos para luego realizar la regresión lineal y logística.
 
-## Carga de Datos
+## Preprocesamiento de Datos
 
 Se cargan los datos del dataset de exoplanetas de la misión Kepler del archivo `keplerexoplanets.csv`. El mismo se obtuvo de la página del IPAC del Caltech (<https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS>). La consulta usada para producir el dataset fue la siguiente:
 
@@ -407,30 +496,41 @@ kable(resumen, format = "markdown", digits = 4,
 
 ```
 
-En este análisis preliminar se observan las siguientes características de los parámetros en el dataset:
+## Análisis los parámetros numéricos del dataset
 
--   `cb_flag` y `ttv_flag` son variables binarias con valores mayoritariamente en 0, dado que la media es baja (\~0.0024 y \~0.1496 respectivamente). Esto indica un fuerte desbalance en los datos.
--   `sy_snum` casi siempre es 1, lo que sugiere que la mayoría de los sistemas tienen una sola estrella.
--   `dec`, `ra` (declinación y ascención recta), `elat`, `elon`, `glat`, `glon` (latitud y logitud eclípticas y galácticas respectivamente) representan sistemas coordenadas celestes con distribuciones relativamente centradas. `elon` tiene un rango amplio (288-323), mientras que `glat` y `glon` presentan una distribución con valores bien concentrados en torno a la media, lo que probablimente implique la observación de un cúmulo estelar. La longitud eclíptica (`elon`) de 288° a 324° corresponde a la región de la constelación de Capricornio y Acuario, moviéndose hacia Piscis, mientras que la latitud eclíptica (`elat`) de 57° a 72° es alta y significa que estos objetos están lejos del plano de la eclíptica, ubicados en el hemisferio norte eclíptico.
--   Como los valores de `elat` son relativamente altos (muy por encima del plano de la eclíptica), esto indica que los objetos en este conjunto de datos no están alineados con el disco principal del Sistema Solar, sino que se encuentran en una región más inclinada del cielo. Este sector del cielo abarca parte de la región del Polo Norte Eclíptico, en la dirección de la constelación del Dragón (Draco).
--   `pl_bmasse`, `pl_masse` (masa en términos de unidades terrestres) y `pl_bmassj`, `pl_massj` (masa en términos de unidades de Júpiter) presentan distribuciones sesgadas a la derecha, con valores máximos extremadamente grandes (hasta 25426 masas terrestres). Hay muchos valores pequeños y unos pocos valores atípicos muy grandes.
--   `pl_rade` (radio en radios terrestres) y `pl_radj` (radio en radios jovianos) presenta una distribución sesgada con pocos valores grandes. La mediana de `pl_rade` es 2.37, lo que indica que la mayoría de los exoplanetas en el conjunto son más de dos veces del tamaño de la Tierra.
--   `pl_orbeccen` (excentricidad orbital) es mayormente cercana a 0, lo que implica órbitas casi circulares.
--   `pl_orbincl` (inclinación orbital) tiene una alta concentración en valores cercanos a 90°, lo que sugiere que la mayoría de los planetas tienen órbitas casi perpendiculares a la línea de visión. Esto tiene sentido porque el principal método de detección de exoplanetas es el método de tránsito, que es más efectivo para planetas que pasan frente a su estrella.
--   `pl_orbper` (período orbital en días) tiene una mediana de \~13 días, pero hay valores extremos (hasta 1322 días), lo que indica una gran variabilidad en los períodos orbitales.
--   `pl_eqt` (temperatura planetaria de equilibrio) tiene una media de 938 K con una distribución amplia (min: 251 K, max: 2188 K); esto sugiere que hay una mezcla de planetas fríos y extremadamente calientes.
--   `pl_dens` (densidad) tiene una mediana de 2.13 g/cm³ con una gran variabilidad, lo que refleja una diversidad en la composición de los exoplanetas.
--   Para el caso de `st_mass` y `st_rad` la mayoría de las estrellas tienen masas y radios similares al Sol (\~1.0), lo cual es coherente con el filtro aplicado en el preprocesamiento.
--   `st_teff` (temperatura estelar efectiva) tiene una media de 5685 K, consistente con estrellas tipo G (similares al Sol); aunque el filtro puede tener que ver con este fenómeno, también tiene que ver con la composición y la edad de las estrellas.
--   `st_logg` (logartimo en base 10 de la gravedad estelar superficial) está muy concentrada en valores cercanos a 4.45, típico de estrellas en la secuencia principal en el marco moderno del ciclo vida estelar.
--   `st_lum` (luminosidad en escala logarítmica de base 10 de aquella del Sol) tiene una distribución centrada alrededor de 0, lo que indica muchas estrellas con luminosidades similares al Sol.
--   `sy_dist` (distancia en parsecs del sistema estelar) tiene valores muy variables (mín: 68 pc, máx: 2879 pc). La mediana de es de \~860 pc, indicando que la mayoría de estos sistemas están relativamente lejos (más de 2804 años luz).
--   `sy_pm`, `sy_pmra`, `sy_pmdec` (movimiento propio del sistema estelar en milisegundos de arco por año) tiene valores centrados en 0 con algunas estrellas moviéndose a velocidades más altas.
--   `sy_pnum` (número de planetas en el sistema) tiene una mediana de 2, con algunos sistemas llegando hasta 6 los planetas detectados.
--   `pl_trandep` y `pl_trandur` (profundidad y duración del tránsito) tiene una distribución sesgada, con la mayoría de los valores en el extremo inferior; esto es esperado ya que la mayoría de los tránsitos son poco profundos y de corta duración.
--   `pl_projobliq` (oblicuidad del eje de rotación del planeta) tiene una mediana en 0 (perpendicular a la elíptica de su sistema), pero con valores extremos hasta -135°.
+En este análisis preliminar se observan varias características en los parámetros del conjunto de datos.  
 
-Muchas distribuciones están sesgadas, con valores extremos que pueden ser outliers o simplemente representar la naturaleza de los exoplanetas. Los datos sobre masa y radio de los planetas muestran que la mayoría son relativamente pequeños, pero hay algunos extremadamente grandes. Las temperaturas de los planetas varían bastante, lo que indica una diversidad en los tipos de planetas. Las estrellas en su mayoría son similares al Sol, pero con algunas diferencias en edad y metalicidad, lo cual es esperable por el filtro aplicado en el preprocesamiento.
+Las variables `cb_flag` y `ttv_flag` son binarias y presentan valores mayoritariamente en **0**, ya que su media es baja (~0.0024 y ~0.1496, respectivamente). Esto indica un fuerte **desbalance en los datos**. Además, la variable `sy_snum` casi siempre toma el valor de **1**, lo que sugiere que la mayoría de los sistemas tienen una sola estrella.  
+
+En cuanto a los parámetros de coordenadas celestes, las variables `dec` y `ra` (declinación y ascensión recta), así como `elat, elon, glat` y `glon` (latitudes y longitudes eclípticas y galácticas), muestran distribuciones relativamente centradas. `elon` tiene un rango amplio (288-323), mientras que `glat` y `glon` presentan valores bien concentrados en torno a la media, lo que sugiere la observación de un cúmulo estelar. La longitud eclíptica `elon` (288° a 324°) corresponde a la región de las constelaciones de **Capricornio y Acuario**, extendiéndose hacia **Piscis**, mientras que la latitud eclíptica `elat` (57° a 72°) es alta, indicando que estos objetos están lejos del plano de la eclíptica y ubicados en el **hemisferio norte eclíptico**.  
+
+Dado que `elat` presenta valores elevados (muy por encima del plano de la eclíptica), esto indica que los objetos en el conjunto de datos **no están alineados con el disco principal del Sistema Solar**, sino que se encuentran en una región más inclinada del cielo. Esta área corresponde en parte a la región del **Polo Norte Eclíptico**, en la dirección de la constelación del **Dragón (Draco)**.  
+
+Las variables `pl_bmasse` y `pl_masse` (masa en unidades terrestres), así como `pl_bmassj` y `pl_massj` (masa en unidades jovianas), muestran distribuciones **sesgadas a la derecha**, con valores máximos extremadamente grandes (hasta **25,426 masas terrestres**). Hay una gran cantidad de valores pequeños y algunos valores atípicos muy altos. De manera similar, `pl_rade` (radio en radios terrestres) y `pl_radj` (radio en radios jovianos) presentan una **distribución sesgada**, con pocos valores grandes. La mediana de `pl_rade` es **2.37**, lo que indica que la mayoría de los exoplanetas en el conjunto tienen **más del doble del tamaño de la Tierra**.  
+
+En cuanto a la excentricidad orbital, `pl_orbeccen` es mayoritariamente cercana a **0**, lo que sugiere que la mayoría de los exoplanetas tienen **órbitas casi circulares**. La inclinación orbital, representada por `pl_orbincl`, muestra una alta concentración en valores cercanos a **90°**, lo que indica que la mayoría de los planetas tienen **órbitas casi perpendiculares a la línea de visión**. Esto es consistente con el método de detección predominante, el **método de tránsito**, que es más efectivo para planetas que pasan frente a su estrella.  
+
+El **período orbital** (`pl_orbper`) presenta una mediana de **~13 días**, aunque existen valores extremos de hasta **1,322 días**, lo que indica una gran variabilidad en la duración de las órbitas. Por otro lado, la **temperatura planetaria de equilibrio** (`pl_eqt`) tiene una media de **938 K**, con una distribución amplia (mínimo: **251 K**, máximo: **2,188 K**), lo que sugiere una mezcla de **planetas fríos y extremadamente calientes**.  
+
+Respecto a la **densidad planetaria** (`pl_dens`), la mediana es **2.13 g/cm³**, con una gran variabilidad, lo que refleja una diversidad en la **composición de los exoplanetas**.  
+
+En cuanto a las características estelares, las variables `st_mass` y `st_rad` muestran que la mayoría de las estrellas en el conjunto tienen **masas y radios similares al Sol (~1.0)**, lo que es coherente con el filtro aplicado en el preprocesamiento. La **temperatura estelar efectiva** (`st_teff`) tiene una media de **5,685 K**, lo que es consistente con **estrellas tipo G (similares al Sol)**. Si bien esto puede deberse al filtro aplicado, también está relacionado con la composición y edad de las estrellas.  
+
+La variable `st_logg` (logaritmo en base 10 de la gravedad estelar superficial) se concentra en valores cercanos a **4.45**, lo que es característico de **estrellas en la secuencia principal** dentro del ciclo de vida estelar. Por su parte, la **luminosidad estelar** (`st_lum`) tiene una distribución centrada alrededor de **0** en escala logarítmica, lo que indica que muchas de estas estrellas tienen **luminosidades similares a la del Sol**.  
+
+El parámetro `sy_dist` (distancia en parsecs del sistema estelar) varía considerablemente, con valores entre **68 pc y 2,879 pc**. La mediana es **~860 pc**, lo que indica que **la mayoría de estos sistemas están relativamente lejos (más de 2,804 años luz)**.  
+
+En cuanto al movimiento propio de las estrellas, las variables `sy_pm, sy_pmra` y `sy_pmdec` (movimiento propio del sistema estelar en milisegundos de arco por año) están **centradas en 0**, aunque algunas estrellas presentan **movimientos más rápidos**.  
+
+El **número de planetas por sistema** (`sy_pnum`) tiene una mediana de **2**, aunque algunos sistemas alcanzan **hasta 6 planetas detectados**.  
+
+Las variables `pl_trandep` y `pl_trandur` (profundidad y duración del tránsito) muestran una distribución **sesgada**, con la mayoría de los valores en el extremo inferior. Esto es esperable, ya que la mayoría de los **tránsitos son poco profundos y de corta duración**.  
+
+Por otro lado, la **oblicuidad del eje de rotación del planeta** (`pl_projobliq`) tiene una mediana en **0°** (indicando que la mayoría de los planetas tienen un eje de rotación perpendicular a la eclíptica de su sistema), aunque se observan valores extremos de hasta **-135°**.  
+
+En general, muchas distribuciones en el conjunto de datos están **sesgadas**, con valores extremos que podrían representar **atípicos (outliers) o simplemente reflejar la diversidad de los exoplanetas**. Los datos sobre **masa y radio** indican que la mayoría de los exoplanetas son **relativamente pequeños**, aunque existen algunos extremadamente grandes. La **temperatura** de los planetas varía ampliamente, lo que sugiere una gran diversidad en los tipos de exoplanetas.  
+
+Por último, en cuanto a las estrellas, la mayoría son **similares al Sol**, aunque presentan algunas diferencias en **edad y metalicidad**, lo cual es esperable debido al **filtro aplicado en el preprocesamiento**.
 
 ## Detención de Valores Faltantes
 
@@ -498,19 +598,15 @@ ggplot(missing_values[(midpoint+1):total_rows,], aes(x = reorder(key, value), y 
 
 ```
 
-Se detectan grandes cantidades valores faltantes en varias columnas del dataset, probablemente debido a la falta de estimaciones o mediciones para esos exoplanetas. Según los prefijos de columnas explicados en el detalle del dataset, se pueden identificar las siguientes categorías de variables:
+En el análisis del dataset, se detectó una gran cantidad de **valores faltantes** en varias columnas, lo que probablemente se deba a la falta de estimaciones o mediciones para ciertos exoplanetas. Según los prefijos utilizados en las columnas del dataset, las variables pueden clasificarse en tres categorías principales: **parámetros del planeta (con prefijo pl_)**, **parámetros de la estrella (con prefijo st_)** y **parámetros del sistema (prefijo sy_)**.  
 
--   `pl_`: Parámetros del planeta.
--   `st_`: Parámetros de la estrella.
--   `sy_`: Parámetros del sistema.
+Una gran parte de los valores faltantes corresponden a **parámetros de los exoplanetas y sus sistemas**, lo que puede representar un desafío para el análisis y la predicción de su habitabilidad. Para abordar este problema, se procederá a **estimar los valores faltantes** en aquellas variables donde exista una cantidad suficiente de datos como para realizar una estimación precisa.  
 
-Buena parte de las variables faltantes corresponden a parámetros de los exoplanetas y sistemas, lo que puede dificultar el análisis y la predicción de la habitabilidad de los exoplanetas. Por lo tanto, se procederá a estimar los valores faltantes de aquellos parámetros en los que haya una cantidad suficiente de datos para realizar una estimación precisa.
+El objetivo principal de este estudio es **predecir la habitabilidad de los exoplanetas**, y para ello es fundamental contar con valores completos en los parámetros clave. Para lograrlo, se emplearán técnicas de **regresión lineal y logística**, que permitirán estimar los valores ausentes y mejorar la precisión del modelo de predicción.  
 
-El propósito de este trabajo es estimar los valores faltantes de los exoplanetas y predecir la habitabilidad de los mismos. Para ello, se utilizarán técnicas de regresión lineal y logística para estimar los valores faltantes y predecir la habitabilidad de los exoplanetas.
+Como parte del proceso, se analizarán las **variables conocidas de los exoplanetas** para identificar aquellas que puedan actuar como **predictoras** de las variables con valores faltantes. Por ejemplo, en el caso del **radio del exoplaneta** (representado por `pl_radj` en radios jovianos y `pl_rade` en radios terrestres), que presenta **886 valores faltantes**, es posible estimarlo utilizando otras variables disponibles en el dataset. Algunas de estas incluyen el **período orbital en días** (`pl_orbper`, con **450 valores faltantes**), el **tiempo de conjunción** (`pl_tranmid`, con **675 valores faltantes**) y el **logaritmo en base 10 de la gravedad superficial de la estrella del sistema planetario** (`st_logg`, con **554 valores faltantes**).  
 
-Tomando las variables conocida de los exoplanetas (parámetros con prefijo `pl_`), busca aquellas posibles predictoras de las variables faltantes. Por ejemplo para el caso del radio del exoplaneta (`pl_radj` en términos de radios jovianos y `pl_rade` en términos terrestres) con 886 faltantes, hay suficiente información para estimar el radio del exoplaneta a partir de otras variables conocidas como el periodo orbital en días (`pl_orbper` con 450 faltantes), el tiempo de conjunción (`pl_tranmid` con 675 faltantes) o el logaritmo en base 10 de gravedad superficial de la estrella en el centro del sistema planteario (`st_logg` con 554 faltantes).
-
-Para saber cuál de estas variables es la mejor predictoras de la variable faltante, se utilizará la matriz de correlación para identificar las relaciones entre las variables numéricas del dataset con mayor correlación positiva o negativa con la variable faltante.
+Para determinar cuáles de estas variables tienen un mayor potencial como **predictoras**, se utilizará la **matriz de correlación**, que permitirá identificar las relaciones más significativas entre las variables numéricas del dataset. De esta manera, se seleccionarán aquellas que presenten una **correlación positiva o negativa más fuerte** con la variable faltante, lo que facilitará su estimación con un mayor grado de precisión.
 
 ## Buscando Correlaciones
 
@@ -592,9 +688,13 @@ corrplot(
 
 ```
 
-La matriz de correlación muestra las relaciones lineales entre las variables numéricas del dataset. Se observan algunas correlaciones positivas y negativas entre las variables, lo que indica posibles relaciones entre ellas. Por ejemplo el cociente entre el semieje orbital mayor y el periodo orbital (`pl_ratdor`) tiene una correlación positiva con el periodo orbital (`pl_orbper`) y una correlación negativa con la temperatura de equilibrio(`pl_eqt`). Respecto de la variable que se seleccionó como clase en el apartado anterior, el radio del exoplaneta (`pl_radj`) tiene una correlación positiva con la profundidad del tránsito (`pl_trandep`) y una correlación negativa con la gravedad superficial de la estrella (`st_logg`).
+La **matriz de correlación** es una herramienta fundamental en el análisis de datos, ya que permite identificar relaciones **lineales** entre las variables numéricas del dataset. A través de esta matriz, se pueden detectar tanto **correlaciones positivas** (cuando un aumento en una variable está asociado con un aumento en otra) como **correlaciones negativas** (cuando un aumento en una variable está relacionado con una disminución en otra). Estas relaciones pueden ser útiles para entender patrones en los datos y seleccionar las mejores variables predictoras para modelos de estimación.  
 
-Para entender mejor la relación entre las variables con algo de correlación (umbral de 50% en valor absoluto) y seleccionar las mejores variables predictoras, se realiza un pair plot de las variables con mayor correlación positiva o negativa con la variable faltante.
+Un ejemplo de estas correlaciones se observa en la relación entre el **cociente del semieje orbital mayor y el período orbital** (`pl_ratdor`), el cual muestra una **correlación positiva** con el **período orbital** (`pl_orbper`). Esto sugiere que a medida que el período orbital aumenta, también lo hace este cociente. En contraste, `pl_ratdor` presenta una **correlación negativa** con la **temperatura de equilibrio del exoplaneta** (`pl_eqt`), lo que indica que los exoplanetas con períodos orbitales largos tienden a tener temperaturas más bajas, lo cual es esperable, ya que suelen estar más alejados de su estrella anfitriona.  
+
+En cuanto a la variable que se seleccionó como **variable objetivo** en el análisis previo, el **radio del exoplaneta** (`pl_radj`), se observan relaciones significativas con otras variables. Específicamente, tiene una **correlación positiva** con la **profundidad del tránsito** (`pl_trandep`), lo que indica que los exoplanetas más grandes generan una mayor disminución en el brillo de su estrella al pasar frente a ella. Por otro lado, `pl_radj` muestra una **correlación negativa** con la **gravedad superficial de la estrella anfitriona** (`st_logg`), lo que sugiere que los exoplanetas más grandes tienden a encontrarse en sistemas con estrellas de menor gravedad superficial, posiblemente porque estos sistemas albergan planetas de mayor tamaño.  
+
+Para visualizar mejor estas relaciones y seleccionar las mejores **variables predictoras**, se realiza un **pair plot** con las variables que presentan una correlación significativa, estableciendo un **umbral del 50% en valor absoluto**. Este gráfico permite examinar cómo se distribuyen los datos y cómo se relacionan las variables entre sí, facilitando la identificación de tendencias y posibles patrones útiles para la estimación de valores faltantes y la construcción de modelos de predicción.
 
 ```{r most_correlated_variables, include=FALSE}
 
@@ -642,14 +742,15 @@ pairs(kepler_data_num[, correlated_vars],
 
 ```
 
-Más allá de la correlación de la obvia relacion lineal entre el radio del exoplaneta en unidades jovianas y terrestres, parece haber una relación lineal entre el radio del exoplaneta y, en orden de correlación de las 3 primeras descendente, las siguientes variables:
+Más allá de la relación lineal evidente entre las medidas del **radio del exoplaneta en diferentes unidades** —es decir, **radios jovianos** y **radios terrestres**—, el análisis de correlación revela la presencia de otras relaciones lineales significativas entre el radio del exoplaneta y otras variables del conjunto de datos. Estas relaciones se ordenan en función de su **fuerza de correlación** en orden descendente, destacando tres principales variables:  
 
--   el cociente del radio planetario sobre el radio estelar (`pl_ratror`)
--   la profundidad del tránsito del planeta (`pl_trandep`)
--   la amplitud de la velocidad radial del planeta (`pl_rvamp`)
+La primera variable con una fuerte correlación es el **cociente del radio del planeta sobre el radio de su estrella anfitriona** (`pl_ratror`). Esta relación tiene sentido desde un punto de vista físico, ya que el tamaño relativo del exoplaneta respecto a su estrella afecta directamente la observación de fenómenos como el tránsito. Cuanto mayor sea este cociente, mayor será el tamaño aparente del exoplaneta durante el tránsito.  
 
-Se seleccionan como variables predictoras del radio del exploneta las variables con mayor correlación positiva o negativa que muestran una relación lineal con la variable faltante.
+La segunda variable con alta correlación es la **profundidad del tránsito** (`pl_trandep`). Este valor mide la disminución en el brillo de la estrella cuando el planeta pasa frente a ella. Dado que planetas más grandes bloquean una mayor parte de la luz estelar durante un tránsito, es lógico que exista una relación lineal positiva entre el radio del planeta y la profundidad del tránsito observado.  
 
+La tercera variable significativa es la **amplitud de la velocidad radial del planeta** (`pl_rvamp`). Esta mide el desplazamiento de la estrella debido al tirón gravitacional del exoplaneta en su órbita. Los exoplanetas de mayor tamaño tienden a ejercer una fuerza gravitacional más intensa sobre la estrella, generando mayores variaciones en la velocidad radial detectada mediante el efecto Doppler, lo que explica esta relación.  
+
+Con base en estos resultados, se seleccionan estas tres variables como **variables predictoras** para el radio del exoplaneta, ya que presentan una **alta correlación lineal**, positiva o negativa, con la variable faltante. Estas relaciones proporcionan información clave para realizar estimaciones más precisas del radio del exoplaneta mediante técnicas de regresión, basándose en patrones consistentes en los datos.  
 # Detección de Valores Atípicos (Outliers) en las predictoras
 
 Para las variables predictoras seleccionadas (`pl_ratdor`,`pl_trandep`,`pl_rvamp`), se detectan valores atípicos en el dataset que puedan afectar el análisis y la predicción de la variable faltante (`pl_radj`).
@@ -683,7 +784,11 @@ ggplot(data_long, aes(x = Variable, y = Valores)) +
 
 ```
 
-Como puede observarse en el boxplot, las variables predictoras seleccionadas presentan valores atípicos que pueden afectar el análisis y la predicción de la variable faltante. Para tratar con esta situacié se puede considerar la utilización de métodos de regresión robustos que sean menos sensibles a los valores atípicos, como Huber.
+El **boxplot** revela la presencia de **valores atípicos** en las variables predictoras seleccionadas, lo que puede influir significativamente en el análisis y en la precisión de la estimación de la variable faltante. Estos **outliers** pueden sesgar los resultados y reducir la eficacia de los modelos de predicción, especialmente si se utilizan técnicas sensibles a valores extremos, como la regresión lineal estándar.  
+
+Para abordar este problema, es recomendable emplear **métodos de regresión robustos**, diseñados para minimizar el impacto de valores atípicos en el ajuste del modelo. Un ejemplo de este enfoque es la **regresión de Huber**, que combina las ventajas de la regresión lineal y la regresión por mínimos cuadrados, pero con un mecanismo que reduce la influencia de outliers al asignarles un menor peso en el cálculo de los coeficientes.  
+
+Otra alternativa es utilizar técnicas como la **regresión de Tukey biweight** o la **regresión de cuantiles**, que modelan la relación entre variables sin verse afectadas por la distribución de los datos extremos. Adicionalmente, se pueden aplicar **métodos de detección y tratamiento de outliers**, como el **recorte de datos (trimming)**, que elimina valores extremos por encima o por debajo de un umbral específico, o la **transformación de variables**, como el uso de logaritmos o escalado robusto, para reducir el impacto de valores extremos en el análisis.  
 
 # Analisis de Regresión
 
@@ -731,11 +836,13 @@ $$
 pl\_radj = \beta_0 + \beta_1 \cdot pl\_ratdor + \varepsilon
 $$
 
-Cada aumento de 1 unidad en `pl_ratdor` se asocia con un aumento de 0.0007341 en `pl_radj`, y dado que el valor p (`Pr(>|t|) = 0.152`) es mayor que 0.05 no hay evidencia estadística suficiente para afirmar que `pl_ratdor` tiene un efecto significativo sobre `pl_radj`. Esto podría indicar que el modelo planteado no es adecuado para predecir el radio del exoplaneta a partir del ratio del radio plantario sobre el radio estelar.
+El análisis de regresión sugiere que la variable `pl_ratdor` no es un buen predictor del radio del exoplaneta (`pl_radj`). Según los resultados, por cada aumento de 1 unidad en `pl_ratdor`, se espera un incremento de apenas **0.0007341** en `pl_radj`. Sin embargo, el valor p asociado a esta relación (`Pr(>|t|) = 0.152`) es mayor que **0.05**, lo que significa que **no hay suficiente evidencia estadística** para afirmar que `pl_ratdor` influye significativamente en `pl_radj`. Esto sugiere que el modelo planteado no es el más adecuado para estimar el radio del exoplaneta en función del cociente entre su radio y el radio de su estrella.  
 
-Esto queda confirmado revisando las estadísticas de ajuste del modelo: - Residual Standard Error (0.3872) es una medida de cuánto se desvían los valores predichos de los valores reales, y es bastante alta. - R² múltiple (0.02618) muestra que sólo 2.6% de la variabilidad en `pl_radj` es explicada por `pl_ratdor` lo cual es un ajuste muy pobre. - R² ajustado (0.0137) ajustado por el número de predictores, sigue siendo bajo, lo que sugiere que `pl_ratdor` no es un buen predictor de `pl_radj`. - F-statistic (2.097, p = 0.1516) evalúa si el modelo en su conjunto es significativo. El valor p (0.1516) indica que el modelo no es significativo en su conjunto.
+Este resultado se refuerza al revisar las estadísticas de ajuste del modelo. El **Error Estándar Residual** (**0.3872**) indica que los valores predichos se desvían bastante de los valores reales, lo que evidencia un ajuste impreciso. Además, el **R² múltiple** (**0.02618**) muestra que solo **el 2.6% de la variabilidad en `pl_radj`** es explicada por `pl_ratdor`, lo que indica un modelo con muy poca capacidad predictiva. De manera similar, el **R² ajustado** (**0.0137**), que corrige por el número de predictores, sigue siendo muy bajo, reforzando la idea de que `pl_ratdor` no contribuye significativamente a la predicción del radio del exoplaneta.  
 
-De todos modos se analizan los residuos del modelo para verificar si cumplen con los supuestos de la regresión lineal.
+Por otro lado, el **F-statistic** (2.097) y su valor p (**0.1516**) confirman que el modelo, en su conjunto, **no es estadísticamente significativo**, lo que significa que no es capaz de explicar de manera fiable la relación entre estas variables.  
+
+A pesar de estos resultados, se realiza un análisis de los **residuos del modelo** para verificar si cumplen con los supuestos de la regresión lineal, con el objetivo de entender mejor las limitaciones del modelo y explorar posibles ajustes o alternativas.
 
 ```{r univar_reg_pl_ratdor_res_plot, echo=FALSE, warning=FALSE}
 
@@ -759,13 +866,13 @@ ggplot(res_pl_ratdor_df, aes(x = Fitted_Values, y = Residuals)) +
 
 ```
 
-Se observa una mayor concentración de residuos cerca del eje de los valores ajustados más bajos (aproximadamente entre 0.4 y 0.5) y a medida que los valores ajustados aumentan, la dispersión de los residuos también parece aumentar ligeramente. No hay un patrón claro en forma de parábola o curva, lo que indica que la relación entre la variable independiente (`pl_ratdor`) y la dependiente (`pl_radj`) podría ser aproximadamente lineal.
+El análisis de los residuos muestra que estos tienden a concentrarse en los valores ajustados más bajos, aproximadamente entre **0.4 y 0.5**. A medida que los valores ajustados aumentan, la dispersión de los residuos también parece **incrementar ligeramente**. Sin embargo, no se observa un patrón claro en forma de parábola o curva, lo que sugiere que la relación entre la variable independiente (`pl_ratdor`) y la dependiente (`pl_radj`) podría ser **aproximadamente lineal**.  
 
-La mayoría de los residuos están relativamente cerca de 0, pero hay varios valores positivos grandes (\> 0.5), lo que sugiere que hay observaciones que el modelo subestima. Hay pocos valores negativos extremos, lo que indica que el modelo no está sobreestimando mucho los valores de `pl_radj`.
+En general, la mayoría de los residuos se encuentran relativamente **cerca de 0**, aunque hay algunos valores positivos elevados (**mayores a 0.5**), lo que indica que el modelo tiende a **subestimar ciertos valores** de `pl_radj`. Por otro lado, hay pocos residuos negativos extremos, lo que sugiere que el modelo **no está sobreestimando significativamente** los valores del radio del exoplaneta.  
 
-Se detecta una heterocedasticidad leve puesto que la dispersión de los residuos parece mayor para valores ajustados más grandes. Esto podría indicar que el error varía con el nivel de los valores ajustados, lo que podría afectar la confiabilidad de las predicciones. Si el modelo cumpliera con la suposición de homocedasticidad (varianza constante de los errores), los residuos deberían estar distribuidos de manera uniforme alrededor de la línea roja (residuo = 0).
+Se detecta una leve **heterocedasticidad**, ya que la dispersión de los residuos parece **mayor en los valores ajustados más altos**. Esto implica que el error no es completamente uniforme a lo largo de la distribución de valores ajustados, lo que podría afectar la **confiabilidad de las predicciones**. En un modelo ideal que cumpliera con la suposición de **homocedasticidad** (es decir, varianza constante de los errores), los residuos deberían distribuirse de manera más uniforme alrededor de la línea de referencia **(residuo = 0)**.  
 
-Dado que el modelo tenía un R² muy bajo (\~2.6%), era esperable que los residuos mostraran una dispersión alta, lo que sugiere que `pl_ratdor` no es un buen predictor de `pl_radj`. La presencia de residuos altos (valores alejados de 0) sugiere que hay otras variables no consideradas que podrían explicar mejor la variabilidad en `pl_radj`.
+Dado que el modelo tiene un **R² muy bajo (~2.6%)**, era esperable encontrar una dispersión alta en los residuos, lo que confirma que **`pl_ratdor` no es un buen predictor de `pl_radj`**. Además, la presencia de residuos elevados sugiere que existen **otras variables no consideradas** que podrían explicar mejor la variabilidad en el radio del exoplaneta.
 
 ```{r univar_reg_pl_ratdor_qq_plot, echo=FALSE, warning=FALSE}
 
@@ -774,11 +881,13 @@ qqnorm(res_pl_ratdor, main = "Gráfico Q-Q de los Residuos", col = "indianred")
 
 ```
 
-Para que los residuos sean aproximadamente normales, los puntos deberían alinearse con la línea diagonal imaginaria. Sin embarog la gráfica muestra desviaciones en los extremos (cuantiles más bajos y más altos) que se alejan de la línea teórica, lo que indica colas más pesadas de lo esperado en una distribución normal. Esto sugiere la presencia de valores atípicos o que los residuos no son completamente normales. También hay una desviación en la parte central; aunque la parte central del gráfico muestra alineación con la línea teórica, hay una ligera curvatura, lo que puede indicar que los residuos no son perfectamente normales.
+Para que los residuos sigan una **distribución normal**, los puntos en la gráfica deberían alinearse con una **línea diagonal imaginaria**. Sin embargo, se observan **desviaciones** en los extremos, es decir, en los cuantiles más bajos y más altos, donde los puntos se alejan de la línea teórica. Esto indica la presencia de **colas más pesadas** de lo esperado en una distribución normal, lo que sugiere que existen **valores atípicos o que los residuos no siguen completamente una distribución normal**.  
 
-La regresión lineal asume que los residuos deben seguir una distribución normal para que los intervalos de confianza y los valores p sean válidos. En este caso la normalidad de los residuos está en duda debido a la curvatura y las colas pesadas. Si los residuos no son normales, la inferencia estadística del modelo puede verse afectada, aunque la estimación de los coeficientes sigue siendo válida. La falta de normalidad podría indicar la necesidad de transformaciones en la variable dependiente (`pl_radj`), como logaritmos o raíces cuadradas.
+Además, se nota una **ligera curvatura en la parte central del gráfico**. Aunque la mayoría de los puntos se alinean con la línea teórica en esta región, la curvatura sugiere que los residuos no son **perfectamente normales**, lo que podría afectar la validez de algunas inferencias estadísticas.  
 
-Se realizan pruebas de normalidad y homocedasticidad para evaluar si los residuos del modelo siguen una distribución normal y si la varianza de los errores es constante.
+La **regresión lineal** asume que los residuos deben seguir una distribución normal para garantizar la **validez de los intervalos de confianza y de los valores p**. En este caso, la curvatura y las colas pesadas plantean dudas sobre el cumplimiento de esta suposición. Si los residuos no son normales, la inferencia estadística del modelo podría verse afectada, aunque la estimación de los coeficientes seguiría siendo válida.  
+
+Para abordar este problema, una posible solución es aplicar **transformaciones en la variable dependiente** (`pl_radj`), como **logaritmos o raíces cuadradas**, para mejorar la normalidad de los residuos. Para confirmar estas observaciones, se realizan **pruebas de normalidad y homocedasticidad**, con el fin de evaluar si los residuos siguen efectivamente una distribución normal y si la **varianza de los errores se mantiene constante** a lo largo de los valores ajustados.
 
 ```{r univar_reg_pl_ratdor_shapiro_test}
 
@@ -789,10 +898,13 @@ shapiro_test_pl_ratdor
 
 ```
 
-La prueba de Shapiro-Wilk se usa para evaluar si los residuos siguen una distribución normal. La hipótesis nula es que Los residuos siguen una distribución normal. Los resultados del test de normalidad muestran:
+La **prueba de Shapiro-Wilk** es una herramienta estadística utilizada para determinar si un conjunto de datos sigue una **distribución normal**. En este análisis, se aplicó a los residuos del modelo para evaluar si cumplen con esta suposición fundamental en la regresión lineal.  
 
--   Estadístico W = 0.81534. Un valor cercano a 1 indica normalidad. Aquí W=0.81534 sugiere desviación de la normalidad.
--   P-valor = ≈ 0.00000001313. Un valor mucho menor a 0.05 indica que los datos no siguen una distribución normal dado que rechazamos la hipótesis nula con alta confianza.
+Esta prueba parte de la **hipótesis nula (H₀)**, que establece que los residuos siguen una distribución normal. Si el resultado muestra un **p-valor muy bajo**, se rechaza esta hipótesis, indicando que los datos no se ajustan a una distribución normal.  
+
+El resultado de la prueba arrojó un **estadístico W de 0.81534**, lo que sugiere una desviación considerable de la normalidad, ya que un valor cercano a **1** indicaría que los datos se distribuyen de manera normal. Además, el **p-valor obtenido fue aproximadamente 0.00000001313**, lo que es significativamente menor a **0.05**. Esto proporciona suficiente evidencia para rechazar la hipótesis nula con un alto nivel de confianza, confirmando que los residuos **no siguen una distribución normal**.  
+
+Este resultado es relevante porque la falta de normalidad en los residuos puede afectar la validez de los **intervalos de confianza** y los **valores p** en la regresión. Para corregir este problema, podría ser necesario aplicar transformaciones a los datos o considerar el uso de métodos estadísticos más robustos que no dependan estrictamente de la normalidad de los residuos.
 
 ```{r univar_reg_pl_ratdor_bp_test}
 
@@ -806,13 +918,11 @@ bp_test_pl_ratdor
 
 ```
 
-El test de Breusch-Pagan evalúa si los residuos del modelo presentan homocedasticidad (varianza constante) o heterocedasticidad (varianza no constante). Se basa en la hipótesis nula de que Los residuos tienen varianza constante (homocedasticidad). Los resultados del test de homocedasticidad muestran:
+El **test de Breusch-Pagan** es una prueba estadística utilizada para evaluar si los residuos del modelo presentan **homocedasticidad** (varianza constante) o **heterocedasticidad** (varianza no constante). La prueba parte de la **hipótesis nula**, que asume que los residuos tienen una varianza constante. Si se encuentra suficiente evidencia para rechazar esta hipótesis, se concluye que existe heterocedasticidad en el modelo.  
 
-- BP = 1.1306 (Estadístico de la prueba): Un valor alto de BP indicaría heterocedasticidad, pero en este caso es bajo.
-- df = 1 (Grados de libertad): Como solo se tiene un predictor, el test se basa en 1 grado de libertad.
-- p-value = 0.2876: Como p > 0.05, no rechazamos la hipótesis nula. Esto sugiere que no hay suficiente evidencia estadística de heterocedasticidad en los residuos.
+En este análisis, el **estadístico de la prueba (BP)** obtuvo un valor de **1.1306**, el cual es relativamente bajo. Un valor alto de este estadístico indicaría la presencia de heterocedasticidad, pero en este caso no se observa una señal clara de ello. Dado que solo se utiliza un predictor, la prueba se basa en **un grado de libertad (df = 1)**. Además, el **p-valor obtenido fue de 0.2876**, lo que es superior al umbral de **0.05**. Esto significa que no hay suficiente evidencia estadística para rechazar la hipótesis nula, lo que sugiere que **no se detecta heterocedasticidad significativa en los residuos**.  
 
-El modelo no parece ajustarse bien a los datos, ya que hay una gran dispersión en los residuos y una posible heterocedasticidad. Por lo tanto se exporar transformaciones de la variable dependiente (como logaritmos) para mejorar el modelo. Se analizaa si una transformación logarítmica de las variables predictoras puede mejorar la capacidad predictiva del modelo mediante una prueba de Box-Cox.
+A pesar de esto, el modelo no parece ajustarse bien a los datos, ya que se observa una gran dispersión en los residuos y la posible presencia de heterocedasticidad en ciertos rangos de los valores ajustados. Para mejorar el modelo, se exploran posibles **transformaciones en la variable dependiente**, como la aplicación de logaritmos. Además, se analiza si una **transformación logarítmica en las variables predictoras** podría mejorar la capacidad predictiva del modelo, utilizando para ello la **prueba de Box-Cox**, que permite determinar la mejor transformación para estabilizar la varianza y mejorar el ajuste del modelo.
 
 ```{r univar_reg_pl_ratdor_boxcox, warning=FALSE}
 
@@ -824,7 +934,9 @@ boxcox_pl_ratdor <- boxcox(model_pl_ratdor, lambda = seq(-2, 2, by = 0.1))
 
 ```
 
-La transformación Box-Cox se utiliza para encontrar una transformación óptima de la variable dependiente en un modelo de regresión, con el objetivo de mejorar la normalidad de los residuos y la homocedasticidad. La gráfica muestra el la logverosimilitud en función del parámetro lambda que controla la transformación aplicada a la variable dependiente Y:
+La **transformación de Box-Cox** es una técnica utilizada en modelos de regresión para encontrar la mejor manera de transformar la variable dependiente, con el fin de mejorar la **normalidad de los residuos** y garantizar una **varianza constante** (homocedasticidad).  
+
+La gráfica generada en este análisis muestra cómo varía la **log-verosimilitud** en función del **parámetro lambda**, el cual determina la forma de la transformación aplicada a la variable dependiente **Y**. Dependiendo del valor de **lambda**, la transformación puede ser una raíz cuadrada, un logaritmo, una inversa, entre otras, ayudando a estabilizar la varianza y mejorar el ajuste del modelo.
 
 $$
 Y' = 
@@ -843,7 +955,9 @@ lambda_optimal
 
 ```
 
-El lambda óptimo es menor que 0 (-0.02020202), aunque muy cercano, una transformación logarítmica de la variable `pl_ratdor` podría mejorar la capacidad predictiva del modelo de regresión lineal simple. Se realiza una regresión lineal con la variable transformada y se evalúa la capacidad predictiva del modelo.
+El valor óptimo del parámetro **lambda** obtenido en la transformación de **Box-Cox** es **-0.0202**, lo que indica que la mejor transformación para la variable `pl_ratdor` es cercana a **0**. Dado que un **lambda de 0** corresponde a una **transformación logarítmica**, aplicar el logaritmo a esta variable podría mejorar la capacidad predictiva del modelo de regresión lineal.  
+
+Para verificar si esta transformación realmente mejora el ajuste del modelo, se lleva a cabo una nueva **regresión lineal utilizando la variable transformada**. Luego, se evalúa el desempeño del modelo actualizado, analizando métricas como el **R²**, los **residuos** y la **significancia de los coeficientes** para determinar si la predicción de `pl_radj` mejora con la nueva transformación.
 
 ```{r univar_reg_pl_ratdor_log, warning=FALSE}
 
@@ -869,14 +983,13 @@ ggplot(kepler_data_num, aes(x = log(pl_ratdor), y = pl_radj)) +
   theme_minimal()
 
 ```
-El modelo muesta que:
 
-- Error estándar de los residuos: 0.3876, casi idéntico al del modelo original (0.3872), lo que indica que la transformación logarítmica no mejoró mucho la variabilidad de los residuos.
-- R2  múltiple = 0.02421 (2.4%). Solo 2.4% de la variabilidad de `pl_radj` es explicada por log(pl_ratdor), lo que sigue siendo muy bajo.
-- R2  ajustado = 0.0117 (1.2%) Apenas mejora al corregir por el número de predictores.
-- Estadístico F = 1.935, p = 0.1681 muestrq que no hay evidencia estadística suficiente para decir que `log(pl_ratdor)` mejora el modelo de manera significativa.
+El modelo ajustado con la transformación logarítmica de `pl_ratdor` muestra resultados muy similares al modelo original, lo que indica que la transformación **no mejoró significativamente la capacidad predictiva**. El **error estándar de los residuos** es **0.3876**, prácticamente idéntico al del modelo sin transformación (**0.3872**), lo que sugiere que la variabilidad de los residuos sigue siendo la misma.  
+El coeficiente de determinación **R² múltiple** es **0.02421 (2.4%)**, lo que significa que solo un **2.4% de la variabilidad de `pl_radj`** es explicada por `log(pl_ratdor)`, un valor extremadamente bajo. Incluso al ajustar por el número de predictores, el **R² ajustado** apenas mejora, quedando en **1.2%**, lo que refuerza la idea de que el modelo sigue sin capturar bien la relación entre las variables.  
 
-El modelo sigue sin ser adecuado para predecir `pl_radj` basado en `pl_ratdor`, incluso con la transformación logarítmica, por lo que se prueba con otras variables predictoras o combinaciones de variables.
+El **estadístico F**, con un valor de **1.935** y un **p-valor de 0.1681**, indica que no hay suficiente evidencia estadística para afirmar que la transformación logarítmica de `pl_ratdor` mejora significativamente el modelo.  
+
+En conclusión, el modelo sigue sin ser adecuado para predecir `pl_radj` a partir de `pl_ratdor`, incluso después de aplicar la transformación logarítmica. Ante estos resultados, se procede a probar con **otras variables predictoras o combinaciones de variables** para mejorar la capacidad de ajuste del modelo.
 
 ### Regresión Lineal: Radio del Exoplaneta según Profundidad del Tránsito (`pl_trandep`)
 
@@ -907,19 +1020,19 @@ ggplot(kepler_data_num, aes(x = pl_trandep, y = pl_radj)) +
 
 ```
 
-Para el modelo de regresión planteado:
+En el modelo:
+
 $$
 pl\_radj = \beta_0 + \beta_1 \cdot pl\_trandep + \varepsilon
-$$
-Cada aumento unitario en `pl_trandep` se asocia con un incremento de 0.61058 en `pl_radj`.
-Además es altamente significativo (con p-valor < 0.00000000000000022), lo que indica una fuerte relación entre `pl_trandep` y `pl_radj`. Además:
+$$ 
+Cada aumento unitario en `pl_trandep` se asocia con un incremento de 0.61058 en `pl_radj`. Además es altamente significativo (con p-valor \< 0.00000000000000022), lo que indica una fuerte relación entre `pl_trandep` y `pl_radj`. Además:
+El modelo de regresión planteado para predecir `pl_radj` en función de `pl_trandep` muestra una relación clara y significativa entre ambas variables. En este caso, **por cada aumento unitario en `pl_trandep`**, se observa un **incremento de 0.61058 en `pl_radj`**. Además, esta relación es altamente significativa, con un **p-valor extremadamente bajo** (< 2.2 × 10⁻¹⁶), lo que indica que hay una fuerte conexión entre ambas variables.  
 
-- El error estándar de los residuos: 0.08315 indica que la variabilidad de los residuos es baja, lo que sugiere un buen ajuste.
-- R2 = 0.9402 (94.02%) muestra que el modelo explica el 94.02% de la variabilidad en `pl_radj`, lo que indica un ajuste excelente.
-- R2 ajustado = 0.9387 (93.87%) ajusta por el número de predictores y sigue siendo muy alto.
-- Estadístico F = 629.1 y un p-valor < 0.00000000000000022. La prueba F confirma que el modelo es altamente significativo.
+El modelo presenta un **error estándar de los residuos de 0.08315**, lo que sugiere que la variabilidad en las predicciones es muy baja y, por lo tanto, el ajuste del modelo es bastante preciso. Además, el **coeficiente de determinación R²** alcanza un **94.02%**, lo que significa que el modelo explica **casi toda la variabilidad** de `pl_radj`. Incluso el **R² ajustado**, que corrige por el número de predictores, sigue siendo **muy alto (93.87%)**, lo que confirma la solidez del ajuste.  
 
-Este modelo tiene un ajuste drásticamente mejor que los anteriores (`pl_radj ~ pl_ratdor` y `pl_radj ~ log(pl_ratdor)`). El valor R cuadrado ajustado es muy alto (93.87%), lo que indica que el modelo explica la variabilidad en `pl_radj` muy bien. La relación entre `pl_trandep` y `pl_radj` es fuerte y altamente significativa.
+La prueba de **significancia global del modelo**, evaluada con el **estadístico F**, arroja un valor de **629.1** con un **p-valor extremadamente bajo**, lo que refuerza la validez del modelo y su capacidad para explicar la relación entre las variables.  
+
+En comparación con los modelos anteriores (`pl_radj ~ pl_ratdor` y `pl_radj ~ log(pl_ratdor)`), este nuevo modelo muestra una mejora **drástica** en el ajuste, con una capacidad explicativa mucho mayor. La relación entre `pl_trandep` y `pl_radj` no solo es fuerte, sino que también es estadísticamente **muy significativa**, lo que indica que `pl_trandep` es un excelente predictor del radio del exoplaneta.
 
 ```{r univar_reg_pl_trandep_res_plot, warning=FALSE}
 
@@ -945,11 +1058,12 @@ ggplot(res_pl_trandep_df, aes(x = Fitted_Values, y = Residuals)) +
   theme_minimal()
 
 ```
-En el gráfico de residuos vs valores ajustados, se observan puntos más dispersos para valores ajustados bajos, esto es los residuos están más agrupados cerca de 0 para valores ajustados pequeños y luego aumentan su dispersión a medida que los valores ajustados crecen.
 
-Prodría haber una posible heterocedasticidad por el  patrón de parábola invertida, donde la dispersión de los residuos parece aumentar a medida que los valores ajustados crecen. Esto sugiere que la varianza de los errores no es constante. Esto puede confirmarse realizando el test de Breusch-Pagan.
+El gráfico de **residuos vs valores ajustados** revela un patrón en la dispersión de los residuos. Para valores ajustados bajos, los residuos tienden a agruparse cerca de **0**, lo que indica una menor variabilidad en esta región. Sin embargo, a medida que los valores ajustados aumentan, los residuos se dispersan más, sugiriendo que el error del modelo no es uniforme en todo el rango de predicciones.  
 
-En un modelo correctamente especificado, los residuos deben distribuirse de manera aleatoria alrededor de la línea roja (y=0), sin un patrón claro. En este caso, hay mayor concentración de puntos en la parte izquierda, lo que podría indicar que el modelo no capta completamente la relación entre `pl_radj` y `pl_trandep`.
+Este comportamiento sugiere la presencia de **heterocedasticidad**, ya que la dispersión de los residuos parece seguir un **patrón de parábola invertida**, con una mayor variabilidad en los valores ajustados más altos. La **heterocedasticidad** ocurre cuando la varianza de los errores no es constante, lo que puede afectar la fiabilidad de las inferencias estadísticas del modelo. Para confirmar si este problema está presente, se puede realizar el **test de Breusch-Pagan**, que evalúa si la varianza de los residuos cambia sistemáticamente con los valores ajustados.  
+
+En un modelo bien especificado, los residuos deberían distribuirse **de manera aleatoria** alrededor de la línea de referencia **(y=0)**, sin mostrar patrones claros. Sin embargo, en este caso, se observa una mayor concentración de puntos en la parte izquierda del gráfico, lo que sugiere que el modelo podría no estar captando completamente la relación entre **`pl_radj`** y **`pl_trandep`**. Este comportamiento indica que el modelo podría beneficiarse de una revisión, como la inclusión de nuevas variables explicativas o la aplicación de transformaciones para mejorar la estabilidad de la varianza de los errores.
 
 ```{r univar_reg_pl_trandep_qq_plot, warning=FALSE}
 
@@ -957,9 +1071,12 @@ En un modelo correctamente especificado, los residuos deben distribuirse de mane
 qqnorm(res_pl_trandep, main = "Gráfico Q-Q de los Residuos", col="indianred")
 
 ```
-En el gráfico Q-Q de los residuos, los puntos se alinean bastante bien con la línea diagonal, lo que sugiere que los residuos siguen una distribución normal. Sin embargo presenta pequeñas desviaciones en los extremos (valores muy negativos y positivos) lo que sugiere la presencia de colas más pesadas o valores atípicos leves. Aún así, la desviación no es severa, por lo que no parece haber una fuerte violación de la normalidad.
 
-De todos modos se realizan pruebas de normalidad y homocedasticidad para evaluar si los residuos del modelo siguen una distribución normal y si la varianza de los errores es constante.
+El **gráfico Q-Q (Quantile-Quantile)** de los residuos permite evaluar si estos siguen una **distribución normal** comparando sus cuantiles con los de una distribución normal teórica. En este caso, los puntos del gráfico se alinean bastante bien con la **línea diagonal**, lo que indica que, en general, los residuos siguen un **comportamiento cercano a la normalidad**.  
+
+Sin embargo, se observan **pequeñas desviaciones en los extremos**, tanto en los valores más negativos como en los más positivos. Esto sugiere la presencia de **colas más pesadas** en la distribución de los residuos o la existencia de algunos **valores atípicos leves**. A pesar de estas desviaciones, no parecen ser lo suficientemente grandes como para indicar una **violación grave de la normalidad**.  
+
+Para complementar este análisis y confirmar si los residuos cumplen con los **supuestos de normalidad y homocedasticidad**, se realizan pruebas estadísticas específicas. Estas pruebas permiten verificar con mayor precisión si los residuos siguen efectivamente una distribución normal y si la **varianza de los errores es constante** en todo el rango de valores ajustados. Si se detectan problemas significativos, podrían ser necesarias transformaciones en los datos o el uso de modelos más robustos para mejorar la validez del análisis.
 
 ```{r univar_reg_pl_trandep_shapiro_test}
 
@@ -969,12 +1086,10 @@ shapiro_test_pl_trandep <- shapiro.test(res_pl_trandep)
 shapiro_test_pl_trandep
 
 ```
-Del test de normalidad de Shapiro-Wilk:
 
-- Estadístico W=0.98715, con valor cercano a 1 indica que los datos se ajustan bien a una distribución normal.
-- P-valor = 0.9115, por ser p>0.05, no se rechaza la hipótesis nula, por lo que no hay evidencia estadística suficiente para decir que los residuos no son normales.
+La **prueba de Shapiro-Wilk** se utilizó para evaluar si los residuos del modelo siguen una distribución normal. El resultado arrojó un **estadístico W de 0.98715**, un valor cercano a **1**, lo que indica que los datos se ajustan bien a una distribución normal. Además, el **p-valor obtenido fue de 0.9115**, lo que, al ser mayor que **0.05**, significa que no hay suficiente evidencia estadística para rechazar la **hipótesis nula**. En otras palabras, los residuos **no presentan desviaciones significativas de la normalidad**.  
 
-El supuesto de normalidad de los residuos se cumple. El modelo es estadísticamente válido para realizar inferencias. Este resultado es coherente con el gráfico Q-Q anterior, que mostró residuos bien alineados con la distribución normal.
+Este resultado confirma que el **supuesto de normalidad de los residuos se cumple**, lo que hace que el modelo sea **estadísticamente válido para realizar inferencias**. Además, es coherente con la observación del **gráfico Q-Q**, que ya sugería una buena alineación de los residuos con la distribución normal. Esto refuerza la confianza en la fiabilidad del modelo y en la precisión de sus estimaciones.
 
 ```{r univar_reg_pl_trandep_bp_test}
 
@@ -987,21 +1102,14 @@ bp_test_pl_trandep <- bptest(model_pl_trandep)
 bp_test_pl_trandep
 
 ```
-El test de homocedasticidad de Breusch-Pagan muestra que:
 
-- BP = 6.2822 (Estadístico de la prueba) es un valor alto indica una mayor evidencia de heterocedasticidad.
-- df = 1 (Grados de libertad)Como solo se tiene un predictor, el test se basa en 1 grado de libertad.
-- p-value = 0.0122, siendo p < 0.05 se  la hipótesis nula. Esto significa que los residuos presentan heterocedasticidad significativa, es decir, la varianza de los errores no es constante.
+El **test de homocedasticidad de Breusch-Pagan** se utilizó para evaluar si la varianza de los errores en el modelo es constante. Los resultados muestran un **estadístico BP de 6.2822**, lo que sugiere una mayor evidencia de **heterocedasticidad**. Dado que solo se incluye un predictor en el modelo, la prueba se basa en **un grado de libertad**. Además, el **p-valor obtenido fue de 0.0122**, lo que, al ser menor que **0.05**, indica que se debe **rechazar la hipótesis nula** y concluir que los residuos presentan **heterocedasticidad significativa**. En otras palabras, la varianza de los errores no es constante en todo el rango de valores ajustados.  
 
-El modelo viola la suposición de homocedasticidad. Los valores predichos tienen errores con varianza no constante, lo que puede afectar la precisión de las estimaciones y pruebas de hipótesis. Los intervalos de confianza y valores p podrían no ser confiables debido a la variabilidad desigual en los errores.
+Esta violación de la suposición de **homocedasticidad** puede afectar la **precisión de las estimaciones y pruebas de hipótesis**, haciendo que los **intervalos de confianza y valores p sean menos confiables** debido a la variabilidad desigual en los errores del modelo.  
 
-Dado que el modelo viola la suposición de homocedasticidad, se debe tener precaución al interpretar los resultados. También se puede corregir la heterocedasticidad mediante:
+Dado que esta condición puede comprometer la validez de los resultados, es importante considerar estrategias para corregir la heterocedasticidad. Una opción es aplicar una **transformación en la variable dependiente**, como el **logaritmo (`log(Y)`) o la raíz cuadrada (`sqrt(Y)`)**, para estabilizar la varianza de los errores. Otra alternativa es utilizar una **regresión robusta con errores estándar de White**, que ajusta los errores para hacerlos menos sensibles a la heterocedasticidad. También puede aplicarse una **regresión ponderada (WLS, Weighted Least Squares)**, en la que se asignan pesos a las observaciones para compensar la variabilidad desigual en los errores, especialmente si la heterocedasticidad está relacionada con una variable específica.  
 
-- El uso de una transformación en la variable dependiente, por por ejemplo logaritmo (`log(Y)` o raíz cuadrada (`sqrt(Y)`).
-- El uso de un método regresión robusta con errores estándar robustos de White 
-- Una regresión ponderada (WLS, Weighted Least Squares). Si la heterocedasticidad depende de una variable específica, se pueden aplicar ponderaciones para corregirla.
-
-Primero se intenta corregir la heterocedasticidad mediante una transformación logarítmica de la variable dependiente `pl_radj`.
+Como primer intento de corrección, se aplicará una **transformación a la variable dependiente `pl_radj`**, con el objetivo de reducir la heterocedasticidad y mejorar la estabilidad del modelo.
 
 ```{r univar_reg_pl_trandep_boxcox, warning=FALSE}
 
@@ -1012,12 +1120,14 @@ library(MASS)
 boxcox_pl_trandep <- boxcox(model_pl_trandep, lambda = seq(-2, 2, by = 0.1))
 
 ```
-El pico de la curva ocurre cerca de lamda≈2, lo que indica que la transformación óptima está en esa región; como está dentro del intervalo de confianza, este valor es una buena opción para transformar la variable dependiente.
 
-La transformación sugerida es el cuadrado de la variable dependiente. No se recomienda usar 
-log(Y) (para lambda = 0) ni  sqrt(Y) (para lambda = 0.5) ya que no están en el intervalo óptimo.
+El análisis de la **transformación de Box-Cox** muestra que el **pico de la curva** ocurre aproximadamente en **lambda ≈ 2**, lo que indica que la mejor transformación para la variable dependiente se encuentra en esa región. Como este valor está dentro del intervalo de confianza, se considera una opción adecuada para transformar los datos y mejorar el ajuste del modelo.  
 
-``` {r univar_reg_pl_trandep_square_transf}
+Dado que el valor óptimo de lambda es cercano a **2**, la transformación sugerida para la variable dependiente es **elevarla al cuadrado (`Y²`)**. Este tipo de transformación puede ayudar a estabilizar la varianza de los residuos y mejorar la linealidad de la relación entre las variables.  
+
+Por otro lado, no se recomienda utilizar una **transformación logarítmica (`log(Y)`)** correspondiente a **lambda = 0**, ni la **raíz cuadrada (`sqrt(Y)`)**, que correspondería a **lambda = 0.5**. Ambas opciones quedan fuera del intervalo óptimo definido por la prueba y, por lo tanto, no ofrecerían una mejora significativa en la normalidad de los residuos ni en la homocedasticidad del modelo.  
+
+```{r univar_reg_pl_trandep_square_transf}
 
 # Regresión de pl_radj^2 con pl_trandep
 model_pl_trandep_square <- lm(I(pl_radj^2) ~ pl_trandep, data = kepler_data_num)
@@ -1027,6 +1137,7 @@ model_pl_trandep_square_summary <- summary(model_pl_trandep_square)
 model_pl_trandep_square_summary
 
 ```
+
 ```{r univar_reg_pl_trandep_square_transf_scat_plot}
 
 # Scatter plot de pl_radj^2 vs pl_trandep con la recta de regresión en rojo
@@ -1040,19 +1151,20 @@ ggplot(kepler_data_num, aes(x = pl_trandep, y = I(pl_radj^2)))+
   theme_minimal()
 
 ```
-Para el modelo de regresión planteado:
+
+
 $$
 pl\_radj^2 = \beta_0 + \beta_1 \cdot pl\_trandep + \varepsilon
 $$
 
-Las estadísticas del modelo muestran que:
+El análisis del modelo después de aplicar la transformación cuadrática muestra una mejora significativa en su precisión y capacidad predictiva. El **error estándar de los residuos** se redujo a **0.04049**, un valor menor en comparación con el modelo sin transformación, lo que indica una mayor precisión en las predicciones.  
 
-- Error estándar de los residuos: 0.04049, menor que en el modelo anterior (antes de la transformación), indicando una mejor precisión.
-- R 2 =0.9914 (99.14%). El modelo explica el 99.14% de la variabilidad en pl_radj^2, lo que indica un ajuste excelente.
-- R 2 ajustado = 0.9912 (99.12%). Ajustado por el número de predictores y sigue siendo muy alto.
-- Estadístico F = 4596, p < 0.00000000000000022. Confirma que el modelo es altamente significativo.
+El modelo ahora explica **el 99.14% de la variabilidad en `pl_radj²`**, con un **R² de 0.9914**, lo que refleja un ajuste excepcional. Incluso al corregir por el número de predictores, el **R² ajustado** sigue siendo extremadamente alto, con un valor de **0.9912**, lo que confirma que la relación entre las variables es muy sólida.  
 
-La transformación cuadrática mejoró significativamente el ajuste en comparación con el modelo sin transformación. El valor R cuadrado ajustado es muy alto (99.12%), lo que indica que el modelo explica la variabilidad en `pl_radj^2` muy bien. La relación entre `` pl_trandep` y `pl_radj^2` es fuerte y altamente significativa.
+Además, el **estadístico F**, con un valor de **4,596** y un **p-valor extremadamente bajo (< 2.2 × 10⁻¹⁶)**, demuestra que el modelo es altamente significativo.  
+
+En general, la transformación cuadrática mejoró notablemente el ajuste en comparación con el modelo original. La relación entre **`pl_trandep`** y **`pl_radj²`** no solo es fuerte, sino también estadísticamente significativa, lo que sugiere que este modelo es una representación más precisa de la relación entre las variables.
+
 
 ```{r univar_reg_pl_trandep_square_transf_res_plot, warning=FALSE}
 
@@ -1078,6 +1190,7 @@ ggplot(res_pl_trandep_square_df, aes(x = Fitted_Values, y = Residuals)) +
   theme_minimal()
 
 ```
+
 Los residuos tienen menor dispersión, lo que confirma que la heterocedasticidad detectada anteriormente fue reducida con la transformación.
 
 ```{r univar_reg_pl_trandep_square_transf_qq_plot, warning=FALSE}
@@ -1086,6 +1199,7 @@ Los residuos tienen menor dispersión, lo que confirma que la heterocedasticidad
 qqnorm(res_pl_trandep_square, main = "Gráfico Q-Q de los Residuos", col="indianred")
 
 ```
+
 En el gráfico Q-Q de los residuos, los puntos se alinean bastante bien con la línea diagonal, lo que sugiere que los residuos siguen una distribución normal. Aunque hay una pequeña desviación en los extremos (valores muy negativos y positivos), la desviación no es severa.
 
 ```{r univar_reg_pl_trandep_square_transf_shapiro_test}
@@ -1097,7 +1211,7 @@ shapiro_test_pl_trandep_square
 
 ```
 
-Con un W = 0.8507 y un p-value = 0.00006504, el test de normalidad de Shapiro-Wilk indica que los residuos no siguen una distribución normal. Aunque el gráfico Q-Q mostró una alineación razonable con la línea diagonal, la prueba de normalidad sugiere que los residuos no son completamente normales. Esto podría indicar la presencia de valores atípicos o una distribución no normal.
+El **test de normalidad de Shapiro-Wilk** arroja un **estadístico W de 0.8507** y un **p-valor de 0.00006504**, lo que indica que los residuos **no siguen una distribución normal**. A pesar de que en el **gráfico Q-Q** los puntos parecían alinearse de manera razonable con la línea diagonal, la prueba estadística proporciona evidencia suficiente para rechazar la hipótesis de normalidad.  
 
 ```{r univar_reg_pl_trandep_square_transf_bp_test}
 
@@ -1108,7 +1222,10 @@ bp_test_pl_trandep_square <- bptest(model_pl_trandep_square)
 bp_test_pl_trandep_square
 
 ```
-Con un BP = 14.87, df = 1, p-value = 0.0001152 el test de Breusch-Pagan indica que los residuos presentan heterocedasticidad significativa. Aunque la transformación cuadrática redujo la heterocedasticidad, aún persiste en el modelo.
+
+El **test de Breusch-Pagan** arroja un **estadístico BP de 14.87**, con **1 grado de libertad** y un **p-valor de 0.0001152**, lo que indica que los residuos presentan **heterocedasticidad significativa**. Esto significa que la varianza de los errores no es constante en todo el modelo, lo que puede afectar la fiabilidad de las inferencias estadísticas.  
+
+Aunque la **transformación cuadrática** aplicada a la variable dependiente ayudó a **reducir la heterocedasticidad**, los resultados muestran que aún persiste en cierta medida. Esto sugiere que, aunque el modelo ha mejorado, puede ser necesario aplicar **otras estrategias**, como regresión ponderada o el uso de errores estándar robustos, para garantizar una estimación más estable y confiable.
 
 ### Regresión Lineal: Radio del Exoplaneta según Amplitud de la Velocidad Radial (`pl_rvamp`)
 
@@ -1138,18 +1255,18 @@ ggplot(kepler_data_num, aes(x = pl_rvamp, y = pl_radj)) +
   theme_minimal()
 
 ```
+
 Para el modelo de regresión planteado:
 
 $$
 pl\_radj = \beta_0 + \beta_1 \cdot pl\_rvamp + \varepsilon
-$$
-Las estadísticas del modelo muestran que:
+$$ Las estadísticas del modelo muestran que:
 
-- R2 =0.5367 (53.67%): El modelo explica el 53.67% de la variabilidad en `pl_radj`. Indica una relación moderada-fuerte, aunque hay todavía un 46.33% de variabilidad sin explicar.
-- R2 ajustado = 0.5297 (52.97%) Ajustado por el número de predictores y sigue siendo alto.
-- Estadístico F = 76.46, p<0.000000000001239. Confirma que el modelo es altamente significativo.
+El modelo presenta un **R² de 0.5367**, lo que indica que **explica el 53.67% de la variabilidad en `pl_radj`**. Esto sugiere una relación **moderada a fuerte** entre las variables, aunque todavía queda un **46.33% de variabilidad sin explicar**, lo que implica que otros factores podrían estar influyendo en la variable dependiente.  
 
-El modelo tiene un ajuste moderado, pero no tan bueno como el modelo `pl_radj ~ pl_trandep`. La relación entre `pl_rvamp` y `pl_radj` es moderada-fuerte y altamente significativa.
+El **R² ajustado** es **0.5297**, lo que significa que, incluso al corregir por el número de predictores, el modelo sigue manteniendo un **buen nivel de ajuste**. Además, el **estadístico F** tiene un valor de **76.46**, con un **p-valor extremadamente bajo**, lo que confirma que el modelo es **altamente significativo** y que la relación entre las variables no es producto del azar.  
+
+A pesar de que el modelo tiene un ajuste razonable, no es tan preciso como el obtenido en la regresión de `pl_radj ~ pl_trandep`. Sin embargo, la relación entre **`pl_rvamp` y `pl_radj`** sigue siendo **estadísticamente significativa** y muestra un nivel de asociación importante, lo que sugiere que `pl_rvamp` es un predictor relevante, aunque no el más fuerte disponible.
 
 ```{r univar_reg_pl_rvamp_res_plot, warning=FALSE}
 
@@ -1175,11 +1292,12 @@ ggplot(res_pl_rvamp_df, aes(x = Fitted_Values, y = Residuals)) +
   theme_minimal()
 
 ```
-Patrón en forma de abanico: Se observa que la dispersión de los residuos no es constante a lo largo de los valores ajustados y muestra una mayor variabilidad en valores bajos y altos de los valores ajustados. Para En los valores ajustados pequeños (<0.5), los residuos están muy concentrados, lo que indica menor variabilidad, pero para valores ajustados más grandes (>1.0), la dispersión de los residuos aumenta, lo que sugiere heterocedasticidad (varianza no constante).
 
-Si se detecta heterocedasticidad, el modelo puede no estar capturando correctamente la variabilidad de los datos. Se puede corregir la heterocedasticidad mediante transformaciones de variables o métodos de regresión robustos.
+El análisis de los residuos revela que su **dispersión no es constante** a lo largo de los valores ajustados, lo que sugiere la posible presencia de **heterocedasticidad**. En los valores ajustados más pequeños (**menores a 0.5**), los residuos están **muy concentrados**, lo que indica una menor variabilidad en esta región. Sin embargo, a medida que los valores ajustados aumentan (**mayores a 1.0**), los residuos muestran una dispersión mucho mayor, lo que sugiere que la **varianza de los errores no es constante en todo el modelo**.  
 
-Si los residuos muestran una tendencia curva o agrupaciones, el modelo lineal puede no ser la mejor opción. Podría ser necesario un modelo no lineal o agregar términos polinomiales para capturar mejor la relación entre las variables.
+La presencia de **heterocedasticidad** puede indicar que el modelo **no está capturando adecuadamente la variabilidad de los datos**, lo que podría afectar la precisión de sus predicciones. Para corregir este problema, se pueden aplicar **transformaciones en las variables**, como el uso de logaritmos o raíces cuadradas, o utilizar **métodos de regresión robustos** que ajusten los errores estándar para hacerlos menos sensibles a la variabilidad desigual.  
+
+Además, si los residuos muestran una **tendencia curva o patrones de agrupación**, esto podría ser una señal de que el **modelo lineal no es la mejor opción**. En estos casos, podría ser necesario recurrir a un **modelo no lineal** o incluir **términos polinomiales** en la regresión para capturar mejor la relación entre las variables y mejorar la precisión del ajuste.
 
 ```{r univar_pl_rvamp_eqt_qq_plot, warning=FALSE}
 
@@ -1187,9 +1305,12 @@ Si los residuos muestran una tendencia curva o agrupaciones, el modelo lineal pu
 qqnorm(res_pl_rvamp, main = "Gráfico Q-Q de los Residuos", col="indianred")
 
 ```
-Se observan desviaciones significativas en los extremos, especialmente en los cuantiles más bajos y más altos. Esto puede implicar una distribución de residos con colas más pesadas: Los residuos más extremos (tanto negativos como positivos) se desvían significativamente de la línea teórica, lo que sugiere que la distribución de los errores tiene más valores extremos de lo esperado en una distribución normal. Aunque la acumulación de puntos en la parte central parecen ajustarse mejor a la distribución normal, pero los extremos muestran una curvatura.
 
-La normalidad de los residuos está en duda, lo que puede afectar la validez de los intervalos de confianza y las pruebas de hipótesis del modelo. Los valores extremos podrían estar influyendo en el modelo, lo que sugiere que hay valores atípicos que afectan la distribución de los residuos.
+El análisis del **gráfico Q-Q de los residuos** muestra **desviaciones significativas en los extremos**, especialmente en los cuantiles más bajos y más altos. Esto sugiere que la distribución de los residuos **no sigue completamente una distribución normal** y que **las colas de la distribución son más pesadas de lo esperado**. En otras palabras, hay más valores extremos en los residuos de lo que se esperaría en una distribución normal ideal.  
+
+Los residuos más alejados de la media, tanto en la dirección **negativa como positiva**, se desvían notablemente de la **línea teórica**, lo que indica la presencia de valores atípicos que podrían estar afectando el modelo. A pesar de esto, la mayor parte de los puntos en la **zona central** del gráfico parecen alinearse mejor con la distribución normal, aunque los extremos muestran una curvatura evidente.  
+
+La falta de normalidad en los residuos pone en duda la **validez de los intervalos de confianza y las pruebas de hipótesis del modelo**, ya que muchos procedimientos estadísticos dependen de esta suposición. La presencia de valores extremos también sugiere que **outliers o una distribución sesgada** podrían estar influyendo en el comportamiento del modelo. Para abordar este problema, se pueden considerar **transformaciones de las variables, la eliminación de valores atípicos** o el uso de **modelos más robustos** que no dependan estrictamente de la normalidad de los errores.
 
 ```{r univar_reg_pl_rvamp_shapiro_test}
 
@@ -1200,7 +1321,11 @@ shapiro_test_pl_rvamp
 
 ```
 
-A partir del W = 0.86708 y p-value = 0.000003207 arrojados por la prueba de normalidad de Shapiro-Wilk, se concluye que los residuos no siguen una distribución normal. Aunque el gráfico Q-Q mostró alguna alineación con la línea diagonal, la prueba de normalidad sugiere que los residuos no son completamente normales. Esto podría indicar la presencia de valores atípicos o una distribución no normal.
+El resultado de la **prueba de normalidad de Shapiro-Wilk** indica que los residuos **no siguen una distribución normal**, con un **estadístico W de 0.86708** y un **p-valor de 0.000003207**. Dado que este p-valor es extremadamente bajo, hay suficiente evidencia para rechazar la hipótesis de normalidad.  
+
+Aunque en el **gráfico Q-Q** los residuos parecían alinearse en cierta medida con la línea diagonal, la prueba estadística confirma que **existen desviaciones significativas**. Esto sugiere que los residuos podrían estar influenciados por la **presencia de valores atípicos** o que su distribución tiene características diferentes a las de una normal ideal.  
+
+La falta de normalidad en los residuos podría afectar la **validez de los intervalos de confianza y las pruebas de hipótesis**, lo que hace necesario considerar posibles soluciones, como aplicar **transformaciones a los datos**, eliminar valores extremos o utilizar **métodos estadísticos más robustos** que no dependan estrictamente de la normalidad de los errores.
 
 ```{r univar_reg_pl_rvamp_rvamp_bp_test}
 
@@ -1214,9 +1339,9 @@ bp_test_pl_rvamp
 
 ```
 
-Con el test arrojando un BP = 10.096 y un p-value = 0.001486 hay evidencia de que los residuos presentan heterocedasticidad significativa. La varianza de los errores no es constante, lo que puede afectar la precisión de las estimaciones y pruebas de hipótesis.
+El resultado del **test de Breusch-Pagan** indica la presencia de **heterocedasticidad significativa**, con un **estadístico BP de 10.096** y un **p-valor de 0.001486**. Esto significa que la **varianza de los errores no es constante**, lo que puede comprometer la precisión de las **estimaciones del modelo y las pruebas de hipótesis**.  
 
-Dado que el modelo no cumple con la suposición de homocedasticidad y los residuos no siguen una distribución normal se intenta corregir la heterocedasticidad mediante una transformación. Para determinar la transformación óptima se realiza una prueba de Box-Cox.
+Dado que el modelo no cumple con la **suposición de homocedasticidad** y, además, los residuos **no siguen una distribución normal**, se busca corregir la heterocedasticidad mediante una **transformación de la variable dependiente**. Para determinar cuál es la mejor transformación, se lleva a cabo una **prueba de Box-Cox**, que permite identificar la forma más adecuada para estabilizar la varianza de los errores y mejorar el ajuste del modelo.
 
 ```{r univar_reg_pl_rvamp_boxcox, warning=FALSE}
 
@@ -1227,7 +1352,10 @@ library(MASS)
 boxcox_pl_rvamp <- boxcox(model_pl_rvamp, lambda = seq(-2, 2, by = 0.1))
 
 ```
-El pico de la curva está cerca de lambda = 0, lo que indica que la transformación óptima está en esa región. Como  λ=0 está dentro del intervalo de confianza, esto sugiere que la mejor transformación es aplicar la transformación logarítmica a la variable dependiente.
+
+El **pico de la curva** en la prueba de **Box-Cox** se encuentra cerca de **lambda = 0**, lo que indica que la mejor transformación para la variable dependiente se encuentra en esa zona. En términos prácticos, cuando el valor óptimo de **lambda (λ)** es **0**, la transformación recomendada es el **logaritmo natural** de la variable dependiente.  
+
+Dado que **λ = 0 está dentro del intervalo de confianza**, esto confirma que aplicar una **transformación logarítmica (`log(Y)`)** es la opción más adecuada. Este tipo de transformación es útil porque puede **reducir la heterocedasticidad**, mejorar la **normalidad de los residuos** y hacer que la relación entre las variables sea **más lineal**, lo que permite que el modelo de regresión tenga un mejor ajuste y sea más preciso en sus estimaciones.
 
 ```{r univar_reg_pl_rvamp_log_transf}
 
@@ -1239,6 +1367,7 @@ model_pl_rvamp_log_summary <- summary(model_pl_rvamp_log)
 model_pl_rvamp_log_summary
 
 ```
+
 ```{r univar_reg_pl_rvamp_log_transf_plot, echo=FALSE, warning=FALSE}
 
 # Scatter plot de log(pl_radj) vs pl_rvamp con la recta de regresión en rojo
@@ -1252,18 +1381,18 @@ ggplot(kepler_data_num, aes(x = pl_rvamp, y = log(pl_radj))) +
   theme_minimal()
 
 ```
-Para el modelo de regresión planteado:
+
+Para el modelo de regresión planteado: 
+
 $$
 log(pl\_radj) = \beta_0 + \beta_1 \cdot pl\_rvamp + \varepsilon
 $$
 
-Las estadísticas del modelo muestran que:
+El análisis del modelo después de aplicar la **transformación logarítmica** muestra una mejora significativa en su capacidad predictiva. El **R² obtenido es de 84.25%**, lo que indica que el modelo explica una gran parte de la variabilidad en **log(`pl_radj`)**, representando un ajuste excelente. Este resultado es considerablemente mejor que el del modelo sin transformación, donde el **R² era aproximadamente 53.67%**.  
 
-- R2 =0.8425 (84.25%). El modelo explica el 84.25% de la variabilidad en log(`pl_radj`), lo que indica un ajuste excelente. Mucho mejor que el modelo sin transformación (R2≈53.67%).
-- R2 ajustado = 0.8401 (84.01%). Ajustado por el número de predictores y sigue siendo alto.
-- Estadístico F = 353 y p < 0.00000000000000022 confirman que el modelo es altamente significativo.
+Incluso al corregir por el número de predictores, el **R² ajustado** sigue siendo alto, con un valor de **84.01%**, lo que confirma que el modelo mantiene su solidez y no se ve afectado por un exceso de predictores innecesarios. Además, el **estadístico F**, con un valor de **353** y un **p-valor extremadamente bajo (< 2.2 × 10⁻¹⁶)**, confirma que el modelo es altamente significativo y que la relación entre las variables no es producto del azar.  
 
-La transformación logarítmica mejoró significativamente el ajuste en comparación con el modelo sin transformación. El valor R cuadrado ajustado es muy alto (84.01%), lo que indica que el modelo explica la variabilidad en `log(pl_radj)` muy bien. La relación entre `pl_rvamp` y `log(pl_radj)` es fuerte y altamente significativa.
+En conclusión, la **transformación logarítmica ha mejorado significativamente el ajuste del modelo** en comparación con el modelo sin transformación. La relación entre **`pl_rvamp` y `log(pl_radj`)** es fuerte y altamente significativa, lo que sugiere que este modelo es mucho más adecuado para describir la relación entre estas variables y ofrece estimaciones más precisas.
 
 ```{r univar_reg_pl_rvamp_log_transf_res_plot, warning=FALSE}
 
@@ -1289,7 +1418,10 @@ ggplot(res_pl_rvamp_log_df, aes(x = Fitted_Values, y = Residuals)) +
   theme_minimal()
 
 ```
-Los residuos tienen menor dispersión, lo que confirma que la heterocedasticidad detectada anteriormente fue reducida con la transformación.
+
+Después de aplicar la transformación, se observa una **reducción en la dispersión de los residuos**, lo que indica que la **heterocedasticidad detectada previamente ha disminuido considerablemente**. Esto significa que la **varianza de los errores es ahora más constante** a lo largo de los valores ajustados, cumpliendo mejor con la suposición de **homocedasticidad** en la regresión lineal.  
+
+La disminución en la variabilidad de los residuos sugiere que el modelo ha logrado un ajuste más estable y confiable. Esto no solo mejora la **precisión de las estimaciones**, sino que también aumenta la **validez de los intervalos de confianza y las pruebas de hipótesis**, ya que las predicciones del modelo son menos sensibles a valores extremos o patrones no deseados en los errores.
 
 ```{r univar_reg_pl_rvamp_log_transf_qq_plot, warning=FALSE}
 
@@ -1297,7 +1429,12 @@ Los residuos tienen menor dispersión, lo que confirma que la heterocedasticidad
 qqnorm(res_pl_rvamp_log, main = "Gráfico Q-Q de los Residuos", col="indianred")
 
 ```
-La alineación de los puntos con la línea diagonal sugiere que los residuos siguen una distribución normal. Aunque hay una pequeña desviación en los extremos (valores muy negativos y positivos), la desviación no es severa.
+
+La **alineación de los puntos con la línea diagonal** en el gráfico sugiere que los residuos siguen **aproximadamente una distribución normal**. La mayor parte de los puntos se ajusta bien a la línea teórica, lo que indica que el supuesto de normalidad en los residuos se cumple en gran medida.  
+
+Sin embargo, en los **extremos del gráfico**, correspondientes a los valores más negativos y más positivos de los residuos, se observa una **ligera desviación**. Esto sugiere que la distribución de los residuos tiene **colas ligeramente más pesadas**, lo que implica la posible presencia de algunos valores atípicos o extremos.  
+
+A pesar de esta leve desviación en los valores extremos, el patrón general indica que **los residuos siguen una distribución normal de manera aceptable**. Esto significa que el modelo sigue siendo **estadísticamente válido** para realizar inferencias, aunque la presencia de valores extremos podría justificar un análisis más detallado si se requiere mayor precisión en las estimaciones.
 
 ```{r univar_reg_pl_rvamp_log_transf_shapiro_test}
 
@@ -1307,7 +1444,10 @@ shapiro_test_pl_rvamp_log <- shapiro.test(res_pl_rvamp_log)
 shapiro_test_pl_rvamp_log
 
 ```
-Con un W = 0.97622, p-value = 0.2188, el test de normalidad de Shapiro-Wilk indica que los residuos siguen una distribución normal. Aunque el gráfico Q-Q mostró una alineación razonable con la línea diagonal, la prueba de normalidad sugiere que los residuos son normales.
+
+El **test de normalidad de Shapiro-Wilk** arroja un **estadístico W de 0.97622** y un **p-valor de 0.2188**, lo que indica que no hay evidencia suficiente para rechazar la hipótesis de normalidad. Esto significa que los **residuos siguen una distribución normal**, cumpliendo con una de las principales suposiciones del modelo.  
+
+Si bien el **gráfico Q-Q** ya mostraba una buena alineación de los puntos con la línea diagonal, la prueba estadística **confirma de manera más rigurosa** que los residuos no presentan desviaciones significativas respecto a una distribución normal. Esto refuerza la validez del modelo y la fiabilidad de sus estimaciones.
 
 ```{r univar_reg_pl_rvamp_log_transf_bp_test}
 
@@ -1321,9 +1461,19 @@ bp_test_pl_rvamp_log
 
 ```
 
-El test de homocedasticidad arroja un BP = 0.48865 y un p-value = 0.4845 lo que indica que los residuos no presentan heterocedasticidad significativa. La varianza de los errores es constante, lo que sugiere que la transformación logarítmica corrigió la heterocedasticidad.
+El **test de homocedasticidad de Breusch-Pagan** muestra un **estadístico BP de 0.48865** y un **p-valor de 0.4845**, lo que indica que no hay evidencia de **heterocedasticidad significativa** en el modelo. Esto significa que la **varianza de los errores es constante**, cumpliendo con una de las suposiciones clave de la regresión lineal. Dado que los modelos anteriores presentaban problemas de heterocedasticidad, estos resultados confirman que **la transformación logarítmica aplicada a la variable dependiente corrigió eficazmente este problema**.  
 
-De los tres modelos de regresión lineal univariada evaluados el modelo `pl_radj ~ pl_rvamp` con transformación logarítmica es el que mejor ajuste presenta. El modelo explica el 84.25% de la variabilidad en `log(pl_radj)`, lo que indica un ajuste excelente. La relación entre `pl_rvamp` y `log(pl_radj)` es fuerte y altamente significativa. Los residuos siguen una distribución normal y no presentan heterocedasticidad significativa.
+Tras evaluar los **tres modelos de regresión lineal univariada**, se concluye que el modelo **`pl_radj ~ pl_rvamp` con transformación logarítmica** es el que ofrece el **mejor ajuste**. 
+
+$$
+log(pl\_radj) = \beta_0 + \beta_1 \cdot pl\_rvamp + \varepsilon
+$$
+
+Este modelo explica el **84.25% de la variabilidad en `log(pl_radj)`**, lo que indica una capacidad predictiva excelente. Además, la relación entre **`pl_rvamp` y `log(pl_radj)`** es **fuerte y altamente significativa**, con residuos que siguen una **distribución normal** y **no presentan heterocedasticidad significativa**.  
+
+### Conclusión sobre los modelos planteados
+
+A lo largo del análisis, se probaron diferentes enfoques para ajustar la relación entre las variables, considerando tanto modelos sin transformación como con transformaciones matemáticas para mejorar su estabilidad. Inicialmente, los modelos sin transformación mostraron **problemas de heterocedasticidad y normalidad en los residuos**, lo que afectaba la validez de sus inferencias. Sin embargo, la **aplicación de una transformación logarítmica a la variable dependiente (`pl_radj`) permitió corregir estos problemas**, logrando un modelo más estable y confiable.  
 
 ```{r univar_reg_summary}
 
@@ -1340,9 +1490,17 @@ model_summaries
 
 ```
 
+El **modelo final con transformación logarítmica** no solo ofrece un mejor ajuste y mayor capacidad explicativa, sino que también cumple con los **supuestos clave de la regresión lineal**, lo que lo convierte en la mejor opción para modelar la relación entre `pl_radj` y `pl_rvamp`. Este resultado subraya la importancia de evaluar la calidad del ajuste y de realizar **transformaciones adecuadas** cuando se detectan desviaciones en los supuestos del modelo, garantizando así estimaciones más precisas y robustas.
+
 ## Regresión Lineal Multivariada
 
-Se realiza un análisis de regresión lineal multivariada para predecir el radio del exoplaneta (`pl_radj`) simultaneamente a partir del cociente del radio planetario sobre el radio estelar (`pl_ratdor`), la profundiad del transito (`pl_trandep`) y la amplitud de la velocidad radial del planeta (`pl_rvamp`).
+Para mejorar la precisión en la predicción del **radio del exoplaneta (`pl_radj`)**, se lleva a cabo un **análisis de regresión lineal multivariada**. En este enfoque, se consideran simultáneamente tres variables explicativas que podrían influir en el radio del exoplaneta:  
+
+1. **El cociente del radio planetario sobre el radio estelar (`pl_ratdor`)**, que representa el tamaño relativo del exoplaneta en comparación con su estrella.  
+2. **La profundidad del tránsito (`pl_trandep`)**, que mide la disminución en el brillo de la estrella cuando el exoplaneta pasa frente a ella, lo que está directamente relacionado con su tamaño.  
+3. **La amplitud de la velocidad radial del planeta (`pl_rvamp`)**, que refleja el impacto gravitacional del exoplaneta sobre su estrella y puede proporcionar información sobre su masa y, en combinación con otras variables, su radio.  
+
+Este modelo de regresión multivariada permite analizar **cómo estas tres variables influyen en conjunto** en la predicción del radio del exoplaneta, en lugar de evaluar cada una por separado. Al considerar múltiples factores al mismo tiempo, se espera obtener un **modelo más preciso y robusto**, capaz de capturar mejor la variabilidad en los datos y proporcionar estimaciones más confiables del tamaño de los exoplanetas.
 
 ```{r multivar_reg}
 
@@ -1354,22 +1512,20 @@ model_multivar_summary <- summary(model_multivar)
 model_multivar_summary
 
 ```
+
 El modelo de regresión planteado:
 
 $$
 pl\_radj = \beta_0 + \beta_1 \cdot pl\_ratdor + \beta_2 \cdot pl\_trandep + \beta_3 \cdot pl\_rvamp + \varepsilon
-$$
-Presenta buenas estadísticas por cuanto:
+$$ Presenta buenas estadísticas por cuanto:
 
-- R2 =0.9731 (97.31%). El modelo explica el 97.31% de la variabilidad en pl_radj, lo que indica un ajuste excelente.
-- R2 ajustado = 0.953 (95.3%) Ajustado por el número de predictores, sigue siendo muy alto, lo que indica que el modelo generaliza bien.
-- El Estadístico F = 48.28 y el p=0.0013 muestran que modelo en su conjunto es altamente significativo, lo que indica que al menos una de las variables predictoras explica significativamente `pl_radj`.
+El modelo de regresión muestra un **excelente ajuste**, explicando el **97.31% de la variabilidad en `pl_radj`**. Incluso después de ajustar por el número de predictores, el **R² ajustado sigue siendo alto, con un 95.3%**, lo que indica que el modelo generaliza bien y mantiene una fuerte capacidad predictiva. Además, el **estadístico F de 48.28** y un **p-valor de 0.0013** confirman que el modelo en su conjunto es **altamente significativo**, lo que sugiere que al menos una de las variables predictoras tiene un impacto relevante en la estimación de `pl_radj`.  
 
-Sin embargo:
+Sin embargo, existen algunas limitaciones importantes. Después de eliminar los datos con valores faltantes, **solo quedan 4 observaciones efectivas**, lo que es **extremadamente bajo** para un modelo con tres predictores. Esta reducción drástica en la cantidad de datos puede hacer que el modelo sea poco confiable y que las estimaciones de los coeficientes sean **inestables**, ya que se basan en una muestra demasiado pequeña.  
 
-- Solo hay 4 observaciones efectivas después de la eliminación de datos faltantes, lo que es extremadamente bajo para un modelo con 3 predictores. Esto puede hacer que el modelo sea poco confiable y que las estimaciones de los coeficientes sean inestables.
-- Hay una eliminación de 2539 observaciones por valores faltantes, por lo que cabría revisar la estructura de los datos y evaluar si se pueden recuperar más observaciones para mejorar la estabilidad del modelo.
-- Por la significancia de `pl_trapdep` se podría simplificar el modelo eliminando `pl_ratdor` y `pl_rvamp`, dejando solo `pl_trandep` lo que resulta en el segundo modelo evaluado.
+Además, se han descartado **2,539 observaciones** debido a valores faltantes, lo que plantea la necesidad de revisar la estructura del dataset. Evaluar si se pueden recuperar más observaciones permitiría mejorar la estabilidad del modelo y evitar conclusiones basadas en un número tan reducido de datos.  
+
+Dado que la variable `pl_trandep` es la más significativa dentro del modelo, una posible alternativa sería **simplificar la regresión eliminando `pl_ratdor` y `pl_rvamp`**, dejando solo `pl_trandep` como predictor. Esto llevaría al segundo modelo evaluado, que podría ofrecer un ajuste igualmente bueno pero con una estructura más sencilla y posiblemente más robusta frente a la escasez de datos.
 
 ## Regresión Logística
 
@@ -1385,7 +1541,7 @@ Así con los indicadores seleccionados definimos un Índice de Habitabilidad Pla
 
 $$
 \text{PHI} = w_1 \cdot f_1(\text{pl_eqt}) + w_2 \cdot f_2(\text{pl_insol}) + w_3 \cdot f_3(\text{pl_orbsmax}) 
-$$ 
+$$
 
 Donde:
 
@@ -1398,7 +1554,7 @@ Estas variables se consideran como posibles predictores de la habitabilidad de l
 
 $$
 f_i(\text{pl_eqt}) = \max\left(0, \min\left(1, \frac{\text{pl_eqt} - T_{\text{min}}}{T_{\text{max}} - T_{\text{min}}}\right)\right)
-$$ 
+$$
 
 Donde $T_{\text{min}}$ y $T_{\text{max}}$ son los límites inferiores y superiores. El agua líquida, esencial para la vida, puede existir en un rango de temperaturas superficiales de aproximadamente 273K (0 °C) a 373K (100 °C). Sin embargo, debido a factores atmosféricos y de presión, este rango puede extenderse ligeramente: $T_{\text{min}}=200K$ puede ser el umbral inferior, considerando atmósferas densas como la de Marte y $T_{\text{max}}=400K$ puede considerarse el umbral superior, considerando atmósferas con alta presión como la de Venus.
 
@@ -1459,6 +1615,7 @@ model_logistic_summary <- summary(model_logistic)
 model_logistic_summary
 
 ```
+
 ```{r log_reg_plot, warning=FALSE}
 
 # Graficar la curva logistica del modelo
@@ -1483,23 +1640,34 @@ ggplot(phi_prob_df, aes(x = PHI, y = Probabilidad)) +
 
 ```
 
-El modelo de regresión logística resultante no es muy bueno por la poca cantidad de datos que se tienen de exoplanetas para calcular el PHI: solo se tienen 17 exoplanetas con datos completos de temperatura de equilibrio, insolación y semieje mayor orbital.
+El **modelo de regresión logística** obtenido no es particularmente sólido debido a la **escasez de datos disponibles** para calcular el **PHI (Planetary Habitability Index)**. En este caso, la cantidad de **exoplanetas con información completa** sobre los factores clave para la predicción, como **temperatura de equilibrio, insolación y semieje mayor orbital**, es **muy limitada**, con solo **17 observaciones** disponibles.  
 
-El modelo de regresión logística planteado:
+La baja cantidad de datos afecta significativamente la **precisión y confiabilidad** del modelo, ya que un tamaño de muestra tan reducido **limita la capacidad de generalización** y hace que los coeficientes del modelo sean **menos estables**. Para obtener un modelo más robusto y representativo, sería necesario contar con **un mayor número de exoplanetas con datos completos**, lo que permitiría entrenar la regresión con más información y mejorar la validez de las predicciones sobre habitabilidad.
 
 $$
 
 \log \left( \frac{P(\phi = 1)}{1 - P(\phi = 1)} \right) = \beta_0 + \beta_1 \cdot pl\_eqt\_normalized + \beta_2 \cdot pl\_insol\_normalized + \beta_3 \cdot pl\_orbsmax\_normalized
 
-$$
-presenta los siguientes problemas:
+$$ 
 
-- Deviance nula: 0.4535 (cuando no se incluyen predictores).
+El **modelo de regresión logística** planteado presenta varias limitaciones que afectan su utilidad y confiabilidad.  
 
-- Deviance residual: 0.0006 (cuando se incluyen los predictores). Una reducción fuerte en la deviance suele indicar que el modelo ha mejorado, pero en este caso, el número extremadamente bajo sugiere un sobreajuste.
+Uno de los principales problemas es la **drástica reducción en la deviance residual**, que pasó de **0.4535** (sin predictores) a **0.0006** (con predictores). Si bien una reducción en la deviance suele indicar una mejora en el modelo, en este caso el valor **extremadamente bajo** sugiere un **sobreajuste**, lo que significa que el modelo está ajustándose demasiado a los pocos datos disponibles y podría no generalizar bien a nuevas observaciones.  
 
--AIC = 19.641. Un AIC bajo indica que el modelo tiene un buen ajuste en términos de penalización por complejidad, pero la falta de significancia de los coeficientes sugiere que el modelo no es útil para predicción.
+El **criterio de información de Akaike (AIC)**, con un valor de **19.641**, indica que el modelo penaliza adecuadamente la complejidad, pero la **falta de significancia en los coeficientes** sugiere que **no es útil para la predicción**, ya que no logra establecer una relación clara entre las variables.  
 
-- Grados de libertad: se eliminaron 2530 observaciones debido a valores faltantes, lo que deja solo 17 observaciones en total y grados de libertad extremadamente bajos (df=13), lo que afecta la estabilidad y confiabilidad del modelo.
+Otro problema grave es la **eliminación de datos faltantes**, que dejó **solo 17 observaciones disponibles** después de descartar **2,530 registros incompletos**. Con tan pocos datos, los **grados de libertad (df=13) son extremadamente bajos**, lo que **afecta la estabilidad del modelo** y hace que las estimaciones sean poco confiables.  
 
-El modelo no es útil en su estado actual porque no hay variables significativas y hay un problema grave de eliminación de datos. Es recomendable limpiar los datos y probar un modelo más simple antes de sacar conclusiones sobre la relación entre phi y las variables predictoras, pero dada la falta de observaciones, es posible que no se pueda obtener un modelo confiable para la predicción de habitabilidad.
+En su estado actual, el modelo no es útil, ya que **no cuenta con variables predictoras significativas** y enfrenta **una pérdida masiva de datos**, lo que limita su capacidad para hacer inferencias válidas. Antes de sacar conclusiones sobre la relación entre **PHI** y las variables predictoras, sería recomendable **limpiar los datos y probar un modelo más simple**. Sin embargo, dada la **escasez de observaciones**, es posible que no sea factible construir un modelo confiable para la **predicción de habitabilidad** en estas condiciones.
+
+## Posibles mejoras para futuros análisis
+
+Para mejorar el **modelo de regresión logística**, una posible solución es abordar el problema de los **valores faltantes** en las variables clave utilizadas para calcular el **PHI**: **temperatura de equilibrio (`pl_eqt`), insolación (`pl_insol`) y semieje mayor orbital (`pl_orbsmax`)**. En lugar de descartar todas las observaciones con datos faltantes, se puede aplicar **regresión lineal** para estimar estos valores en función de otras variables relacionadas dentro del conjunto de datos. Al hacer esto, se logra recuperar una mayor cantidad de observaciones, lo que aumentaría el tamaño de la muestra utilizada en la regresión logística y mejoraría la estabilidad del modelo.  
+
+Sin embargo, utilizar variables estimadas mediante regresión como **input en otro modelo predictivo** conlleva ciertos **riesgos e implicaciones estadísticas**. Cuando una variable ha sido generada mediante una predicción previa, **su error de estimación se transfiere al modelo final**, en este caso, a la regresión logística. Como resultado, el modelo puede **subestimar la incertidumbre real** y producir **intervalos de confianza demasiado optimistas**, ya que no está considerando los errores asociados a las predicciones previas.  
+
+Además, el uso de **valores regresionados** puede introducir **colinealidad artificial**, especialmente si la variable imputada depende de otras variables que ya están incluidas en la regresión logística. Esto puede distorsionar los coeficientes y hacer que el modelo sea menos interpretable. También es posible que la **estructura de los errores en las variables imputadas** no sea idéntica a la de los valores observados originalmente, lo que podría generar un sesgo en las estimaciones del modelo.  
+
+Para mitigar estos riesgos, se pueden aplicar estrategias como la **validación cruzada** para evaluar el impacto de las variables imputadas en el desempeño del modelo y realizar un **análisis de sensibilidad**, probando el modelo con y sin las variables imputadas para verificar la estabilidad de los resultados. Además, una opción más robusta sería utilizar **métodos de imputación múltiple**, que generan varias versiones de los datos imputados y permiten incorporar la incertidumbre en las predicciones finales.  
+
+En conclusión, aunque la regresión lineal de las variables faltantes puede ayudar a recuperar observaciones y mejorar la estabilidad del modelo logístico, es importante ser consciente de los **errores de predicción acumulados** y del impacto que pueden tener en la validez de las estimaciones. Evaluar cuidadosamente estos aspectos garantizará que el modelo final sea más confiable y que sus conclusiones sean interpretadas con la debida cautela.
