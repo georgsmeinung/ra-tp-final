@@ -1,17 +1,24 @@
-Citing the NASA Exoplanet Archive With Digital Object Identifiers (DOI)
-https://exoplanetarchive.ipac.caltech.edu/docs/doi.html
-
-Planetary Systems and Planetary Systems Composite Parameters Table Definitions
-https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html#planetparam
-
-NASA Exoplanet Archive
-https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS
-
-IPAC
-https://www.ipac.caltech.edu/
-
-Kepler / K2 - NASA Science
-https://science.nasa.gov/mission/kepler/
-
-Kepler space telescope
-https://www.wikiwand.com/en/articles/Kepler_space_telescope
+Alonso Sobrino, Roi. (2006) “Detección y Caracterización de Exoplanetas Mediante El Método de Los Tránsitos.” Instituto de Astrofísica de Canarias (IAC). https://www.iac.es/es/ciencia-y-tecnologia/publicaciones/deteccion-y-caracterizacion-de-exoplanetas-mediante-el-metodo-de-los-transitos.
+Brachman, R. Z. (2024) “How to Analyze Your Data | How to Get Started – Exoplanet Exploration: Planets Beyond Our Solar System.” Exoplanet Exploration: Planets Beyond Our Solar System. https://exoplanets.nasa.gov/exoplanet-watch/how-to-contribute/how-to-analyze-your-data/.
+Cardenas, Christian & Lozano, David & Marquez, Cristian & Torres, Edilberto & Delgado-Correal, Camilo. (2022). Optimización de un sistema difuso para la detección automática de tránsitos planetarios en curvas de luz de estrellas individuales. Ciencia en Desarrollo. 1. 19-35. 10. http://dx.doi.org/10.19053/01217488.v1.n2E.2022.15136.  
+Cermak, A. & Cermak, A. (2024) “Kepler / K2 - NASA Science.” NASA Science. https://science.nasa.gov/mission/kepler/.
+Hadrien Cambazard, Nicolas Catusse, Antoine Chomez, Anne-Marie Lagrange (2025). Logistic regression to boost exoplanet detection performances, Monthly Notices of the Royal Astronomical Society, Volume 536, Issue 2, Pages 1610–1624, https://doi.org/10.1093/mnras/stae2657
+IPAC. (2025) “NASA Exoplanet Archive.” NASA Exoplanet Science Institute. https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS.
+———. (2021) “NASA Exoplanet Archive Overview and Holdings.” https://exoplanetarchive.ipac.caltech.edu/docs/intro.html.
+———. (s.f.) “Our Mission.” https://www.ipac.caltech.edu/page/mission.
+———. (2024) “Planetary Systems and Planetary Systems Composite Parameters Data Column Definitions.” https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html.
+Kane, Stephen R. & Gelino, Dawn M. (2012) “The Habitable Zone and Extreme Planetary Orbits.” https://doi.org/10.1089/ast.2011.0798.
+Kopparapu, R. K., Ramirez, R., Kasting, J. F., Eymet, V., Robinson, T. D., Mahadevan, S., Terrien, R. C., Domagal-Goldman, S., Meadows, V., & Deshpande, R. (2013) “Habitable Zones Around Main-Sequence Stars: New Estimates.” https://doi.org/10.1088/0004-637x/765/2/131.
+Malik, A., Moster, B. P., & Obermeier, C. (2021). Exoplanet detection using machine learning. Monthly Notices of the Royal Astronomical Society. https://doi.org/10.1093/mnras/stab3692
+Marín, Daniel. (2011) “Detectando Planetas Desde El Espacio Gracias a Einstein - Eureka.” Eureka. https://danielmarin.naukas.com/2011/05/23/detectando-planetas-desde-el-espacio-gracias-a-einstein/.
+———. (2018) “EarthFinder: Un Telescopio Espacial Para Buscar Exotierras Por El Método de La Velocidad Radial - Eureka.” https://danielmarin.naukas.com/2018/03/14/earthfinder/.
+Méndez, Abel, Rivera-Valentin, Edgard, Schulze-Makuch, Dirk, Filiberto, Justin, Ramirez, Ramses, Wood, Tana, Dávila, Alfonso, McKay, Chris, Ceballos, Kevin, Jusino-Maldonado, Marcos, Torres-Santiago, Nicole, Gomez, Guillermo Nery, Heller, René, Byrne, Paul, Malaska, Michael, Nathan, Erica, Simões, Marta, Antunes, André, Martínez-Frías, Jesús, & Haqq-Misra, Jacob. (2021) “Habitability Models for Astrobiology.” https://doi.org/10.1089/ast.2020.2342.
+Nardi, Luca. (2024) “¿Cuáles Son Las Técnicas Utilizadas Para Descubrir Exoplanetas?” WIRED. https://es.wired.com/articulos/cuales-son-las-tecnicas-utilizadas-para-descubrir-exoplanetas.
+NASA, Equipo de redacción de Ciencia. (2022) “Webb de La NASA Obtiene Su Primera Imagen Directa de Un Mundo Distante.” NASA Ciencia. https://ciencia.nasa.gov/universo/webb-de-la-nasa-obtiene-su-primera-imagen-directa-de-un-mundo-distante/.
+Nicolau, Jorge. (2025) “Ra-Tp-Final.” GitHub. https://github.com/georgsmeinung/ra-tp-final/.
+Pimentel, J., Amorim, J. & Rudzicz, F. Feature extraction for exoplanet detection. Int J Data Sci Anal (2024). https://doi.org/10.1007/s41060-024-00552-7
+Shields, Aomawa L., Ballard, Sarah, & Johnson, John Asher. (2016) “The Habitability of Planets Orbiting M-Dwarf Stars.” https://doi.org/10.1016/j.physrep.2016.10.003.
+Tukey, J. W. (1977). Exploratory Data Analysis, Volumen 2 (18ª ed., ilustrada, reimpresa). Addison-Wesley Publishing Company.
+Venkata, G & Jahnavi, M & Ch, Venkata & Suneetha, Muvva. (2023). Exoplanet Detection Using Feature Engineering with Ensemble Learning. http://dx.doi.org/10.1109/ICPCSN58827.2023.00025
+Wolszczan, Aleksander & Frail, D. A. (1992) “A Planetary System Around the Millisecond Pulsar PSR1257 + 12.” https://doi.org/10.1038/355145a0.
+Wu, Dong-Hong. (2023). The possibility of detecting our solar system through astrometry. arXiv.org. https://arxiv.org/abs/2309.11729 

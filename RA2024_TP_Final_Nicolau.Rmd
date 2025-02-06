@@ -194,7 +194,7 @@ El **método de microlente gravitacional** se basa en un principio fundamental d
 Cuando una estrella lejana se alinea con otra estrella más cercana en nuestra línea de visión, la gravedad de la estrella más cercana actúa como una lente natural, magnificando la luz de la estrella de fondo. Este efecto crea un **aumento temporal del brillo** de la estrella lejana, lo que se conoce como un **evento de microlente gravitacional**.\
 Si la estrella más cercana alberga un planeta, la gravedad del planeta también contribuirá al efecto de lente, provocando una **segunda variación en el brillo** de la estrella de fondo. Este cambio adicional en la luz nos permite inferir la presencia del planeta y estimar algunas de sus características, como su masa y distancia con respecto a su estrella [@marin-2014].
 
-### Observación directa: fotografiar expplanetas en medio del brillo estelar
+### Observación directa: fotografiar exoplanetas en medio del brillo estelar
 
 Detectar exoplanetas mediante **observación directa** es un desafío, ya que estos son cuerpos pequeños y poco luminosos en comparación con las estrellas que orbitan. La intensa luz de la estrella suele eclipsar por completo la presencia del planeta, dificultando su detección.
 
@@ -214,13 +214,11 @@ Midiendo con precisión estas sutiles anomalías en el tiempo de rotación, los 
 
 La detección de exoplanetas es un campo de investigación en constante evolución, con nuevos descubrimientos y técnicas emergentes que amplían nuestro conocimiento del universo. La ciencia de datos juega un papel fundamental en este proceso, permitiendo a los astrónomos analizar grandes volúmenes de datos y extraer información relevante sobre los exoplanetas y sus características.
 
-Incluso nada anima a la detección amateur de exoplanetas a traves de su sitio Exoplanet Watch donde ofrece una guía detallada sobre cómo analizar observaciones de tránsitos de exoplanetas para generar curvas de luz, que representan las variaciones en el brillo de una estrella cuando un planeta pasa frente a ella [@brachman-no-date].
-
-Fuente: <https://exoplanets.nasa.gov/exoplanet-watch/how-to-contribute/how-to-analyze-your-data/>
+Incluso NASA anima a la detección amateur de exoplanetas a traves de su sitio Exoplanet Watch donde ofrece una guía detallada sobre cómo analizar observaciones de tránsitos de exoplanetas para generar curvas de luz, que representan las variaciones en el brillo de una estrella cuando un planeta pasa frente a ella [@brachman-no-date].
 
 NASA ha recopilado una gran cantidad de datos sobre exoplanetas detectados por misiones como Kepler y TESS, proporcionando una fuente invaluable de información para la investigación científica. Estos datos contienen una variedad de características sobre los exoplanetas y sus sistemas estelares, incluyendo su masa, radio, temperatura, órbita y composición química. Sin embargo esta información no siempre es completa y en muchos casos es necesario realizar análisis avanzados para extraer parámetros faltantes y predecir la habitabilidad de los exoplanetas.
 
-El objetivo de este trabajo es procesar los datos para realizar un análisis exploratorio y utilizar regresión linea y logística para la extracción de paramétros faltantes de los exoplanetas y para predecir la habitabilidad de los mismos.
+El objetivo de este trabajo es procesar los datos para realizar un análisis exploratorio y utilizar regresión lineal y logística para la extracción de paramétros faltantes de los exoplanetas y para predecir la habitabilidad de los mismos.
 
 # El dataset de expolanetas detectados con el telescopio espacial Kepler
 
@@ -700,10 +698,6 @@ ggplot(missing_values[(midpoint+1):total_rows,], aes(x = reorder(key, value), y 
 ```
 
 En el análisis del dataset, se detectó una gran cantidad de **valores faltantes** en varias columnas, lo que probablemente se deba a la falta de estimaciones o mediciones para ciertos exoplanetas. Según los prefijos utilizados en las columnas del dataset, las variables pueden clasificarse en tres categorías principales: **parámetros del planeta (con prefijo pl\_)**, **parámetros de la estrella (con prefijo st\_)** y **parámetros del sistema (prefijo sy\_)**.
-
-Una gran parte de los valores faltantes corresponden a **parámetros de los exoplanetas y sus sistemas**, lo que puede representar un desafío para el análisis y la predicción de su habitabilidad. Para abordar este problema, se procederá a **estimar los valores faltantes** en aquellas variables donde exista una cantidad suficiente de datos como para realizar una estimación precisa.
-
-El objetivo principal de este estudio es **predecir la habitabilidad de los exoplanetas**, y para ello es fundamental contar con valores completos en los parámetros clave. Para lograrlo, se emplearán técnicas de **regresión lineal y logística**, que permitirán estimar los valores ausentes y mejorar la precisión del modelo de predicción.
 
 Como parte del proceso, se analizarán las **variables conocidas de los exoplanetas** para identificar aquellas que puedan actuar como **predictoras** de las variables con valores faltantes. Por ejemplo, en el caso del **radio del exoplaneta** (representado por **`pl_radj`** en radios jovianos y **`pl_rade`** en radios terrestres), que presenta **886 valores faltantes**, es posible estimarlo utilizando otras variables disponibles en el dataset. Algunas de estas incluyen el **período orbital en días** (**`pl_orbper`**, con **450 valores faltantes**), el **tiempo de conjunción** (**`pl_tranmid`**, con **675 valores faltantes**) y el **logaritmo en base 10 de la gravedad superficial de la estrella del sistema planetario** (**`st_logg`**, con **554 valores faltantes**).
 
