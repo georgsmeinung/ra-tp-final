@@ -2,9 +2,6 @@
 title: "Regresión Avanzada 2024 - TP Final"
 author: "Jorge Nicolau"
 output:
-  word_document:
-    toc: true
-    toc_depth: '2'
   html_document:
     toc: true
     code_folding: show
@@ -13,6 +10,9 @@ output:
     theme: united
     code_download: true
     toc_depth: 2
+  word_document:
+    toc: true
+    toc_depth: '2'
 references:
   - id: brachman-no-date
     author: "Brachman, R. Z."
@@ -376,7 +376,7 @@ El encabezado más arriba estaba incluído en el archivo .CSV generado y se incl
 
 Todos los archivos necesarios para este trabajo se encuentran en el repositorio de GitHub del autor [@georgsmeinung-no-date] y se pueden descargar desde allí para reproducir este análisis, incluyendo el dataset **`keplerexoplanets.csv`** que a continuación se carga.
 
-```{r load_data, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+```{r load_data, message=FALSE, warning=FALSE, paged.print=FALSE}
 library(readr)
 
 # Cargar los datos del archivo CSV
@@ -550,7 +550,7 @@ kable(column_names, col.names = c("Variable", "Descripción"), align = "l")
 
 ```
 
-```{r save_filtered_dataset, include=FALSE}
+```{r save_filtered_dataset}
 # Guardar los datos filtrados en un archivo CSV
 write_csv(kepler_data, "keplerfiltered.csv")
 
@@ -707,7 +707,7 @@ Para determinar cuáles de estas variables tienen un mayor potencial como **pred
 
 Se analiza la correlación entre las variables numéricas del dataset para identificar posibles relaciones entre ellas utilizando los métodos de Pearson (detección de correlaciones lineales).
 
-```{r correlation_matrix_pearson, include=FALSE}
+```{r correlation_matrix_pearson}
 
 library(corrplot)
 
@@ -791,7 +791,7 @@ En cuanto a la variable que se seleccionó como **variable objetivo** en el aná
 
 Para visualizar mejor estas relaciones y seleccionar las mejores **variables predictoras**, se realiza un **pair plot** con las variables que presentan una correlación significativa, estableciendo un **umbral del 50% en valor absoluto**. Este gráfico permite examinar cómo se distribuyen los datos y cómo se relacionan las variables entre sí, facilitando la identificación de tendencias y posibles patrones útiles para la estimación de valores faltantes y la construcción de modelos de predicción.
 
-```{r most_correlated_variables, include=FALSE}
+```{r most_correlated_variables, echo=FALSE}
 
 # Seleccionar de la matriz de correlación las variables con correlacion mayor o
 # igual a 0.3 en valor absoluto con la variable faltante
@@ -823,7 +823,7 @@ kable(correlation_df, columns = c("Variable","Correlación","Faltantes"), align 
 
 ```
 
-```{r pair_plot_correlated_variables, include=FALSE, warning=FALSE}
+```{r pair_plot_correlated_variables, echo=FALSE, warning=FALSE}
 
 panel.hist <- function(x, ...) {
   usr <- par("usr"); on.exit(par(usr))
