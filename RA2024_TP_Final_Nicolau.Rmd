@@ -705,7 +705,9 @@ Para determinar cuáles de estas variables tienen un mayor potencial como **pred
 
 ## Buscando correlaciones
 
-Se analiza la correlación entre las variables numéricas del dataset para identificar posibles relaciones entre ellas utilizando los métodos de Pearson (detección de correlaciones lineales).
+Para elegir la mejor variable para realizar una regresión lineal se utiliza la correlación lineal simple (Pearson) para medir la relación lineal entre cada variable independiente y la dependiente. Se utilizar porque es posible que entre los parámetros planetarios haya una relación lineal simple. La limitación con esta metodología es que ignora la multicolinealidad y no considera relaciones no lineales.
+Se analiza la correlación entre las variables numéricas del dataset para identificar posibles relaciones entre ellas utilizando los métodos de Pearson (detección de correlaciones lineales). A través de esta matriz, se pueden detectar tanto correlaciones positivas (cuando un aumento en una variable está asociado con un aumento en otra) como correlaciones negativas (cuando un aumento en una variable está relacionado con una disminución en otra). Estas relaciones pueden ser útiles para entender patrones en los datos y seleccionar las mejores variables predictoras para modelos de estimación.
+
 
 ```{r correlation_matrix_pearson}
 
