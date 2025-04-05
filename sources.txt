@@ -20,15 +20,15 @@ Kane, Stephen R. & Gelino, Dawn M. (2012) “The Habitable Zone and Extreme Plan
 
 Kopparapu, R. K., Ramirez, R., Kasting, J. F., Eymet, V., Robinson, T. D., Mahadevan, S., Terrien, R. C., Domagal-Goldman, S., Meadows, V., & Deshpande, R. (2013) “Habitable Zones Around Main-Sequence Stars: New Estimates.” https://doi.org/10.1088/0004-637x/765/2/131.
 
-Lee, D.-H. (2013). Pseudo-label: The simple and efficient semi-supervised learning method for deep neural networks. https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=798d9840d2439a0e5d47bcf5d164aa46d5e7dc26 
+Lee, D.-H. (2013). Pseudo-label: The simple and efficient semi-supervised learning method for deep neural networks. https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=798d9840d2439a0e5d47bcf5d164aa46d5e7dc26.
 
-Malik, A., Moster, B. P., & Obermeier, C. (2021). Exoplanet detection using machine learning. Monthly Notices of the Royal Astronomical Society. https://doi.org/10.1093/mnras/stab3692 
+Malik, A., Moster, B. P., & Obermeier, C. (2021). Exoplanet detection using machine learning. Monthly Notices of the Royal Astronomical Society. https://doi.org/10.1093/mnras/stab3692.
 
 Marín, Daniel. (2011) “Detectando Planetas Desde El Espacio Gracias a Einstein - Eureka.” Eureka. https://danielmarin.naukas.com/2011/05/23/detectando-planetas-desde-el-espacio-gracias-a-einstein/.
 
 ———. (2018) “EarthFinder: Un Telescopio Espacial Para Buscar Exotierras Por El Método de La Velocidad Radial - Eureka.” https://danielmarin.naukas.com/2018/03/14/earthfinder/.
 
-Méndez, Abel; Rivera-Valentin, Edgard; Schulze-Makuch, Dirk; Filiberto, Justin; Ramirez, Ramses; Wood, Tana; Dávila, Alfonso; McKay, Chris; Ceballos, Kevin; Jusino-Maldonado, Marcos; Torres-Santiago, Nicole; Gómez, Guillermo Nery; Heller, René; Byrne, Paul; Malaska, Michael; Nathan, Erica; Simões, Marta; Antunes, André; Martínez-Frías, Jesús; Haqq-Misra, Jacob. (2021) “Habitability Models for Astrobiology.” https://doi.org/10.1089/ast.2020.2342.
+Méndez, Abel, Rivera-Valentin, Edgard, Schulze-Makuch, Dirk, Filiberto, Justin, Ramirez, Ramses, Wood, Tana, Dávila, Alfonso, McKay, Chris, Ceballos, Kevin, Jusino-Maldonado, Marcos, Torres-Santiago, Nicole, Gomez, Guillermo Nery, Heller, René, Byrne, Paul, Malaska, Michael, Nathan, Erica, Simões, Marta, Antunes, André, Martínez-Frías, Jesús, & Haqq-Misra, Jacob. (2021) “Habitability Models for Astrobiology.” https://doi.org/10.1089/ast.2020.2342.
 
 Nardi, Luca. (2024) “¿Cuáles Son Las Técnicas Utilizadas Para Descubrir Exoplanetas?” WIRED. https://es.wired.com/articulos/cuales-son-las-tecnicas-utilizadas-para-descubrir-exoplanetas.
 
@@ -36,16 +36,16 @@ NASA, Equipo de redacción de Ciencia. (2022) “Webb de La NASA Obtiene Su Prim
 
 Nicolau, Jorge. (2025) “Ra-Tp-Final.” GitHub. https://github.com/georgsmeinung/ra-tp-final/.
 
-Pimentel, João; Amorim, Joana; Rudzicz, Frank. Feature extraction for exoplanet detection. International Journal of Data Science and Analytics  (2024). https://doi.org/10.1007/s41060-024-00552-7 
+Pimentel, J., Amorim, J. & Rudzicz, F. Feature extraction for exoplanet detection. Int J Data Sci Anal (2024). https://doi.org/10.1007/s41060-024-00552-7.
 
-Shields, Aomawa L.; Ballard, Sarah; Johnson, John Asher. (2016) “The Habitability of Planets Orbiting M-Dwarf Stars.”. Physics Reports, Volume 663, Página 1-38. https://doi.org/10.1016/j.physrep.2016.10.003.
+Shields, Aomawa L., Ballard, Sarah, & Johnson, John Asher. (2016) “The Habitability of Planets Orbiting M-Dwarf Stars.” https://doi.org/10.1016/j.physrep.2016.10.003.
 
 Tukey, J. W. (1977). Exploratory Data Analysis, Volumen 2 (18ª ed., ilustrada, reimpresa). Addison-Wesley Publishing Company.
 
-Venkata, Sai Rakesh; Jahnavi, Bhuvana Chandrika; Venkata, Rami Reddy; Muvva, Suneetha (2023). Exoplanet Detection Using Feature Engineering with Ensemble Learning. http://dx.doi.org/10.1109/ICPCSN58827.2023.00025 
+Venkata, G & Jahnavi, M & Ch, Venkata & Suneetha, Muvva. (2023). Exoplanet Detection Using Feature Engineering with Ensemble Learning. http://dx.doi.org/10.1109/ICPCSN58827.2023.00025.
 
 Wolszczan, Aleksander & Frail, D. A. (1992) “A Planetary System Around the Millisecond Pulsar PSR1257 + 12.” https://doi.org/10.1038/355145a0.
 
-Wu, Dong-Hong. (2023). The possibility of detecting our solar system through astrometry. arXiv.org. https://arxiv.org/abs/2309.11729 
+Wu, Dong-Hong. (2023). The possibility of detecting our solar system through astrometry. arXiv.org. https://arxiv.org/abs/2309.11729.
 
-Zhou, D., Bousquet, O., Lal, T. N., Weston, J., & Schölkopf, B. (2004). Learning with local and global consistency. Advances in Neural Information Processing Systems, 16, 321–328. https://proceedings.neurips.cc/paper_files/paper/2003/file/87682805257e619d49b8e0dfdc14affa-Paper.pdf 
+Zhou, D., Bousquet, O., Lal, T. N., Weston, J., & Schölkopf, B. (2004). Learning with local and global consistency. Advances in Neural Information Processing Systems, 16, 321–328. https://proceedings.neurips.cc/paper_files/paper/2003/file/87682805257e619d49b8e0dfdc14affa-Paper.pdf.

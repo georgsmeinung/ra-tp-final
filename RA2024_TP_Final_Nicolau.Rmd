@@ -14,31 +14,59 @@ output:
     toc: true
     toc_depth: '2'
 references:
-  - id: brachman-no-date
-    author: "Brachman, R. Z."
-    title: "How to Analyze Your Data | How to Get Started – Exoplanet Exploration: Planets Beyond our Solar System"
-    publisher: "Exoplanet Exploration: Planets Beyond Our Solar System"
-    url: "https://exoplanets.nasa.gov/exoplanet-watch/how-to-contribute/how-to-analyze-your-data/"
-  - id: neofronteras-no-date
-    author: "NeoFronteras"
-    title: "Detección de exoplanetas por astrometría"
-    publisher: "NeoFronteras"
-    url: "https://neofronteras.com/?p=8093"
   - id: alonso-sobrino-2006
     author: "Alonso Sobrino, Roi"
     title: "Detección y caracterización de exoplanetas mediante el método de los tránsitos"
     year: 2006
     publisher: "Instituto de Astrofísica de Canarias (IAC)"
     url: "https://www.iac.es/es/ciencia-y-tecnologia/publicaciones/deteccion-y-caracterizacion-de-exoplanetas-mediante-el-metodo-de-los-transitos"
-  - id: georgsmeinung-no-date
-    author: "Georgsmeinung"
-    title: "GitHub - georgsmeinung/ra-tp-final"
-    publisher: "GitHub"
-    url: "https://github.com/georgsmeinung/ra-tp-final/"
+  - id: brachman-no-date
+    author: "Brachman, R. Z."
+    title: "How to Analyze Your Data | How to Get Started – Exoplanet Exploration: Planets Beyond our Solar System"
+    publisher: "Exoplanet Exploration: Planets Beyond Our Solar System"
+    url: "https://exoplanets.nasa.gov/exoplanet-watch/how-to-contribute/how-to-analyze-your-data/"
+  - id: cardenas-2022
+    author: "Cardenas, Christian & Lozano, David & Marquez, Cristian & Torres, Edilberto & Delgado-Correal, Camilo" 
+    title: "Optimización de un sistema difuso para la detección automática de tránsitos planetarios en curvas de luz de estrellas individuales"
+    journal: "Ciencia en Desarrollo"
+    year: 2022 
+    volume: 1
+    number: 10
+    pages: "19-35" 
+    url: "http://dx.doi.org/10.19053/01217488.v1.n2E.2022.15136"
+  - id: cermak-2024
+    author: "Cermak, A. & Cermak, A."
+    title: "Kepler / K2 - NASA Science"
+    publisher: "NASA Science"
+    year: 2024
+    month: "September 3"
+    url: "https://science.nasa.gov/mission/kepler/"
+  - id: hadrien-2025
+    author: "Hadrien Cambazard, Nicolas Catusse, Antoine Chomez, Anne-Marie Lagrange"
+    title: "Logistic regression to boost exoplanet detection performances"
+    journal: "Monthly Notices of the Royal Astronomical Society"
+    year: 2025
+    volume: 536
+    number: 2
+    pages: "1610–1624"
+    url: "https://doi.org/10.1093/mnras/stae2657"
+  - id: ipac-exoplanet-science-no-date
+    author: "IPAC"
+    title: "NASA Exoplanet Archive"
+    publisher: "NASA Exoplanet Science Institute"
+    url: "https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS"
+  - id: ipac-exoplanet-archive-no-date
+    author: "IPAC"
+    title: "NASA Exoplanet Archive overview and holdings"
+    url: "https://exoplanetarchive.ipac.caltech.edu/docs/intro.html"
   - id: ipac-no-date
     author: "IPAC"
     title: "Our mission"
     url: "https://www.ipac.caltech.edu/page/mission"
+  - id: ipac-planetary-data-no-date
+    author: "IPAC"
+    title: "Planetary Systems and Planetary Systems Composite Parameters Data Column Definitions"
+    url: "https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html"
   - id: kane-gelino-2012
     author: "Kane, Stephen R. & Gelino, Dawn M."
     title: "The habitable zone and extreme planetary orbits"
@@ -59,12 +87,28 @@ references:
     pages: "131"
     doi: "10.1088/0004-637x/765/2/131"
     url: "https://doi.org/10.1088/0004-637x/765/2/131"
-  - id: marin-2014
+  - id: lee-2013
+    author: "Lee, D.-H."
+    title: "Pseudo-label: The simple and efficient semi-supervised learning method for deep neural networks"
+    url: "https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=798d9840d2439a0e5d47bcf5d164aa46d5e7dc26"
+  - id: malik-2021
+    author: "Malik, A., Moster, B. P., & Obermeier, C."
+    title: "Exoplanet detection using machine learning"
+    journal: "Monthly Notices of the Royal Astronomical Society"
+    year: 2021
+    url: "https://doi.org/10.1093/mnras/stab3692"
+  - id: marin-2011
     author: "Marín, Daniel"
     title: "Detectando planetas desde el espacio gracias a Einstein - Eureka"
     publisher: "Eureka"
-    year: 2014
+    year: 2011
     url: "https://danielmarin.naukas.com/2011/05/23/detectando-planetas-desde-el-espacio-gracias-a-einstein/"
+  - id: marin-2018
+    author: "Marín, Daniel"
+    title: "EarthFinder: un telescopio espacial para buscar exotierras por el método de la velocidad radial - Eureka"
+    year: 2018
+    month: "March"
+    url: "https://danielmarin.naukas.com/2018/03/14/earthfinder/"
   - id: mendez-rivera-2021
     author: "Méndez, Abel, Rivera-Valentin, Edgard, Schulze-Makuch, Dirk, Filiberto, Justin, Ramirez, Ramses, Wood, Tana, Dávila, Alfonso, McKay, Chris, Ceballos, Kevin, Jusino-Maldonado, Marcos, Torres-Santiago, Nicole, Gomez, Guillermo Nery, Heller, René, Byrne, Paul, Malaska, Michael, Nathan, Erica, Simões, Marta, Antunes, André, Martínez-Frías, Jesús, & Haqq-Misra, Jacob."
     title: "Habitability Models for Astrobiology"
@@ -72,15 +116,6 @@ references:
     year: 2021
     doi: "10.1089/ast.2020.2342"
     url: "https://www.researchgate.net/publication/353861442_Habitability_Models_for_Astrobiology"
-  - id: ipac-exoplanet-archive-no-date
-    author: "IPAC"
-    title: "NASA Exoplanet Archive overview and holdings"
-    url: "https://exoplanetarchive.ipac.caltech.edu/docs/intro.html"
-  - id: ipac-exoplanet-science-no-date
-    author: "IPAC"
-    title: "NASA Exoplanet Archive"
-    publisher: "NASA Exoplanet Science Institute"
-    url: "https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS"
   - id: nardi-2024
     author: "Nardi, Luca"
     title: "¿Cuáles son las técnicas utilizadas para descubrir exoplanetas?"
@@ -88,10 +123,24 @@ references:
     year: 2024
     month: "August 26"
     url: "https://es.wired.com/articulos/cuales-son-las-tecnicas-utilizadas-para-descubrir-exoplanetas"
-  - id: ipac-planetary-data-no-date
-    author: "IPAC"
-    title: "Planetary Systems and Planetary Systems Composite Parameters Data Column Definitions"
-    url: "https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html"
+  - id: nasa-2022
+    author: "NASA, Equipo de redacción de Ciencia"
+    title: "Webb de la NASA obtiene su primera imagen directa de un mundo distante"
+    year: 2022
+    publisher: "NASA Ciencia"
+    url: "https://ciencia.nasa.gov/universo/webb-de-la-nasa-obtiene-su-primera-imagen-directa-de-un-mundo-distante/"
+  - id: nicolau-2025
+    author: "Nicolau, Jorge"
+    title: "GitHub - georgsmeinung/ra-tp-final"
+    publisher: "GitHub"
+    year: 2025
+    url: "https://github.com/georgsmeinung/ra-tp-final/"
+  - id: pimentel-2024
+    author: "Pimentel, J., Amorim, J. & Rudzicz, F."
+    title: "Feature extraction for exoplanet detection"
+    journal: "Int J Data Sci Anal"
+    year: 2024
+    url: "https://doi.org/10.1007/s41060-024-00552-7"
   - id: shields-ballard-2016
     author: "Shields, Aomawa L., Ballard, Sarah, & Johnson, John Asher"
     title: "The habitability of planets orbiting M-dwarf stars"
@@ -101,11 +150,22 @@ references:
     pages: "1-38"
     doi: "10.1016/j.physrep.2016.10.003"
     url: "https://doi.org/10.1016/j.physrep.2016.10.003"
-  - id: webb-nasa-science-no-date
-    author: "NASA, Equipo de redacción de Ciencia"
-    title: "Webb de la NASA obtiene su primera imagen directa de un mundo distante"
-    publisher: "NASA Ciencia"
-    url: "https://ciencia.nasa.gov/universo/webb-de-la-nasa-obtiene-su-primera-imagen-directa-de-un-mundo-distante/"
+  - id: shields-2016
+    author: "Shields, Aomawa L., Ballard, Sarah, & Johnson, John Asher"
+    title: "The Habitability of Planets Orbiting M-Dwarf Stars"
+    year: 2016
+    url: "https://doi.org/10.1016/j.physrep.2016.10.003"
+  - id: tukey-1977
+    author: "Tukey, J. W."
+    title: "Exploratory Data Analysis"
+    publisher: "Addison-Wesley Publishing Company"
+    year: 1977
+    volume: 2
+  - id: ventaka-2023
+    author: "Venkata, G & Jahnavi, M & Ch, Venkata & Suneetha, Muvva"
+    title: "Exoplanet Detection Using Feature Engineering with Ensemble Learning"
+    year: 2023
+    url: "http://dx.doi.org/10.1109/ICPCSN58827.2023.00025"
   - id: wolszczan-frail-1992
     author: "Wolszczan, Aleksander & Frail, D. A."
     title: "A planetary system around the millisecond pulsar PSR1257 + 12"
@@ -116,32 +176,19 @@ references:
     pages: "145-147"
     doi: "10.1038/355145a0"
     url: "https://doi.org/10.1038/355145a0"
-  - id: marin-2018
-    author: "Marín, Daniel"
-    title: "EarthFinder: un telescopio espacial para buscar exotierras por el método de la velocidad radial - Eureka"
-    year: 2018
-    month: "March"
-    url: "https://danielmarin.naukas.com/2018/03/14/earthfinder/"
-  - id: cermak-2024
-    author: "Cermak, A. & Cermak, A."
-    title: "Kepler / K2 - NASA Science"
-    publisher: "NASA Science"
-    year: 2024
-    month: "September 3"
-    url: "https://science.nasa.gov/mission/kepler/"
-  - id: lee-2013
-    autor: "Lee, D.-H." 
-    title: "Pseudo-label: The simple and efficient semi-supervised learning method for deep neural networks."
-    year: 2013
-    url: "https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=798d9840d2439a0e5d47bcf5d164aa46d5e7dc26" 
+  - id: wu-2023
+    author: "Wu, Dong-Hong"
+    title: "The possibility of detecting our solar system through astrometry"
+    year: 2023
+    url: "https://arxiv.org/abs/2309.11729"
   - id: zhou-2004
     author: "Zhou, D., Bousquet, O., Lal, T. N., Weston, J., & Schölkopf, B."
-    title: "Learning with local and global consistency" 
+    title: "Learning with local and global consistency"
     journal: "Advances in Neural Information Processing Systems"
+    year: 2004
     volume: 16
-    pages: "321–328" 
-    year: 2004  
-    url: "https://proceedings.neurips.cc/paper_files/paper/2003/file/87682805257e619d49b8e0dfdc14affa-Paper.pdf" 
+    pages: "321–328"
+    url: "https://proceedings.neurips.cc/paper_files/paper/2003/file/87682805257e619d49b8e0dfdc14affa-Paper.pdf"
 editor_options:
   markdown:
     wrap: none
@@ -174,68 +221,45 @@ set.seed(random_seed)
 
 # Detección de exoplanetas y sus características
 
+## El problema 
+
 Durante casi tres décadas de investigación, la NASA ha confirmado la existencia de más de 5,600 exoplanetas en 4,151 sistemas planetarios. Estos mundos, conocidos como exoplanetas o planetas extrasolares, orbitan estrellas distintas al Sol. Aunque los astrónomos los imaginaron durante milenios, no fue hasta mediados de la década de 1990 cuando comenzaron a aparecer en los registros científicos.
 
 Aproximadamente dos tercios de los exoplanetas descubiertos hasta ahora provienen del telescopio espacial Kepler, mientras que cientos más han sido identificados gracias a la misión TESS y otros observatorios terrestres. Estas misiones han generado una enorme cantidad de datos, con cerca de 10,000 posibles exoplanetas aún pendientes de confirmación. Un número impresionante si consideramos que hasta principios de los años noventa no se conocía ninguno, pero diminuto en comparación con los cientos de miles de millones que podrían existir solo en la Vía Láctea.
 
-Para detectar estos mundos, los astrónomos emplean diversas técnicas, muchas de ellas llevadas al límite de la tecnología disponible en los observatorios espaciales [@nardi-2024].
+Para detectar estos mundos, los astrónomos emplean diversas técnicas, muchas de ellas llevadas al límite de la tecnología disponible en los observatorios espaciales [@nardi-2024]: astrometría o detección a través del movimiento estelar [@wu-2023], velocidades radiales o detección a través del efecto Doppler [@marin-2018], método del tránsito o detección a través de la sombra planetaria [@alonso-sobrino-2006], microlente gravitacional o detección a través de la curvatura del espacio-tiempo [@marin-2011], observación directa o fotografía en medio del brillo estelar [@nasa-2022] y detección por cómo afectan la rotación de púlsares [@wolszczan-frail-1992].
 
-## Métodos de detección de exoplanetas
+El análisis de exoplanetas presenta varios desafíos en la modelización de datos. La multicolinealidad es un problema común, ya que muchas variables orbitales, estelares y planetarias están altamente correlacionadas debido a su origen físico común, como la relación entre el período orbital y el semieje mayor, descrita por la Ley de Kepler. Además, el ruido y la variabilidad en los datos pueden afectar la precisión de las predicciones, ya que las mediciones suelen presentar incertidumbre, especialmente en la estimación de masas y radios planetarios, lo que refleja la diversidad natural de los sistemas estelares. Otro aspecto clave es la no linealidad en las relaciones entre propiedades estelares, orbitales y planetarias, como la dependencia cúbica entre el semieje mayor y el período orbital según la Ley de Kepler. Finalmente, la alta dimensionalidad de los datos, generada por la gran cantidad de sensores y metodologías para detectar exoplanetas, puede introducir variables irrelevantes o redundantes, aumentando innecesariamente la complejidad del modelo, por lo que es fundamental aplicar técnicas de selección de variables para mejorar la eficiencia del análisis.
 
-### Astrometría: detectando exoplanetas a través del movimiento estelar
-
-Cuando decimos que los planetas orbitan alrededor de las estrellas, en realidad no estamos contando toda la historia. En términos precisos, tanto la estrella como sus planetas giran en torno al **baricentro** del sistema, el punto en el espacio donde se equilibra la masa total del conjunto. Dado que las estrellas poseen la mayor parte de la masa, este punto suele ubicarse muy cerca de ellas. En el caso del Sol, por ejemplo, el baricentro se encuentra apenas fuera de su superficie.
-
-Esto implica que una estrella con planetas no permanece completamente estática en el espacio, sino que también se desplaza ligeramente mientras orbita el baricentro del sistema. Al observar esta leve oscilación, los astrónomos pueden detectar la presencia de exoplanetas mediante el método de la **astrometría**. Gracias a esta técnica, se han identificado más de 1,000 planetas extrasolares [@neofronteras-no-date].
-
-### Velocidades radiales: detectando exoplanetas a través del efecto Doppler
-
-La técnica de velocidad radial se basa en el mismo principio que la astrometría: la rotación de la estrella alrededor del baricentro del sistema debido a la influencia gravitatoria de un planeta. Sin embargo, mientras que la astrometría observa directamente el desplazamiento de la estrella en el cielo, la velocidad radial se centra en sus efectos espectroscópicos.
-
-Cuando la estrella se mueve acercándose a nosotros, la frecuencia de su luz se desplaza hacia el azul, y cuando se aleja, se desplaza hacia el rojo. Este fenómeno, conocido como **efecto Doppler**, permite detectar variaciones periódicas en el espectro estelar. Si se observa un patrón rítmico de estos desplazamientos, se puede inferir la presencia de un exoplaneta que provoca el vaivén gravitacional de la estrella [@marin-2018].
-
-### Método del tránsito: detectando exoplanetas a través de su sombra
-
-Más de 4,200 exoplanetas han sido descubiertos mediante el **método del tránsito**, una técnica ampliamente utilizada por el telescopio espacial Kepler. Este método se basa en la observación de la disminución periódica del brillo de una estrella cuando un planeta pasa frente a ella, bloqueando parte de su luz, de manera similar a un eclipse solar.
-
-Al registrar estas variaciones de brillo en múltiples ocasiones, se puede confirmar la presencia de un planeta en órbita. Además, este método proporciona información clave sobre el exoplaneta, como su tamaño y distancia respecto a la estrella. Si el planeta posee una atmósfera, la luz estelar la atraviesa durante el tránsito, permitiendo a los astrónomos analizar su composición química a través de técnicas espectroscópicas. Gracias a esto, es posible estudiar la atmósfera de mundos que ni siquiera podemos observar directamente [@alonso-sobrino-2006].
-
-### Microlente gravitacional: exoplanetas detectados a través de la curvatura del espacio-tiempo
-
-El **método de microlente gravitacional** se basa en un principio fundamental de la **Relatividad General**: la presencia de una masa curva el espacio-tiempo y, como consecuencia, desvía la trayectoria de la luz que pasa cerca de ella. Este fenómeno se conoce como **lente gravitacional** y puede usarse para detectar exoplanetas en circunstancias específicas.
-
-Cuando una estrella lejana se alinea con otra estrella más cercana en nuestra línea de visión, la gravedad de la estrella más cercana actúa como una lente natural, magnificando la luz de la estrella de fondo. Este efecto crea un **aumento temporal del brillo** de la estrella lejana, lo que se conoce como un **evento de microlente gravitacional**.\
-Si la estrella más cercana alberga un planeta, la gravedad del planeta también contribuirá al efecto de lente, provocando una **segunda variación en el brillo** de la estrella de fondo. Este cambio adicional en la luz nos permite inferir la presencia del planeta y estimar algunas de sus características, como su masa y distancia con respecto a su estrella [@marin-2014].
-
-### Observación directa: fotografiar exoplanetas en medio del brillo estelar
-
-Detectar exoplanetas mediante **observación directa** es un desafío, ya que estos son cuerpos pequeños y poco luminosos en comparación con las estrellas que orbitan. La intensa luz de la estrella suele eclipsar por completo la presencia del planeta, dificultando su detección.
-
-Sin embargo, existe una técnica para superar este problema: el uso de **coronógrafos**. Estos dispositivos bloquean la luz directa de la estrella, permitiendo que la tenue luz reflejada por el planeta sea visible. El concepto es similar a tapar el Sol con la mano para ver mejor lo que hay en el horizonte.
-
-Para que este método funcione, el planeta debe estar **lo suficientemente alejado de su estrella**, de modo que el coronógrafo pueda aislar su luz. Cuando esto ocurre, es posible capturar imágenes reales del exoplaneta, lo que se conoce como **observación directa**. Gracias a esta técnica, los astrónomos pueden analizar la luz reflejada por el planeta y obtener información sobre su composición, temperatura y atmósfera [@webb-nasa-science-no-date].
-
-### Detección de exoplanetas por cómo afectan la rotación de púlsares
-
-Los **púlsares** son un tipo especial de **estrellas de neutrones**, formadas tras la explosión de una supernova y comprimidas por la gravedad hasta alcanzar una densidad extrema. Estas estrellas pueden girar a velocidades sorprendentes, llegando a completar **decenas o incluso cientos de vueltas por segundo**.
-
-Una de las características más notables de los púlsares es la **precisión de su rotación**. Por ejemplo, el **púlsar del Cangrejo**, uno de los más estudiados, gira exactamente **33 veces por segundo**. Sin embargo, si un planeta orbita alrededor de un púlsar, su influencia gravitacional puede provocar **pequeñas variaciones en la periodicidad de los pulsos**.
-
-Midiendo con precisión estas sutiles anomalías en el tiempo de rotación, los astrónomos pueden **inferir la presencia de planetas** en sistemas de púlsares, un método que ha permitido descubrir algunos de los primeros exoplanetas conocidos [@wolszczan-frail-1992].
-
-## Detección de exoplanetas usando la ciencia de datos
+## Antecedentes
 
 La detección de exoplanetas es un campo de investigación en constante evolución, con nuevos descubrimientos y técnicas emergentes que amplían nuestro conocimiento del universo. La ciencia de datos juega un papel fundamental en este proceso, permitiendo a los astrónomos analizar grandes volúmenes de datos y extraer información relevante sobre los exoplanetas y sus características.
 
-Incluso NASA anima a la detección amateur de exoplanetas a traves de su sitio Exoplanet Watch donde ofrece una guía detallada sobre cómo analizar observaciones de tránsitos de exoplanetas para generar curvas de luz, que representan las variaciones en el brillo de una estrella cuando un planeta pasa frente a ella [@brachman-no-date].
+Incluso NASA anima a la detección amateur de exoplanetas a través de su sitio Exoplanet Watch donde ofrece una guía detallada sobre cómo analizar observaciones de tránsitos de exoplanetas para generar curvas de luz, que representan las variaciones en el brillo de una estrella cuando un planeta pasa frente a ella [@brachman-2024]
 
-NASA ha recopilado una gran cantidad de datos sobre exoplanetas detectados por misiones como Kepler y TESS, proporcionando una fuente invaluable de información para la investigación científica. Estos datos contienen una variedad de características sobre los exoplanetas y sus sistemas estelares, incluyendo su masa, radio, temperatura, órbita y composición química. Sin embargo esta información no siempre es completa y en muchos casos es necesario realizar análisis avanzados para extraer parámetros faltantes y predecir la habitabilidad de los exoplanetas.
+##Trabajos relacionados
 
-El objetivo de este trabajo es procesar los datos para realizar un análisis exploratorio y utilizar regresión lineal y logística para la extracción de paramétros faltantes de los exoplanetas y para predecir la habitabilidad de los mismos.
+Hay varios antecedentes del uso de aprendizaje automático y métodos estadísticos para la detección de exoplanetas.
 
-# El dataset de expolanetas detectados con el telescopio espacial Kepler
+En [@malik-2021] se presenta una nueva técnica basada en machine learning para detectar exoplanetas mediante el método de tránsito. Se empleó la biblioteca TSFresh para extraer 789 características de curvas de luz y entrenar un clasificador de gradient boosting con LightGBM.
 
-El **Archivo de Exoplanetas de la NASA** es un catálogo astronómico en línea y un servicio de datos que recopila, correlaciona y organiza información sobre exoplanetas y sus estrellas anfitrionas. Además, proporciona herramientas para trabajar con estos datos.
+En [@hadrien-2025] se trata la problemática de detección de imagen directa de exoplanetas y cómo separar el ruido de fondo de las señales planetarias. Los métodos estadísticos recientes evitan la auto sustracción de señales de interés, a diferencia del enfoque inicial basado en imágenes diferenciales angulares (ADI). Sin embargo, estos métodos pueden generar muchos falsos positivos si no se establecen umbrales conservadores, lo que a su vez puede hacer que se pierdan exoplanetas débiles. Este estudio extiende un marco estadístico incorporando una regresión logística para filtrar candidatos, utilizando características ópticas en dos longitudes de onda. Se aplica detección de bordes y algoritmos de clustering para procesar sub-imágenes. 
+
+En [@cardenas-2022] se desarrolla un ensamblado de software autónomo para detectar tránsitos planetarios en curvas de luz estelares, utilizando un clasificador de lógica difusa y evitando la búsqueda manual de tránsitos en grandes volúmenes de datos. 
+
+En [@venkata-2023] se presenta una técnica para detectar exoplanetas usando el método de tránsito. El objetivo es mejorar las técnicas tradicionales en astronomía con el uso de algoritmos de aprendizaje automático. Para ello, utilizan seis modelos diferentes de aprendizaje automático: Random Forest, Decision Tree, Support Vector Classifier, K-Nearest Neighbor y Multi-Layer Perceptron. Al comparar las precisiones concluye que combinando cuatro de esos modelos (Support Vector Classifier, K-Nearest Neighbor, Random Forest y Multi-Layer Perceptron) usando bagging, se lograba una mayor precisión.
+
+En [@pimentel-2024] se centra en detectar posibles planetas utilizando el método de tránsito con un enfoque novedoso al clasificar estrellas mediante un conjunto de características extraídas de series temporales en tres dominios: temporal, estadístico y espectral. Estas características se utilizan para entrenar y evaluar modelos con datos del telescopio Kepler, y los resultados superan algunos enfoques existentes. Además, el proceso de validación cruzada se emplea para eliminar sesgos y evaluar mejor los modelos. 
+
+Inspirándose en estos antecedentes, este trabajo busca utilizar la regresión parámetros faltantes de los exoplanetas así como predecir su habitabilidad.
+
+#Análisis Exploratorio
+
+En [@tuckey-1977] se explica que el análisis exploratorio de datos (EDA) se enfoca en descubrir patrones, anomalías y relaciones dentro de los datos, utilizando métodos visuales y estadísticos. En su base, implica abordar la incertidumbre y la diversidad de estructuras posibles en los datos, evitando asumir un único modelo probabilístico como absoluto. El EDA enfatiza la exploración sobre la inferencia estricta, buscando métodos robustos y flexibles que funcionen en diversas circunstancias, con el objetivo de proporcionar una comprensión preliminar y preparar el terreno para análisis más profundos.
+
+## El dataset de expolanetas detectados con el telescopio espacial Kepler
+
+El **Archivo de Exoplanetas de la NASA** es un catálogo astronómico en línea y un servicio de datos que recopila, correlaciona y organiza información sobre exoplanetas y sus estrellas anfitrionas. Además, proporciona herramientas para trabajar con estos datos. Este archivo está dedicado a la recopilación y difusión de conjuntos de datos públicos claves utilizados en la búsqueda y caracterización de planetas extrasolares y sus estrellas [@ipac-exoplanet-science-no-date]. 
 
 Este archivo está dedicado a la recopilación y difusión de **conjuntos de datos públicos clave** utilizados en la búsqueda y caracterización de planetas extrasolares y sus estrellas [@ipac-exoplanet-archive-no-date]. Entre los datos disponibles se incluyen:
 
@@ -387,9 +411,9 @@ Se cargan los datos del dataset de exoplanetas de la misión Kepler del archivo 
 
 El encabezado más arriba estaba incluído en el archivo .CSV generado y se incluye aquí para reproducir la consulta. El dataset contiene información sobre los sistemas exoplanetarios detectados por la misión Kepler y el diccionario de datos se encuentra en línea [@ipac-planetary-data-no-date] explicando en más profundidad la semántica de las variables.
 
-Todos los archivos necesarios para este trabajo se encuentran en el repositorio de GitHub del autor [@georgsmeinung-no-date] y se pueden descargar desde allí para reproducir este análisis, incluyendo el dataset **`keplerexoplanets.csv`** que a continuación se carga.
+Todos los archivos necesarios para este trabajo se encuentran en el repositorio de GitHub del autor [@nicolau-2025] y se pueden descargar desde allí para reproducir este análisis, incluyendo el dataset **`keplerexoplanets.csv`** que a continuación se carga.
 
-```{r load_data, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r load_data, message=FALSE, warning=FALSE}
 library(readr)
 
 # Cargar los datos del archivo CSV
@@ -398,7 +422,7 @@ kepler_data <- read_csv("keplerexoplanets.csv")
 
 **Estructura de los Datos**
 
-```{r show_data_str, echo=FALSE}
+```{r show_data_str}
 
 library(knitr)
 
@@ -422,7 +446,7 @@ Para reducir la dimensionalidad del problema, a continuación se eliminan las co
 
 Para reducir la cantidad de registros del dataset y como se busca predecir la habitabilidad de los exoplanetas en sistemas similares al Solar, se filtran los sistemas con estrellas de tamaño similar al Sol (0.9 a 1.1 radios solares). Hay muchas entradas con valores faltantes en las columnas de tipo espectral de las estrellas (la mayoría) que sería un mejor indicador para determinarl la zona habitable, por eso se toma como criterio de filtro el tamaño de las estrellas. Además se consideraran para la muesta solo los exoplanetas publicados en la literatura científica, por lo que se filtra por "Published Confirmed" en la columna **`soltype`**.
 
-```{r filter_data}
+```{r filter_data, warning=FALSE}
 
 library(dplyr)
 
@@ -467,7 +491,7 @@ El dataset resultante se guarda en un archivo CSV llamado **`keplerfiltered.csv`
 
 Las columnas en el dataset filtrado, y su descripción extraída del diccionario de datos [@ipac-planetary-data-no-date], son las siguientes:
 
-```{r show_filtered_data_structure, echo=FALSE}
+```{r show_filtered_data_structure}
 library(dplyr)
 library(knitr)
 
@@ -575,7 +599,7 @@ write_csv(column_names, "keplerdatadictionary.csv")
 
 Para realizar un análisis exploratorio de los datos, se cargan el nuevo dataset (puede comenzarse el análisis en este punto porque el dataset preprocesado está almacenado en el archivo **`keplerfiltered.csv`**) y se realizan algunas visualizaciones y cálculos descriptivos.
 
-```{r eda_filtered_data, echo=FALSE, message=FALSE, warning=FALSE}
+```{r eda_filtered_data, message=FALSE, warning=FALSE}
 
 library(ggplot2)
 library(dplyr)
@@ -672,7 +696,7 @@ midpoint <- ceiling(total_rows / 2)
 
 **Valores Faltantes por Columna**
 
-```{r missing_values_graph1, echo=FALSE, message=FALSE, warning=FALSE}
+```{r missing_values_graph1, message=FALSE, warning=FALSE}
 
 ggplot(missing_values[1:midpoint,], aes(x = reorder(key, value), y = value)) +
   geom_bar(stat = "identity", fill = "skyblue", color = "darkblue", width = 0.5) + # Reducir ancho de las barras
@@ -690,7 +714,7 @@ ggplot(missing_values[1:midpoint,], aes(x = reorder(key, value), y = value)) +
 
 ```
 
-```{r missing_values_graph2, echo=FALSE, message=FALSE, warning=FALSE}
+```{r missing_values_graph2, message=FALSE, warning=FALSE}
 
 # Crear un gráfico de barras con los valores faltantes que no sean cero
 # con la segunda mitad de las filas
@@ -740,7 +764,7 @@ half <- ceiling(n_vars / 2)
 
 **Matriz de Correlación 1/3 (Pearson Cuadrante Superior)**
 
-```{r plot_correlation_pearson_upper_quadrant, echo=FALSE, fig.width=6, fig.height=6, dpi=150}
+```{r plot_correlation_pearson_upper_quadrant, fig.width=6, fig.height=6, dpi=150}
 
 # Parte 1: Primera mitad (diagonal superior)
 correlation_matrix_pearson_sup <- correlation_matrix_pearson[1:half, 1:half]
@@ -760,7 +784,7 @@ corrplot(
 
 **Matriz de Correlación 2/3 (Pearson Cruce)**
 
-```{r plot_correlation_pearson_cross, echo=FALSE, fig.width=6, fig.height=6, dpi=150}
+```{r plot_correlation_pearson_cross, fig.width=6, fig.height=6, dpi=150}
 
 # Parte 2: Cruce entre la primera y segunda mitad
 correlation_matrix_pearson_cross <- correlation_matrix_pearson[1:half, (half + 1):n_vars]
@@ -780,7 +804,7 @@ corrplot(
 
 **Matriz de Correlación 3/3 (Pearson Cuadrante Inferior)**
 
-```{r plot_correlation_pearson_lower_quadrant, echo=FALSE, fig.width=6, fig.height=6, dpi=150}
+```{r plot_correlation_pearson_lower_quadrant, fig.width=6, fig.height=6, dpi=150}
 
 # Parte 3: Segunda mitad (diagonal inferior)
 correlation_matrix_pearson_inf <- correlation_matrix_pearson[(half + 1):n_vars, (half + 1):n_vars]
@@ -806,7 +830,7 @@ En cuanto a la variable que se seleccionó como **variable objetivo** en el aná
 
 Para visualizar mejor estas relaciones y seleccionar las mejores **variables predictoras**, se realiza un **pair plot** con las variables que presentan una correlación significativa, estableciendo un **umbral del 50% en valor absoluto**. Este gráfico permite examinar cómo se distribuyen los datos y cómo se relacionan las variables entre sí, facilitando la identificación de tendencias y posibles patrones útiles para la estimación de valores faltantes y la construcción de modelos de predicción.
 
-```{r most_correlated_variables, echo=FALSE}
+```{r most_correlated_variables}
 
 # Seleccionar de la matriz de correlación las variables con correlacion mayor o
 # igual a 0.3 en valor absoluto con la variable faltante
@@ -838,7 +862,7 @@ kable(correlation_df, columns = c("Variable","Correlación","Faltantes"), align 
 
 ```
 
-```{r pair_plot_correlated_variables, echo=FALSE, warning=FALSE}
+```{r pair_plot_correlated_variables, warning=FALSE}
 
 panel.hist <- function(x, ...) {
   usr <- par("usr"); on.exit(par(usr))
@@ -866,7 +890,7 @@ Con base en estos resultados, se seleccionan estas tres variables como **variabl
 
 Para las variables predictoras seleccionadas (**`pl_ratdor`**,**`pl_trandep`**,**`pl_rvamp`**), se detectan valores atípicos en el dataset que puedan afectar el análisis y la predicción de la variable faltante (**`pl_radj`**).
 
-```{r outliers_detection, echo=FALSE, warning=FALSE}
+```{r outliers_detection, warning=FALSE}
 
 # Seleccionar las variables predictoras
 predictor_vars <- c("pl_ratdor", "pl_trandep", "pl_rvamp")
@@ -939,7 +963,7 @@ model_pl_ratdor_summary <- summary(model_pl_ratdor)
 model_pl_ratdor_summary
 ```
 
-```{r univar_reg_pl_ratdor_plot, echo=FALSE, warning=FALSE}
+```{r univar_reg_pl_ratdor_plot, warning=FALSE}
 
 # Scatter plot de pl_radj vs pl_ratdor con la recta de regresión en rojo
 # y los margenes de confianza en gris
@@ -967,7 +991,7 @@ Por otro lado, el **F-statistic** (2.097) y su valor p (**0.1516**) confirman qu
 
 A pesar de estos resultados, se realiza un análisis de los **residuos del modelo** para verificar si cumplen con los supuestos de la regresión lineal, con el objetivo de entender mejor las limitaciones del modelo y explorar posibles ajustes o alternativas.
 
-```{r univar_reg_pl_ratdor_res_plot, echo=FALSE, warning=FALSE}
+```{r univar_reg_pl_ratdor_res_plot, warning=FALSE}
 
 # Obtener los residuos y valores ajustados
 res_pl_ratdor <- residuals(model_pl_ratdor)
@@ -997,7 +1021,7 @@ Se detecta una leve **heterocedasticidad**, ya que la dispersión de los residuo
 
 Dado que el modelo tiene un **R² muy bajo (\~2.6%)**, era esperable encontrar una dispersión alta en los residuos, lo que confirma que **`pl_ratdor` no es un buen predictor de `pl_radj`**. Además, la presencia de residuos elevados sugiere que existen **otras variables no consideradas** que podrían explicar mejor la variabilidad en el radio del exoplaneta.
 
-```{r univar_reg_pl_ratdor_qq_plot, echo=FALSE, warning=FALSE}
+```{r univar_reg_pl_ratdor_qq_plot, warning=FALSE}
 
 # Crear un gráfico Q-Q de los residuos
 qqnorm(res_pl_ratdor, main = "Gráfico Q-Q de los Residuos", col = "indianred")
@@ -1130,7 +1154,7 @@ model_pl_trandep_summary
 
 ```
 
-```{r univar_reg_pl_trandep_plot, echo=FALSE, warning=FALSE}
+```{r univar_reg_pl_trandep_plot, warning=FALSE}
 
 # Scatter plot de pl_radj vs pl_trandep con la recta de regresión en rojo
 # y los margenes de confianza en gris
@@ -1406,7 +1430,7 @@ model_pl_rvamp_summary
 
 ```
 
-```{r univar_reg_pl_rvamp_plot, echo=FALSE, warning=FALSE}
+```{r univar_reg_pl_rvamp_plot, warning=FALSE}
 
 # Scatter plot de pl_radj vs pl_rvamp con la recta de regresión en rojo
 # y los margenes de confianza en gris
@@ -1534,7 +1558,7 @@ model_pl_rvamp_log_summary
 
 ```
 
-```{r univar_reg_pl_rvamp_log_transf_plot, echo=FALSE, warning=FALSE}
+```{r univar_reg_pl_rvamp_log_transf_plot, warning=FALSE}
 
 # Scatter plot de log(pl_radj) vs pl_rvamp con la recta de regresión en rojo
 # y los margenes de confianza en gris
@@ -1789,7 +1813,7 @@ model_logistic_summary
 
 ```
 
-```{r log_reg_plot, echo=FALSE, warning=FALSE}
+```{r log_reg_plot, warning=FALSE}
 
 # Graficar la curva logistica del modelo
 # Crear un data frame con los valores de PHI y las probabilidades predichas
@@ -1961,6 +1985,15 @@ lgbm_model <- lgb.train(
 # Predecir PHI estimado
 phi_pred <- predict(lgbm_model, X_matrix)
 kepler_data$phi_estimated <- phi_pred
+
+# Asignar los valores predichos a la columna phi_estimated
+# en data original siguiendo la correspondencia de id
+kepler_data <- kepler_data %>%
+  mutate(phi_estimated = phi_pred[match(id, kepler_data$id)])
+
+# Guardar el dataset con los valores predichos
+# en el archivo CSV "kepler_data_with_phi.csv"
+write.csv(kepler_data, "keplerdataestimated.csv", row.names = FALSE)
 
 ```
 

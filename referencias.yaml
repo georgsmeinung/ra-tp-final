@@ -4,18 +4,6 @@ author: "Tu Nombre"
 date: "`r Sys.Date()`"
 output: html_document
 references:
-  - id: brachman-no-date
-    author: "Brachman, R. Z."
-    title: "How to Analyze Your Data | How to Get Started – Exoplanet Exploration: Planets Beyond our Solar System"
-    publisher: "Exoplanet Exploration: Planets Beyond Our Solar System"
-    url: "https://exoplanets.nasa.gov/exoplanet-watch/how-to-contribute/how-to-analyze-your-data/"
-
-  - id: neofronteras-no-date
-    author: "NeoFronteras"
-    title: "Detección de exoplanetas por astrometría"
-    publisher: "NeoFronteras"
-    url: "https://neofronteras.com/?p=8093"
-
   - id: alonso-sobrino-2006
     author: "Alonso Sobrino, Roi"
     title: "Detección y caracterización de exoplanetas mediante el método de los tránsitos"
@@ -23,16 +11,60 @@ references:
     publisher: "Instituto de Astrofísica de Canarias (IAC)"
     url: "https://www.iac.es/es/ciencia-y-tecnologia/publicaciones/deteccion-y-caracterizacion-de-exoplanetas-mediante-el-metodo-de-los-transitos"
 
-  - id: georgsmeinung-no-date
-    author: "Georgsmeinung"
-    title: "GitHub - georgsmeinung/ra-tp-final"
-    publisher: "GitHub"
-    url: "https://github.com/georgsmeinung/ra-tp-final/"
+  - id: brachman-no-date
+    author: "Brachman, R. Z."
+    title: "How to Analyze Your Data | How to Get Started – Exoplanet Exploration: Planets Beyond our Solar System"
+    publisher: "Exoplanet Exploration: Planets Beyond Our Solar System"
+    url: "https://exoplanets.nasa.gov/exoplanet-watch/how-to-contribute/how-to-analyze-your-data/"
+    
+  - id: cardenas-2022
+    author: "Cardenas, Christian & Lozano, David & Marquez, Cristian & Torres, Edilberto & Delgado-Correal, Camilo" 
+    title: "Optimización de un sistema difuso para la detección automática de tránsitos planetarios en curvas de luz de estrellas individuales"
+    journal: "Ciencia en Desarrollo"
+    year: 2022 
+    volume: 1
+    number: 10
+    pages: "19-35" 
+    url: "http://dx.doi.org/10.19053/01217488.v1.n2E.2022.15136"
+
+  - id: cermak-2024
+    author: "Cermak, A. & Cermak, A."
+    title: "Kepler / K2 - NASA Science"
+    publisher: "NASA Science"
+    year: 2024
+    month: "September 3"
+    url: "https://science.nasa.gov/mission/kepler/"
+    
+  - id: hadrien-2025
+    author: "Hadrien Cambazard, Nicolas Catusse, Antoine Chomez, Anne-Marie Lagrange"
+    title: "Logistic regression to boost exoplanet detection performances"
+    journal: "Monthly Notices of the Royal Astronomical Society"
+    year: 2025
+    volume: 536
+    number: 2
+    pages: "1610–1624"
+    url: "https://doi.org/10.1093/mnras/stae2657"
+
+  - id: ipac-exoplanet-science-no-date
+    author: "IPAC"
+    title: "NASA Exoplanet Archive"
+    publisher: "NASA Exoplanet Science Institute"
+    url: "https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS"
+
+  - id: ipac-exoplanet-archive-no-date
+    author: "IPAC"
+    title: "NASA Exoplanet Archive overview and holdings"
+    url: "https://exoplanetarchive.ipac.caltech.edu/docs/intro.html"
 
   - id: ipac-no-date
     author: "IPAC"
     title: "Our mission"
     url: "https://www.ipac.caltech.edu/page/mission"
+
+  - id: ipac-planetary-data-no-date
+    author: "IPAC"
+    title: "Planetary Systems and Planetary Systems Composite Parameters Data Column Definitions"
+    url: "https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html"
 
   - id: kane-gelino-2012
     author: "Kane, Stephen R. & Gelino, Dawn M."
@@ -56,12 +88,31 @@ references:
     doi: "10.1088/0004-637x/765/2/131"
     url: "https://doi.org/10.1088/0004-637x/765/2/131"
 
-  - id: marin-2014
+  - id: lee-2013
+    author: "Lee, D.-H."
+    title: "Pseudo-label: The simple and efficient semi-supervised learning method for deep neural networks"
+    url: "https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=798d9840d2439a0e5d47bcf5d164aa46d5e7dc26"
+    
+  - id: malik-2021
+    author: "Malik, A., Moster, B. P., & Obermeier, C."
+    title: "Exoplanet detection using machine learning"
+    journal: "Monthly Notices of the Royal Astronomical Society"
+    year: 2021
+    url: "https://doi.org/10.1093/mnras/stab3692"
+
+  - id: marin-2011
     author: "Marín, Daniel"
     title: "Detectando planetas desde el espacio gracias a Einstein - Eureka"
     publisher: "Eureka"
-    year: 2014
+    year: 2011
     url: "https://danielmarin.naukas.com/2011/05/23/detectando-planetas-desde-el-espacio-gracias-a-einstein/"
+    
+  - id: marin-2018
+    author: "Marín, Daniel"
+    title: "EarthFinder: un telescopio espacial para buscar exotierras por el método de la velocidad radial - Eureka"
+    year: 2018
+    month: "March"
+    url: "https://danielmarin.naukas.com/2018/03/14/earthfinder/"
 
   - id: mendez-rivera-2021
     author: "Méndez, Abel, Rivera-Valentin, Edgard, Schulze-Makuch, Dirk, Filiberto, Justin, Ramirez, Ramses, Wood, Tana, Dávila, Alfonso, McKay, Chris, Ceballos, Kevin, Jusino-Maldonado, Marcos, Torres-Santiago, Nicole, Gomez, Guillermo Nery, Heller, René, Byrne, Paul, Malaska, Michael, Nathan, Erica, Simões, Marta, Antunes, André, Martínez-Frías, Jesús, & Haqq-Misra, Jacob."
@@ -71,17 +122,6 @@ references:
     doi: "10.1089/ast.2020.2342"
     url: "https://www.researchgate.net/publication/353861442_Habitability_Models_for_Astrobiology"
 
-  - id: ipac-exoplanet-archive-no-date
-    author: "IPAC"
-    title: "NASA Exoplanet Archive overview and holdings"
-    url: "https://exoplanetarchive.ipac.caltech.edu/docs/intro.html"
-
-  - id: ipac-exoplanet-science-no-date
-    author: "IPAC"
-    title: "NASA Exoplanet Archive"
-    publisher: "NASA Exoplanet Science Institute"
-    url: "https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS"
-
   - id: nardi-2024
     author: "Nardi, Luca"
     title: "¿Cuáles son las técnicas utilizadas para descubrir exoplanetas?"
@@ -90,10 +130,26 @@ references:
     month: "August 26"
     url: "https://es.wired.com/articulos/cuales-son-las-tecnicas-utilizadas-para-descubrir-exoplanetas"
 
-  - id: ipac-planetary-data-no-date
-    author: "IPAC"
-    title: "Planetary Systems and Planetary Systems Composite Parameters Data Column Definitions"
-    url: "https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html"
+  - id: nasa-2022
+    author: "NASA, Equipo de redacción de Ciencia"
+    title: "Webb de la NASA obtiene su primera imagen directa de un mundo distante"
+    publisher: "NASA Ciencia"
+    year: 2022
+    url: "https://ciencia.nasa.gov/universo/webb-de-la-nasa-obtiene-su-primera-imagen-directa-de-un-mundo-distante/"
+
+  - id: nicolau-2025
+    author: "Nicolau, Jorge"
+    title: "GitHub - georgsmeinung/ra-tp-final"
+    publisher: "GitHub"
+    year: 2025
+    url: "https://github.com/georgsmeinung/ra-tp-final/"
+    
+  - id: pimentel-2024
+    author: "Pimentel, J., Amorim, J. & Rudzicz, F."
+    title: "Feature extraction for exoplanet detection"
+    journal: "Int J Data Sci Anal"
+    year: 2024
+    url: "https://doi.org/10.1007/s41060-024-00552-7"
 
   - id: shields-ballard-2016
     author: "Shields, Aomawa L., Ballard, Sarah, & Johnson, John Asher"
@@ -104,12 +160,25 @@ references:
     pages: "1-38"
     doi: "10.1016/j.physrep.2016.10.003"
     url: "https://doi.org/10.1016/j.physrep.2016.10.003"
+    
+  - id: shields-2016
+    author: "Shields, Aomawa L., Ballard, Sarah, & Johnson, John Asher"
+    title: "The Habitability of Planets Orbiting M-Dwarf Stars"
+    year: 2016
+    url: "https://doi.org/10.1016/j.physrep.2016.10.003"
 
-  - id: webb-nasa-science-no-date
-    author: "NASA, Equipo de redacción de Ciencia"
-    title: "Webb de la NASA obtiene su primera imagen directa de un mundo distante"
-    publisher: "NASA Ciencia"
-    url: "https://ciencia.nasa.gov/universo/webb-de-la-nasa-obtiene-su-primera-imagen-directa-de-un-mundo-distante/"
+  - id: tukey-1977
+    author: "Tukey, J. W."
+    title: "Exploratory Data Analysis"
+    publisher: "Addison-Wesley Publishing Company"
+    year: 1977
+    volume: 2
+  
+  - id: ventaka-2023
+    author: "Venkata, G & Jahnavi, M & Ch, Venkata & Suneetha, Muvva"
+    title: "Exoplanet Detection Using Feature Engineering with Ensemble Learning"
+    year: 2023
+    url: "http://dx.doi.org/10.1109/ICPCSN58827.2023.00025"
 
   - id: wolszczan-frail-1992
     author: "Wolszczan, Aleksander & Frail, D. A."
@@ -122,19 +191,19 @@ references:
     doi: "10.1038/355145a0"
     url: "https://doi.org/10.1038/355145a0"
     
-  - id: marin-2018
-    author: "Marín, Daniel"
-    title: "EarthFinder: un telescopio espacial para buscar exotierras por el método de la velocidad radial - Eureka"
-    year: 2018
-    month: "March"
-    url: "https://danielmarin.naukas.com/2018/03/14/earthfinder/"
-
-  - id: cermak-2024
-    author: "Cermak, A. & Cermak, A."
-    title: "Kepler / K2 - NASA Science"
-    publisher: "NASA Science"
-    year: 2024
-    month: "September 3"
-    url: "https://science.nasa.gov/mission/kepler/"
-
+  - id: wu-2023
+    author: "Wu, Dong-Hong"
+    title: "The possibility of detecting our solar system through astrometry"
+    year: 2023
+    url: "https://arxiv.org/abs/2309.11729"
+    
+  - id: zhou-2004
+    author: "Zhou, D., Bousquet, O., Lal, T. N., Weston, J., & Schölkopf, B."
+    title: "Learning with local and global consistency"
+    journal: "Advances in Neural Information Processing Systems"
+    year: 2004
+    volume: 16
+    pages: "321–328"
+    url: "https://proceedings.neurips.cc/paper_files/paper/2003/file/87682805257e619d49b8e0dfdc14affa-Paper.pdf"
+    
 ---
