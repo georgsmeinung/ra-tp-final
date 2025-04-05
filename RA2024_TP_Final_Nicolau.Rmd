@@ -129,6 +129,19 @@ references:
     year: 2024
     month: "September 3"
     url: "https://science.nasa.gov/mission/kepler/"
+  - id: lee-2013
+    autor: "Lee, D.-H." 
+    title: "Pseudo-label: The simple and efficient semi-supervised learning method for deep neural networks."
+    year: 2013
+    url: "https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=798d9840d2439a0e5d47bcf5d164aa46d5e7dc26" 
+  - id: zhou-2004
+    author: "Zhou, D., Bousquet, O., Lal, T. N., Weston, J., & Schölkopf, B."
+    title: "Learning with local and global consistency" 
+    journal: "Advances in Neural Information Processing Systems"
+    volume: 16
+    pages: "321–328" 
+    year: 2004  
+    url: "https://proceedings.neurips.cc/paper_files/paper/2003/file/87682805257e619d49b8e0dfdc14affa-Paper.pdf" 
 editor_options:
   markdown:
     wrap: none
@@ -727,7 +740,7 @@ half <- ceiling(n_vars / 2)
 
 **Matriz de Correlación 1/3 (Pearson Cuadrante Superior)**
 
-```{r plot_correlation_pearson_upper_quadrant, echo=FALSE}
+```{r plot_correlation_pearson_upper_quadrant, echo=FALSE, fig.width=6, fig.height=6, dpi=150}
 
 # Parte 1: Primera mitad (diagonal superior)
 correlation_matrix_pearson_sup <- correlation_matrix_pearson[1:half, 1:half]
@@ -736,8 +749,8 @@ corrplot(
   method = "color",
   type = "upper",
   addCoef.col = "black",
-  number.cex = 0.5,
-  tl.cex = 0.7,
+  number.cex = 0.4,
+  tl.cex = 0.5,
   tl.col = "black",
   col = colorRampPalette(c("indianred", "white", "steelblue"))(20),
   title = ""
@@ -747,7 +760,7 @@ corrplot(
 
 **Matriz de Correlación 2/3 (Pearson Cruce)**
 
-```{r plot_correlation_pearson_cross, echo=FALSE}
+```{r plot_correlation_pearson_cross, echo=FALSE, fig.width=6, fig.height=6, dpi=150}
 
 # Parte 2: Cruce entre la primera y segunda mitad
 correlation_matrix_pearson_cross <- correlation_matrix_pearson[1:half, (half + 1):n_vars]
@@ -756,8 +769,8 @@ corrplot(
   method = "color",
   type = "full",  # Mostrar todas las correlaciones en esta sección
   addCoef.col = "black",
-  number.cex = 0.5,
-  tl.cex = 0.7,
+  number.cex = 0.4,
+  tl.cex = 0.5,
   tl.col = "black",
   col = colorRampPalette(c("indianred", "white", "steelblue"))(20),
   title = ""
@@ -767,7 +780,7 @@ corrplot(
 
 **Matriz de Correlación 3/3 (Pearson Cuadrante Inferior)**
 
-```{r plot_correlation_pearson_lower_quadrant, echo=FALSE}
+```{r plot_correlation_pearson_lower_quadrant, echo=FALSE, fig.width=6, fig.height=6, dpi=150}
 
 # Parte 3: Segunda mitad (diagonal inferior)
 correlation_matrix_pearson_inf <- correlation_matrix_pearson[(half + 1):n_vars, (half + 1):n_vars]
@@ -776,8 +789,8 @@ corrplot(
   method = "color",
   type = "upper",
   addCoef.col = "black",
-  number.cex = 0.5,
-  tl.cex = 0.7,
+  number.cex = 0.4,
+  tl.cex = 0.5,
   tl.col = "black",
   col = colorRampPalette(c("indianred", "white", "steelblue"))(20),
   title = ""
@@ -872,17 +885,27 @@ predictor_data <- as.data.frame(predictor_data)
 # Convertir a formato largo para ggplot2
 data_long <- pivot_longer(predictor_data, cols = everything(), names_to = "Variable", values_to = "Valores")
 
-# Graficar los valores atípicos con un boxplot
-ggplot(data_long, aes(x = Variable, y = Valores)) +
-  geom_boxplot(outlier.colour = "indianred", outlier.shape = 1, outlier.size = 2, width = 0.2, fill = "steelblue") +
-  labs(title = "Boxplot de Variables predictoras",
-       x = "Variable", y = "Valores") +
-  coord_flip() +
-  theme_minimal(base_size = 14)
+
+# Graficar los valores atípicos con un boxplot horizontal
+# Se muestra el numero total de valores atípicos
+ggplot(data_long, aes(x = Valores, y = Variable)) +
+  geom_boxplot(fill = "skyblue", color = "darkblue") +
+  geom_jitter(aes(color = abs(Valores) > 3), width = 0.1) +
+  scale_color_manual(values = c("black", "red")) +
+  labs(title = "Detección de Valores Atípicos en Variables Predictoras",
+       x = "Valores Normalizados",
+       y = "Variable") +
+  theme_minimal()
+
+
 
 ```
 
 El **boxplot** revela la presencia de **valores atípicos** en las variables predictoras seleccionadas, lo que puede influir significativamente en el análisis y en la precisión de la estimación de la variable faltante. Estos **outliers** pueden sesgar los resultados y reducir la eficacia de los modelos de predicción, especialmente si se utilizan técnicas sensibles a valores extremos, como la regresión lineal estándar.
+
+Llama particularmente la atención la dispersión y la presencia de **valores extremos** en la variable **`pl_trandep`**, que representa la profundidad del tránsito del planeta, es decir, qué tanto disminuye el flujo de luz de la estrella cuando el planeta pasa por delante de ella. Básicamente, cuánta luz bloquea el planeta durante el tránsito, en porcentaje. La dispersión de valore nos da algunas pistas. En primer lugar los valores cercanos a cero (la gran mayoría): indican que el planeta bloquea muy poca luz durante el tránsito. Esto es normal para planetas pequeños o lejanos. Por otra parte la columna larga de puntos a la derecha (outliers en rojo): esos son casos donde la disminución del flujo es mucho mayor, indicando que el planeta: o es muy grande en comparación con su estrella, o la estrella es pequeña, así que cualquier planeta genera un gran bloqueo de luz pero también posiblemente que haya problemas en la medición o errores sistemáticos.
+
+La gran cantidad de **valores extremos** en **`pl_trandep`** puede sugerir una distribución naturalmente sesgada; es decir esta variable puede seguir una distribución fuertemente asimétrica dado quye la mayoría de los planetas apenas bloquean luz pero unos pocos bloquean bastante (ej: Júpiteres calientes frente a enanas rojas). Es común en astronomía: pocos eventos extremos, muchos valores pequeños. Pero también puede significar errores o ruido instrumental: algunos outliers podrían ser artefactos de medición, donde el modelo de tránsito interpretó mal la curva de luz. Por último no debe descartarse que  puede haber errores de reducción de datos en el telescopio Kepler. Si no es un problema del telescopio, puede ser un sistema mal clasificado: Algunos objetos pueden no ser planetas, sino estrellas binarias eclipsantes, que generan una bajada de flujo mucho mayor al de un planeta.
 
 Para abordar este problema, es recomendable emplear **métodos de regresión robustos**, diseñados para minimizar el impacto de valores atípicos en el ajuste del modelo. Un ejemplo de este enfoque es la **regresión de Huber**, que combina las ventajas de la regresión lineal y la regresión por mínimos cuadrados, pero con un mecanismo que reduce la influencia de outliers al asignarles un menor peso en el cálculo de los coeficientes.
 
@@ -1326,6 +1349,48 @@ El **test de Breusch-Pagan** arroja un **estadístico BP de 14.87**, con **1 gra
 
 Aunque la **transformación cuadrática** aplicada a la variable dependiente ayudó a **reducir la heterocedasticidad**, los resultados muestran que aún persiste en cierta medida. Esto sugiere que, aunque el modelo ha mejorado, puede ser necesario aplicar **otras estrategias**, como regresión ponderada o el uso de errores estándar robustos, para garantizar una estimación más estable y confiable.
 
+### Regresión lineal robusta de Huber: radio del exoplaneta según la profundidad del tránsito (`pl_trandep`)
+
+Cabe recordar, según lo expuesto en el análisis de outliers, la gran cantidad de datos extremos en la variable `pl_trandep`, por lo que probablemente sea adecuada la utilización de un modelo más robusto para evitar que estos datos afecten la calidad del modelo, como por ejemplo **la regresión de Huber**.
+
+```{r univar_reg_pl_trandep_huber}
+
+# Regresión de Huber
+library(MASS)
+
+# Ajuste del modelo de regresión de Huber
+model_pl_trandep_huber <- rlm(pl_radj ~ pl_trandep, data = kepler_data_num)
+
+model_pl_trandep_huber_summary <- summary(model_pl_trandep_huber)
+
+model_pl_trandep_huber_summary
+
+```
+
+```{r univar_reg_pl_trandep_huber_plot, warning=FALSE}
+
+# Scatter plot de pl_radj vs pl_trandep con la recta de regresión en rojo
+# y los margenes de confianza en gris
+ggplot(kepler_data_num, aes(x = pl_trandep, y = pl_radj)) +
+  geom_point(color = "steelblue") +
+  geom_smooth(method = "rlm", color = "indianred", fill = "grey", alpha = 0.2) +
+  labs(title = "Regresión de Huber: Radio del Exoplaneta segun Profundidad del Tránsito",
+       x = "Profundidad del Tránsito (%)",
+       y = "Radio del Exoplaneta (Júpiter)") +
+  theme_minimal()
+
+```
+
+formular de la regresión de Huber:
+
+$$
+pl\_radj = 0.2199 + 0.6289 \cdot pl\_trandep + 0.08627
+$$
+
+El modelo de regresión de Huber muestra una relación significativa entre **`pl_trandep`** y **`pl_radj`**, con un coeficiente de **0.6289**. Cada aumento unitario en **`pl_trandep`** se asocia con un incremento de **0.6289 en `pl_radj`**. Además, el modelo tiene un **error estándar de los residuos de 0.3876**, lo que indica una variabilidad moderada en las predicciones.
+
+Ambos coeficientes son altamente significativos (t > 2 por mucho), lo que sugiere que hay una relación clara y fuerte entre la profundidad del tránsito y el radio del planeta. Sin embargo, de los datos originales, solo 41 observaciones fueron usadas y 2505 observaciones fueron descartadas. Eso puede pasar si faltan datos en **`pl_radj`** o **`pl_trandep`** o se perdieron en el preprocesamiento (posiblemente el tratamiento del método robusto) los dejó fuera.
+
 ### Regresión lineal: radio del exoplaneta según la amplitud de la velocidad radial (`pl_rvamp`)
 
 ```{r univar_reg_pl_rvamp}
@@ -1697,12 +1762,8 @@ $$
 
 library(dplyr)
 
-# Crear un data frame con las variables seleccionadas
-kepler_data_logistic <- kepler_data %>%
-  dplyr::select(pl_eqt, pl_insol, pl_orbsmax)
-
 # Normalizar las variables
-kepler_data_logistic_normalized <- kepler_data_logistic %>%
+kepler_data <- kepler_data %>%
   mutate(
     pl_eqt_normalized = pmin(1, pmax(0, (pl_eqt - 200) / (400 - 200))),
     pl_insol_normalized = pmin(1, pmax(0, (pl_insol - 0.3) / (1.7 - 0.3))),
@@ -1710,20 +1771,17 @@ kepler_data_logistic_normalized <- kepler_data_logistic %>%
   )
 
 # Calcular el índice de habitabilidad planetaria (PHI)
-kepler_data_logistic_normalized <- kepler_data_logistic_normalized %>%
+kepler_data <- kepler_data %>%
   mutate(
     phi = 0.4 * pl_eqt_normalized + 0.3 * pl_insol_normalized + 0.3 * pl_orbsmax_normalized 
   )
-
-# Remover columnas no normalizadas
-kepler_data_logistic_normalized <- subset(kepler_data_logistic_normalized, select = -c(pl_eqt, pl_insol, pl_orbsmax))
 
 ```
 
 ```{r log_reg}
 
 # Crear un modelo de regresión logística
-model_logistic <- glm(phi ~ ., data = kepler_data_logistic_normalized, family = binomial)
+model_logistic <- glm(phi ~ pl_eqt_normalized + pl_insol_normalized + pl_orbsmax_normalized , data = kepler_data, family = binomial)
 
 model_logistic_summary <- summary(model_logistic)
 
@@ -1739,10 +1797,10 @@ model_logistic_summary
 phi_prob <- predict(model_logistic, type = "response")
 
 # Filtrar los registros donde se conoce la habitabilidad
-kepler_data_logistic_normalized <- kepler_data_logistic_normalized %>%
+kepler_data_phi <- kepler_data %>%
   filter(!is.na(phi))
 
-phi_prob_df <- data.frame(PHI = kepler_data_logistic_normalized$phi, Probabilidad = phi_prob)
+phi_prob_df <- data.frame(PHI = kepler_data_phi$phi, Probabilidad = phi_prob)
 
 # Scatter plot de PHI vs Probabilidad
 ggplot(phi_prob_df, aes(x = PHI, y = Probabilidad)) +
@@ -1762,7 +1820,7 @@ La baja cantidad de datos afecta significativamente la **precisión y confiabili
 El **modelo de regresión logística** planteado presenta varias limitaciones que afectan su utilidad y confiabilidad.
 
 $$
-\log \left( \frac{P(\phi = 1)}{1 - P(\phi = 1)} \right) = \beta_0 + \beta_1 \cdot \text{pl_eqt_normalized} + \beta_2 \cdot \text{pl_insol_normalized} + \beta_3 \cdot \text{pl_orbsmax_normalized}
+\log \left( \frac{P(\phi = 1)}{1 - P(\phi = 1)} \right) = -2.488 + 2.228 \cdot \text{pl_eqt_normalized} + 1.105 \cdot \text{pl_insol_normalized} + 1.569 \cdot \text{pl_orbsmax_normalized}
 $$
 
 Uno de los principales problemas es la **drástica reducción en la deviance residual**, que pasó de **0.4535** (sin predictores) a **0.0006** (con predictores). Si bien una reducción en la deviance suele indicar una mejora en el modelo, en este caso el valor **extremadamente bajo** sugiere un **sobreajuste**, lo que significa que el modelo está ajustándose demasiado a los pocos datos disponibles y podría no generalizar bien a nuevas observaciones.
@@ -1773,16 +1831,199 @@ Otro problema grave es la **eliminación de datos faltantes**, que dejó **solo 
 
 En su estado actual, el modelo no es útil, ya que **no cuenta con variables predictoras significativas** y enfrenta **una pérdida masiva de datos**, lo que limita su capacidad para hacer inferencias válidas. Antes de sacar conclusiones sobre la relación entre **PHI** y las variables predictoras, sería recomendable **limpiar los datos y probar un modelo más simple**. Sin embargo, dada la **escasez de observaciones**, es posible que no sea factible construir un modelo confiable para la **predicción de habitabilidad** en estas condiciones.
 
+## Predicción de PHI con datos faltantes
+
+Dado que el índice de habitabilidad planetaria (PHI) **sólo pudo calcularse para 17 planetas**, y que el resto del conjunto, **2530 observaciones, presenta datos faltantes en variables clave**, la aplicación directa de un modelo supervisado como **la regresión logística no resulta viable sin recurrir a imputaciones extensas y potencialmente sesgadas**. En lugar de ello, se intenta **un enfoque semi-supervisado combinando clustering con LightGBM**. Primero, se aplica el algoritmo de agrupamiento **K-means** a la totalidad del conjunto de datos (sin utilizar las etiquetas), con el fin de identificar estructuras latentes en el espacio de variables. Luego, se analizan los 17 planetas con PHI calculado para verificar si se concentran en uno o más de estos clústeres. Finalmente, **se utilizan los clusters como etiquetas débiles para entrenar un modelo con LightGBM**, lo que permite aprovechar la información estructural del conjunto completo y facilitar la generalización en contextos donde las etiquetas son escasas, como es común en astronomía y otros campos científicos.
+
+En contextos donde la disponibilidad de datos etiquetados es extremadamente limitada, **los métodos de aprendizaje semi-supervisado ofrecen una alternativa eficaz para aprovechar la estructura latente de los datos no etiquetados**. Una estrategia ampliamente utilizada es el pseudo-etiquetado, que consiste en asignar etiquetas estimadas a ejemplos no etiquetados y utilizarlas en conjunto con las etiquetas reales para entrenar modelos supervisados. Este enfoque fue formalizado por [@lee-2013], **quien demostró que el uso iterativo de pseudo-etiquetas puede mejorar significativamente el rendimiento de los modelos**, incluso con cantidades mínimas de datos anotados. Por otro lado, [@zhou-2004] **introdujeron el concepto de propagación de etiquetas sobre grafos construidos a partir de la similitud entre ejemplos**, lo que respalda el uso de algoritmos de agrupamiento como K-means para difundir información de las etiquetas escasas a través de la estructura del conjunto de datos. En combinación, **estos enfoques permiten construir modelos robustos a partir de datos predominantemente no etiquetados**, como en el caso de la estimación del índice de habitabilidad planetaria (PHI), donde menos del 1% de los registros disponibles incluyen una etiqueta confiable.
+
+Primero se aplica el algoritmo de agrupamiento **K-means** a la totalidad del conjunto de datos (sin utilizar las etiquetas), con el fin de identificar estructuras latentes en el espacio de variables. Para ello, se imputa NA con la mediana por columna y se eliminan columnas con valores no finitos.
+
+```{r semi_supervised_kmeans}
+
+library(dplyr)
+library(lightgbm)
+library(Matrix)
+
+# asignar un id numerico único a cada fila
+kepler_data <- kepler_data %>%
+  mutate(id = row_number())
+
+# Separar PHI y features
+# Filtrar columnas numéricas **con solo valores finitos**
+features <- kepler_data %>%
+  dplyr::select(where(is.numeric)) %>%
+  dplyr::select(where(~ all(is.finite(.))))
+phi <- kepler_data$phi
+
+# Se imputa NA con la mediana por columna
+# La imputacion es sólo para aplicar k-means, no para entrenar LightGBM
+features_imputed <- features %>%
+  mutate(across(where(is.numeric), ~ ifelse(is.na(.), median(., na.rm = TRUE), .)))
+
+# Aplicar K-means con k = 17
+set.seed(random_seed)
+kmeans_result <- kmeans(scale(features_imputed), centers = 17, nstart = 25)
+clusters <- kmeans_result$cluster
+
+```
+
+Dada la alta dimensionalidad de los datos, se utiliza PCA para visualizar los clústeres. En este caso, se seleccionan los dos primeros componentes principales para la visualización en 2D. Además se muestran los 17 planetas con PHI conocido.
+
+```{r semi_supervised_kmeans_pca_plot}
+
+library(ggplot2)
+
+# 1. Asegurarse de que features está estandarizado (como se usó en K-means)
+features_scaled <- scale(features)
+
+# 2. Ejecutar PCA
+pca_result <- prcomp(features_scaled)
+pca_data <- as.data.frame(pca_result$x[, 1:2])  # Tomamos solo PC1 y PC2
+
+# 3. Agregar cluster y si tiene PHI
+pca_data$cluster <- as.factor(clusters)
+pca_data$has_phi <- !is.na(kepler_data$phi)
+
+# 4. Graficar
+ggplot(pca_data, aes(x = PC1, y = PC2, color = cluster)) +
+  geom_point(alpha = 0.6, size = 2) +
+  geom_point(data = subset(pca_data, has_phi), 
+             aes(x = PC1, y = PC2), 
+             shape = 17, size = 3.5, color = "black") +
+  labs(
+    title = "Clusters de K-means visualizados con PCA",
+    subtitle = "Los triángulos negros indican planetas con PHI conocido",
+    x = "Componente Principal 1",
+    y = "Componente Principal 2"
+  ) +
+  theme_minimal()
+
+
+```
+
+Segundo se analiza si los 17 planetas con PHI calculado se concentran en uno o más de estos clústeres. Para ello, se propagan etiquetas débiles a través de los clústeres, asignando el valor promedio de PHI a los planetas no etiquetados dentro de cada clúster. Si un clúster no tiene etiquetas, se asigna el promedio del clúster más cercano.
+
+```{r semi_supervised_weak_labels}
+
+# Propagar PHI promedio dentro de cada cluster
+pseudo_phi <- numeric(length(phi))
+for (cluster_id in unique(clusters)) {
+  in_cluster <- clusters == cluster_id
+  labeled <- !is.na(phi) & in_cluster
+  unlabeled <- is.na(phi) & in_cluster
+
+  if (sum(labeled) > 0) {
+    phi_mean <- mean(phi[labeled])
+    pseudo_phi[unlabeled] <- phi_mean
+    pseudo_phi[labeled] <- phi[labeled]  # mantener valores reales
+  } else {
+    # buscar cluster más cercano con PHI
+    centroids <- kmeans_result$centers
+    dists <- apply(centroids, 1, function(c) sum((centroids[cluster_id, ] - c)^2))
+    dists[cluster_id] <- Inf
+    nearest_cluster <- which.min(dists)
+    phi_mean <- mean(phi[clusters == nearest_cluster & !is.na(phi)])
+    pseudo_phi[unlabeled] <- phi_mean
+  }
+}
+
+# Crear pesos: más alto para muestras reales
+weights <- ifelse(is.na(phi), 1, 10)
+
+```
+
+Tercero se entrena el modelo LightGBM utilizando los clusters como etiquetas débiles y los pesos para ajustar la importancia de las muestras reales frente a las no etiquetadas.
+
+```{r semi_supervised_lightgbm}    
+
+# Antes de entrenar el modelo, se eliminan los PHI
+kepler_data <- kepler_data %>%
+  mutate(phi = NULL)
+# Entrenar modelo LightGBM
+# Convertir a matriz de LightGBM
+X_matrix <- as.matrix(features)
+dtrain <- lgb.Dataset(data = X_matrix, label = pseudo_phi, weight = weights)
+
+params <- list(
+  objective = "regression",
+  metric = "l2",
+  learning_rate = 0.05,
+  num_leaves = 31
+)
+
+lgbm_model <- lgb.train(
+  params = params,
+  data = dtrain,
+  nrounds = 100
+)
+
+# Predecir PHI estimado
+phi_pred <- predict(lgbm_model, X_matrix)
+kepler_data$phi_estimated <- phi_pred
+
+```
+
+Interpretación del modelo LightGBM: importancia de las variables
+
+```{r semi_supervised_lightgbm_importance}
+# Importancia de las variables
+lgb.importance(lgbm_model) %>%
+  lgb.plot.importance(top_n = 20, measure = "Gain")
+
+```
+
+Con 17 centroides, el árbol estimado muestra que las variables con mayor importancia no relacionadas con las caracterísiticas del sistema estelar son **ttv_flag** (indicador de tránsito variable), **sy_pnum** (cantidad de planetas en el sistema) y **st_rad** (radio de la estrella central del sistema) son la que se esperaría que tenga un impacto significativo en la habitabilidad, ya que están relacionadas con características físicas del sistema estelar. No es razonable que el modelo haya aprendido a predecir el PHI a partir de la latitud y longitud de los planetas en el firmamento, ya que no deberían influir en la habitabilidad. Sin embargo, es posible que el modelo haya capturado patrones relacionados con la ubicación de los planetas en el espacio de características, lo que podría ser útil para identificar grupos de planetas con características similares.  
+
+Histograma de PHI estimado
+
+```{r semi_supervised_lightgbm_histogram}
+
+# Histograma de PHI estimado
+ggplot(kepler_data, aes(x = phi_estimated)) +
+  geom_histogram(binwidth = 0.05, fill = "steelblue", color = "black", alpha = 0.7) +
+  stat_bin(binwidth = 0.05, geom = "text", aes(label = after_stat(count)),
+           vjust = -0.5, color = "black", size = 3) +
+  scale_x_continuous(breaks = seq(0, 1, by = 0.05)) +
+  labs(title = "Histograma de PHI Estimado",
+       x = "PHI Estimado",
+       y = "Frecuencia") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+```
+
+El histograma de **PHI estimado** muestra una distribución sesgada hacia la derecha con picos en 0, 0.55, 0.65, 0.70 y 0.75, lo que sugiere que el modelo ha aprendido a predecir un valor de PHI relativamente alto para la mayoría de los planetas. **Esto puede ser un indicativo de que el modelo ha capturado patrones en los datos**, pero también puede reflejar la influencia de las etiquetas débiles y la falta de datos reales.`
+
+```{r semi_supervised_habitable_planets}}
+
+# Contar la cantidad de planetas con phi_estimated > 0.70
+habitable_planets <- sum(kepler_data$phi_estimated > 0.70, na.rm = TRUE)
+
+# Contar la cantidad total de planetas
+total_planets <- nrow(kepler_data)
+
+# Calcular el porcentaje de planetas habitables
+percentage_habitable <- (habitable_planets / total_planets) * 100
+
+# Mostrar resultados
+cat("Porcentaje de planetas habitables:", percentage_habitable, "%\n")
+
+```
+
+Si bien hemos con seguido un enfoque semi-supervisado para estimar el PHI, es importante tener en cuenta que la calidad de las predicciones dependerá en gran medida de la calidad de los datos y de la capacidad del modelo para generalizar a partir de las etiquetas débiles. La interpretación de los resultados debe hacerse con cautela, ya que el modelo puede haber aprendido patrones espurios o no representativos. Poniendo un umbral de 0.70 para considerar un planeta habitable, sería esperable que la cantidad de planetas habitables sea minoritarioa; sin embargo la predicción de PHI estimado muestra que más del 68% de los planetas tienen un PHI estimado superior a 0.70, lo que sugiere que el modelo puede haber aprendido patrones espurios o no representativos.
+
+## Comparativa de los modelos de clasificación
+
+La regresión logística, entrenada únicamente sobre los 17 planetas con PHI conocido, **puede ofrecer un buen ajuste local sobre ese conjunto reducido, pero carece completamente de capacidad para generalizar al resto del dataset**. Su utilidad práctica es muy limitada, ya que no permite estimar el índice de habitabilidad para los miles de planetas no etiquetados. Además, al trabajar con tan pocos datos, es extremadamente sensible al ruido y propensa al sobreajuste.
+
+En contraste, el modelo semi-supervisado basado en K-means y LightGBM **utiliza la estructura global de los datos para propagar etiquetas y entrenar un modelo que predice PHI para todo el conjunto**. Aunque puede ser menos preciso en los pocos casos conocidos, gana ampliamente en cobertura, robustez y aplicabilidad. Su capacidad de generalizar y generar hipótesis a partir de un conjunto de datos mayor lo convierte en una herramienta mucho más útil en contextos donde la escasez de etiquetas es la norma.
+
 # Posibles mejoras para futuros análisis
 
-Para mejorar el **modelo de regresión logística**, una posible solución es abordar el problema de los **valores faltantes** en las variables clave utilizadas para calcular el **PHI**: **temperatura de equilibrio (`pl_eqt`), insolación (`pl_insol`) y semieje mayor orbital (`pl_orbsmax`)**. En lugar de descartar todas las observaciones con datos faltantes, se puede aplicar **regresión lineal** para estimar estos valores en función de otras variables relacionadas dentro del conjunto de datos. Al hacer esto, se logra recuperar una mayor cantidad de observaciones, lo que aumentaría el tamaño de la muestra utilizada en la regresión logística y mejoraría la estabilidad del modelo.
+Para mejorar el modelo de regresión logística, es fundamental aplicar técnicas de regularización (como L1 o L2) para mitigar el sobreajuste derivado del escaso número de observaciones. También se recomienda una selección de variables cuidadosa, priorizando aquellas con fuerte correlación con PHI o justificación física. La inclusión de transformaciones no lineales e interacciones puede capturar relaciones más complejas, y el uso de validación cruzada tipo leave-one-out (LOOCV) maximiza el aprovechamiento del conjunto limitado de datos. Alternativamente, una regresión logística bayesiana permitiría incorporar incertidumbre y conocimiento previo sobre los factores que influyen en la habitabilidad.
 
-Sin embargo, utilizar variables estimadas mediante regresión como **input en otro modelo predictivo** conlleva ciertos **riesgos e implicaciones estadísticas**. Cuando una variable ha sido generada mediante una predicción previa, **su error de estimación se transfiere al modelo final**, en este caso, a la regresión logística. Como resultado, el modelo puede **subestimar la incertidumbre real** y producir **intervalos de confianza demasiado optimistas**, ya que no está considerando los errores asociados a las predicciones previas.
-
-Además, el uso de **valores regresionados** puede introducir **colinealidad artificial**, especialmente si la variable imputada depende de otras variables que ya están incluidas en la regresión logística. Esto puede distorsionar los coeficientes y hacer que el modelo sea menos interpretable. También es posible que la **estructura de los errores en las variables imputadas** no sea idéntica a la de los valores observados originalmente, lo que podría generar un sesgo en las estimaciones del modelo.
-
-Para mitigar estos riesgos, se pueden aplicar estrategias como la **validación cruzada** para evaluar el impacto de las variables imputadas en el desempeño del modelo y realizar un **análisis de sensibilidad**, probando el modelo con y sin las variables imputadas para verificar la estabilidad de los resultados. Además, una opción más robusta sería utilizar **métodos de imputación múltiple**, que generan varias versiones de los datos imputados y permiten incorporar la incertidumbre en las predicciones finales.
-
+Para el modelo semi-supervisado, las mejoras se enfocan en refinar la generación de pseudo-etiquetas y aprovechar mejor la estructura del conjunto de datos. Una opción es utilizar pseudo-labeling iterativo, donde el modelo actualiza sus predicciones en ciclos sucesivos. También puede explorarse un ajuste dinámico del número de clusters o el uso de algoritmos de clustering más flexibles. Incorporar embeddings generados por autoencoders o técnicas no supervisadas permitiría representar mejor las relaciones latentes entre planetas. Además, asignar pesos variables a las pseudo-etiquetas según su confiabilidad y validar únicamente sobre los casos con PHI real mejora la robustez y la capacidad de generalización del modelo.
 En conclusión, aunque la regresión lineal de las variables faltantes puede ayudar a recuperar observaciones y mejorar la estabilidad del modelo logístico, es importante ser consciente de los **errores de predicción acumulados** y del impacto que pueden tener en la validez de las estimaciones. Evaluar cuidadosamente estos aspectos garantizará que el modelo final sea más confiable y que sus conclusiones sean interpretadas con la debida cautela.
 
 # Conclusiones

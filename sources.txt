@@ -20,6 +20,8 @@ Kane, Stephen R. & Gelino, Dawn M. (2012) “The Habitable Zone and Extreme Plan
 
 Kopparapu, R. K., Ramirez, R., Kasting, J. F., Eymet, V., Robinson, T. D., Mahadevan, S., Terrien, R. C., Domagal-Goldman, S., Meadows, V., & Deshpande, R. (2013) “Habitable Zones Around Main-Sequence Stars: New Estimates.” https://doi.org/10.1088/0004-637x/765/2/131.
 
+Lee, D.-H. (2013). Pseudo-label: The simple and efficient semi-supervised learning method for deep neural networks. https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=798d9840d2439a0e5d47bcf5d164aa46d5e7dc26 
+
 Malik, A., Moster, B. P., & Obermeier, C. (2021). Exoplanet detection using machine learning. Monthly Notices of the Royal Astronomical Society. https://doi.org/10.1093/mnras/stab3692 
 
 Marín, Daniel. (2011) “Detectando Planetas Desde El Espacio Gracias a Einstein - Eureka.” Eureka. https://danielmarin.naukas.com/2011/05/23/detectando-planetas-desde-el-espacio-gracias-a-einstein/.
@@ -46,3 +48,4 @@ Wolszczan, Aleksander & Frail, D. A. (1992) “A Planetary System Around the Mil
 
 Wu, Dong-Hong. (2023). The possibility of detecting our solar system through astrometry. arXiv.org. https://arxiv.org/abs/2309.11729 
 
+Zhou, D., Bousquet, O., Lal, T. N., Weston, J., & Schölkopf, B. (2004). Learning with local and global consistency. Advances in Neural Information Processing Systems, 16, 321–328. https://proceedings.neurips.cc/paper_files/paper/2003/file/87682805257e619d49b8e0dfdc14affa-Paper.pdf 
