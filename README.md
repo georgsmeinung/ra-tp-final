@@ -1,4 +1,9 @@
-# Trabajo Final - Regresión Avanzada
+![Universidad Austral](logo-md-austral-1.png)
+### Universidad Austral
+### Facultad de Ingeniería
+### MCD 2024/2025
+## Trabajo Final - Regresión Avanzada
+- NICOLAU, Jorge
 
 Este repositorio contiene el trabajo final para la materia de Regresión Avanzada, centrado en el análisis de datos del telescopio Kepler para la detección de exoplanetas.
 
@@ -34,7 +39,7 @@ Este repositorio contiene el trabajo final para la materia de Regresión Avanzad
 
 ## Licencia
 
-Este proyecto se distribuye bajo la Licencia MIT. Consulta el archivo `LICENSE` para más detalles.
+Este proyecto se distribuye bajo la Licencia MIT.
 
 ## Contacto
 
