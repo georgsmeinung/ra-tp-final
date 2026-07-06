@@ -29,6 +29,10 @@
   --sidebar-width: 320px;
 }
 
+html {
+  font-size: 16px !important;
+}
+
 /* Layout overrides */
 body {
   font-family: var(--font-sans) !important;
