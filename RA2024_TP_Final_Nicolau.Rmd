@@ -237,7 +237,7 @@ La detección de exoplanetas es un campo de investigación en constante evoluci�
 
 Incluso NASA anima a la detección amateur de exoplanetas a través de su sitio Exoplanet Watch donde ofrece una guía detallada sobre cómo analizar observaciones de tránsitos de exoplanetas para generar curvas de luz, que representan las variaciones en el brillo de una estrella cuando un planeta pasa frente a ella [@brachman-2024]
 
-##Trabajos relacionados
+## Trabajos relacionados
 
 Hay varios antecedentes del uso de aprendizaje automático y métodos estadísticos para la detección de exoplanetas.
 
